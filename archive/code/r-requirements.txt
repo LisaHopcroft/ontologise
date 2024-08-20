@@ -1,0 +1,13 @@
+ggplot2
+readr
+dplyr
+magrittr
+stringr
+glue
+tidyr
+extrafont
+forcats
+XML
+ggrepel
+mapproj
+maps

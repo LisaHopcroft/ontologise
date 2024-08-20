@@ -1,0 +1,12 @@
+#Date: [DATE]
+#Publ: [PUBL]
+#Page: [PAGE]
+#Term: [TERM]
+---------------------------------------------------
+> 
+---------------------------------------------------
+
+![image]([FILENAME])
+
+(transcript)
+(microformats)

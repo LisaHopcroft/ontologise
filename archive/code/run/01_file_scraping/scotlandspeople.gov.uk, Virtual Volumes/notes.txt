@@ -1,0 +1,16 @@
+
+.container-fluid{ min-width: 100%; }
+
+canvas{ display: none; }
+
+#holder{ height: 100%; }
+
+header{ display: none; }
+
+.region-promotional{ display: none; }
+
+.filter-settings-row{ display: none; }
+
+#waypointing{ display: none; }
+
+next_page = "//*[@id="filters"]/div[1]/ul/li[3]/a"

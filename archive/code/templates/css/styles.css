@@ -1,0 +1,84 @@
+#ontolog{ position: absolute; bottom: 0; left: 0; height: 50vh; width: 100%; background: #fff; border-top: 1px solid #000; }
+
+#ontolog #tabs{ padding: 4px 12px 0 12px; border-bottom: 1px solid #000; }
+#ontolog #tabs a{ display: inline-block; border: 1px solid #000; border-bottom: 0; padding: 8px 10px; }
+
+#ontolog #display{ position: relative; padding: 4px 12px 12px 12px; overflow: scroll; height: calc(50vh - 5em); }
+#ontolog #display #src{ font-size: 1.3em; white-space: pre; padding-top: 15px; }
+
+#ontolog #display #nav div{ column-count: 6; }
+#ontolog #display #nav h2{ font-size: 1em; margin-bottom: 0; border-top: 1px solid #aaa; padding-top: 4px; }
+#ontolog #display #nav a{ text-decoration: none; font-size: 1.1em; line-height: 1.4em; }
+
+
+@media screen and (max-width: 1800px) {
+	#ontolog #display #nav div{ column-count: 5; }
+}
+@media screen and (max-width: 1500px) {
+	#ontolog #display #nav div{ column-count: 4; }
+}
+@media screen and (max-width: 1200px) {
+	#ontolog #display #nav div{ column-count: 3; }
+}
+@media screen and (max-width: 900px) {
+	#ontolog #display #nav div{ column-count: 2; }
+}
+@media screen and (max-width: 600px) {
+	#ontolog #display #nav div{ column-count: 1; }
+}
+
+svg{ max-height: calc(100vh - 2em) !important; min-width: calc(100vw - 24px); }
+
+body {
+	font: 10px sans-serif;
+}
+.linage {
+	fill: none;
+	stroke: #000;
+}
+.marriage {
+	fill: none;
+	stroke: black;
+}
+.marriageNode {
+	background-color: black;
+	border-radius: 50%;
+}
+.man {
+	background-color: #fff;
+	border: 1px solid #aaa;
+	box-sizing: border-box;
+}
+.in_WIN {
+	background-color: red;
+	border: 1px solid #aaa;
+	box-sizing: border-box;
+}
+.in_LWH {
+	background-color: green;
+	border: 1px solid #aaa;
+	box-sizing: border-box;
+}
+.woman {
+	background-color: pink;
+	border-style: solid;
+	border-width: 1px;
+	box-sizing: border-box;
+}
+.unknown {
+	background-color: #ddd;
+	border-style: solid;
+	border-width: 1px;
+	box-sizing: border-box;
+}
+.emphasis{
+	font-style: italic;
+}
+p {
+	padding:0;
+	margin:0;
+}
+svg {
+	border-style: solid;
+	border-width: 1px;
+}
