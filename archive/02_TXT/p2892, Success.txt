@@ -1,0 +1,426 @@
+#[SLAVE-REGISTER]
+##AT:	WIN, GUI, DEM, ESC, Success
+##ATX:	1823_WIN_GUI_DEM_ESC:21
+##DATE:	1823-05-31
+--------------------------------------------------------------------------------
+###	^1:
+###		ENSLAVED*
+###		MALE
+###	^2:
+###		ENSLAVED*
+###		FEMALE
+--------------------------------------------------------------------------------
+>	Occupations:
+>	- Distiller
+>	- Fireman
+>	- Engineer
+>	- Boiler
+
+
+![img](../01_IMG/2892.jpg)
+
+List of Slaves belonging to Plantation Success
+in the lawful Possession of *Fredk Cort* attorney in the 31st of May
+1823 having reference to Schedule No 1527 registered folio 2948 returned
+to the Registrar &c
+###	[CORT, Frederick]
+###		OCC
+###			ROLE[Attorney]*
+>	Gladstone name doesn't appear ...
+
+Male [/]
+###\tPERS_ID\tAGED\tOCC^1
+Active			43		Carpenter		Africa
+###	{78590f81-c36e-465f-85c1-0d37d3df6b72}
+Alpha
+Ajax
+Ajax
+Argyle
+Angus			28		Field			Berbice
+###	{1ef15f39-6865-499a-8b79-4a02fbb675a2}
+Adam
+Addison
+Atton
+Baccleus
+Beffoney		28		Distiller		Demerary
+###	{e59b49f2-91bf-41d9-9f64-1c506c5fa2de}
+Beecher
+Bob
+Bonney
+Ben
+Britain			41		Field			Africa		.
+###	{f8a937ce-46d2-46b3-b941-d8dbbb2c3e20}
+Castor
+Cato			46		Field			Africa		Indifferent
+Charles
+Chance
+Chance
+Christinus
+Con
+Cudjoe
+Cuffy
+Cumberland
+Colin
+Davy
+Davy
+![img](../01_IMG/2893.jpg)
+Davoy
+Dafilinis
+Dovey
+Dick			36		Fireman			Africa
+Dick			26		Engineer		Demerary
+Dick			25		Carpenter		Africa
+###	{d664dacf-cf2f-4ec3-b6da-ac38abd71092}
+Dumfries		38		Carpenter		Africa
+###	{ab607b38-498a-4e4c-86b0-d83de4a3fd0e}
+Dundass
+Dingwall
+Edward
+Fraser
+Frank			40		Boatsman		Africa
+###	{139ec704-ef98-4837-90cb-4b5bb2cb68d7}
+Frederick
+George
+George
+George
+George
+Gosfort
+Granada
+Hamilton
+Hector
+Henry
+Harry			46		Field			Africa
+###	{270f51b1-a909-450b-840e-82b22774b420}
+Hope
+Hugh			24		Distiller		B'does
+###	{c68724f2-e596-402c-9d28-94c82acafe8d}
+Hay				46		Carpenter		Africa		Indifferent Country marks
+Inverness
+Inverness
+Isla
+Isaac
+Jack			28		Cooper			Demerary
+###	{e817bf3b-b2a9-450a-9c1f-e265a0133576}
+Jack			31		Boiler			Africa		Country marks
+Jack			36		Field			Africa		Country marks
+Jackson
+Jem or James
+Jem
+Jem or James
+Jem or James
+Inverness
+![img](../01_IMG/2894.jpg)
+Jessamine		26		Boiler			Berbice		.
+###	{948c42f0-0475-42e8-b86e-f2b68e325a9c}
+Joe				56		Driver			Barbados	.
+Joe				43		Field			Africa		.
+Johnny
+Jupiter
+James
+Leander
+Lennon
+Loyd
+Mars
+Maxwell
+Maximillian		26		Boilerman		Demerary	.
+###	{eb2cae71-1dd5-46d2-9399-6e5baf384c41}
+McFungo
+Michael
+Munroe
+March
+Mercury
+Ned
+Ned
+Prince
+Prince
+Paul
+Peter
+Porcupine
+Phallo
+Prince
+Quamina			52		Carpenter		Demerary	.
+Quashey
+Quashey
+Quaco			36		Puntman			Africa		.
+###	{983189ee-ce9e-4108-a059-9245dd9f67bd}
+Quaco			38		Field			Africa		Indifferent
+Robert
+Rollo
+Richard			42		Driver			Africa		.
+###	{911a00c5-99fc-421c-90bf-ffe4a640ba56}
+Richard			46		Field			Africa		Indifferent
+Setton			48		Boilerman		Africa		Country marks
+###	{fcaff124-cd06-47aa-96c2-8548374e33ab}
+Sandy
+Samson
+![img](../01_IMG/2895.jpg)
+Simon
+Simon
+Success
+Scipio
+Slough
+Smart			40		Field			Africa		Country mks
+###	{47e9f2c6-0054-42dc-b587-a8016592513f}
+Sheldrake		51		Fireman[>?]		Africa		.
+###	{9a026e85-333a-4ada-a847-de8d31f1ae16}
+Scott
+Tait
+Titus
+Tom				50		Driver			Demerary	.
+###	{240d5c82-e859-461d-8239-8e11da219cf0}
+Tom				36		Field			Africa		.
+Titchfield
+Tuam
+Trim
+Trim
+Tarlogie
+Vincent
+Warren
+Windsor			40		Boatsman		Africa		.
+###	{d0c88539-33ed-453b-a22a-4201a6653f50}
+Will
+William			36		Field			Africa		.
+William			33		Fireman			Africa		.
+###	{93280a72-857c-4a50-842a-1c182556aa71}
+York
+York
+Vulcan
+Prince
+Glasgow
+Ralph			54		None			Africa		.
+###	{cc447e62-3ba6-4da8-8e67-fb3881ff78a8}
+I____
+Novar
+Isaac
+John			54		Driver			Africa		mkd on Face
+###	{5cace535-a57f-493a-bdf9-e1be2e28c3d4}
+Quashey
+Harry
+Charles
+Stephen
+Bill
+[/]
+###\tEND
+
+Female [/]
+###\tPERS_ID\tAGED\tOCC^2
+Adjuba
+![img](../01_IMG/2896.jpg)
+Ann
+Ann
+Abba
+Bell
+Belinda
+Bella
+Bella
+Blanch
+Betsy
+Bridget
+Cotilla
+Charlotte
+Charlotte
+Charlotte
+Christian
+Clementina
+Coline
+Chloe
+Delia
+Dolly
+Diana
+Dorinda
+Dorinda
+Eliza
+Eliza
+Elizabeth
+Eve
+Flora
+Flora
+Fanny
+Frances
+Grace
+Grace
+Harriet
+Harriet
+Helen
+Henrietta
+Hannah
+Isabella
+![img](../01_IMG/2897.jpg)
+June
+Jessey
+Johannah
+Judy
+Kate
+Kitty
+Kitty
+Kitty
+Letitia
+Lucy
+Mercy
+Mersy
+Morinnia
+Maggy
+Molly
+Matilda
+Maria
+Maria
+Mary
+Maryann
+Mary
+Me__
+May
+Milly
+Miah
+Nancy
+Phillida
+Pamella
+Peggy
+Peggy
+Peggy
+Patty
+Phoebe
+Princess
+Queen
+Rose
+Rose
+Rose
+Rosie
+![img](../01_IMG/2898.jpg)
+Rosetta
+Rosamond
+Sally
+Sally
+Sarah Grace
+Sophy
+Susan
+Susannah
+Lucy
+Venus
+Venus
+Violet
+Cornelia
+Bes
+Betty
+Betty
+Jannet
+Phoebe
+Sophia
+Mary
+Hannah
+Amelia
+Harriet
+Molly
+Lucinda
+###\tEND
+
+Male [/]
+###\tPERS_ID\tAGED\tOCC^1
+Kenny
+William
+Hamlet
+T___
+Adam
+Peter
+Christmas
+Goodluck
+Bob
+Lewis
+Caesar
+John Easter
+Morris
+Samuel
+![img](../01_IMG/2899.jpg)
+Pitt
+Cudjoe
+Hill
+King
+Welcome
+James
+Cyrus
+Will
+Prince
+Benidick
+Thomas
+Abraham
+Able
+Cato			2 5/12		.			Demerary
+Philip
+Jacob
+Nelson
+Mack
+Sam
+Robert
+Frederick
+William
+Job
+Moses
+[/]
+###\tEND
+
+Female [/]
+###\tPERS_ID\tAGED\tOCC^2
+Williamina
+Mirtella
+Kitty
+Fanny
+Blossom
+Peggy
+Polly or P__
+Jemmy
+Rose
+Holiday
+Venus
+Juliet
+Lizy or Lucy
+Margaret
+Lydia
+![img](../01_IMG/2900.jpg)
+Laurentia
+Sarah
+D__
+___
+Johannah
+Betsy
+Queen
+Hagar
+Jemima
+Rebecca
+Blacky
+Mary Ann
+J__
+Flacey
+Sankey
+Elizabeth
+Catharine
+Catharine
+Priscilla
+Patience
+Judy
+Chloe
+Nelly
+Corah
+###\tEND
+
+[...] Three hundred and Twenty
+Seven being One hundred and Eighty four males and one
+Hundred and Forty Three Females.
+
+[...]
+
+Signed
+Frek Cort Attorney
+
+Reference to former Registration
+
+Registry 1820						326
+Increse by Birth			 		 19
+" " Purchase 117 8 & 112	 		 15
+>	... ?
+
+Decrease by Death			 32
+" " Sale				  	  1		 33
+
+Present Number						327
+
+
+[END]

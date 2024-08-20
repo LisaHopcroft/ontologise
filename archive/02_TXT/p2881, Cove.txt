@@ -1,0 +1,231 @@
+#[SLAVE-REGISTER]
+##AT:	WIN, GUI, DEM, ESC, Cove
+##ATX:	1823_WIN_GUI_DEM_ESC:50
+##DATE:	1823-05-31
+--------------------------------------------------------------------------------
+###	^1:
+###		ENSLAVED*
+###		MALE
+###	^2:
+###		ENSLAVED*
+###		FEMALE
+--------------------------------------------------------------------------------
+
+
+![img](../01_IMG/2881.jpg)
+
+No 2293. List of Slaves belonging to Plantation Cove in the
+lawful Possession of *Benjamin J. Hopkinson* in the 31st May
+1823 having reference to Schedule No 1135 registered Folio 1181 returned
+to the Registrar &c.
+###	[HOPKINSON, Benjamin J]
+###		PROPRIETOR*
+
+###\tPERS_ID\tAGED\tOCC^1
+Tom
+Dublin
+###	{2559592f-84f2-4c0c-8d9a-c5030c68021a}
+Hendrick
+Isaac
+P___
+Toney
+Alick
+###	{58271d8b-4d5a-4499-88d9-29491cce5d52}
+Bristol
+Cudjoe
+Big Ben
+Little Ben
+George
+Hector
+Peter
+Lancaster
+Sampson
+Charles
+![img](../01_IMG/2882.jpg)
+Cato
+Middleton
+James
+Neddy
+Will
+Joe
+Johnny
+Ambrose
+R__
+Barrington
+Cuffy
+Jack
+Leander
+Davy
+Short Frank
+Long Frank
+__
+S__
+Paul
+Sany
+Simon
+York
+Shamfer
+Abel
+Duke
+Rodney
+Hood
+Smith
+Duncan
+America
+Demerara
+Providence
+Mark
+Gamby
+Bob
+Dick
+Philip
+Alexander
+Alfred
+![img](../01_IMG/2883.jpg)
+Donald
+Andrew
+Montrose
+Monday
+Tuesday
+Abraham
+Dover
+Tomba
+Glasgow
+Robert
+Jackey
+Sandy
+###	{688b47c4-dbd7-428f-907e-3d1b41257641}
+John Lewis
+Stephen
+London
+William
+Bacchus
+Welcome
+Richard
+Solomon
+Almond
+Austin			25		Carpenter		Africa		Able
+###	{3fefda53-0a79-4e70-a1bb-0a48344b5ec2}
+Martin
+Adonis
+Michael
+Plato
+Pero
+Sam
+Columbus
+Cupid
+Tom
+John
+Thomas
+Lewis
+Lancaster
+Boatswain
+Mentor
+Nelson
+Samby
+![img](../01_IMG/2884.jpg)
+Isaac
+Caesar
+Harry
+Richardson
+Hamilton
+Cudjoe
+Bristol
+Cupidare
+John
+Emanuel
+Ben
+Hetor
+Fortune
+Wellington
+Henery
+Scipio
+Quashy
+Prince
+James Hodges
+Scott
+Adam
+John
+Cato
+Anthony
+William
+Moses
+Benjamin
+William James
+Jim
+Robin
+Peter
+Kent
+Bath
+Rodney
+Joseph
+George
+Billy
+Wally
+Sammy
+![img](../01_IMG/2885.jpg)
+Willis
+[/]
+###\tEND
+
+Female [/]
+###\tPERS_ID\tAGED\tOCC^2
+Molly
+Venus
+Sarah
+Eve
+Sue
+Hannah
+Mary Ann
+Richard
+Hector
+Leah
+Fanny
+Jean
+Fatima
+Flora
+Maria
+Phoebe
+Rosetta
+Bessy
+Sophia
+Peggy
+Agnes
+Isabella
+Joicey
+Margaret
+Eliza
+Martha
+Amelia
+Eleanor
+Harriet
+Liddy
+M__
+Sally
+Kitty
+Louisa
+Charlotte
+Christina
+Dido
+Rose
+![img](../01_IMG/2886.jpg)
+[...]
+![img](../01_IMG/2887.jpg)
+[...]
+![img](../01_IMG/2888.jpg)
+[...]
+###\tEND
+
+Signed
+B. J. Hopkinson
+
+Reference to former Registration
+
+Registry of 1820			244
+Increase by Birth			27
+							271
+Decrease by Death			6
+Present Number				265
+
+
+[END]
