@@ -1,0 +1,248 @@
+#[SLAVE-REGISTER]
+##AT:	WIN, GUI, DEM, ESC, New Beehive
+##ATX:	1823_WIN_GUI_DEM_ESC:60
+##DATE:	1823-05-31
+--------------------------------------------------------------------------------
+###	^1:
+###		ENSLAVED*
+###		MALE
+###	^2:
+###		ENSLAVED*
+###		FEMALE
+
+
+![img](../01_IMG/2837.jpg)
+
+No 2259. List of Slaves belonging to Plantation New Bee Hive
+in the lawful Possession of *C. H. Van Baerle* by *Michael McTurk*
+on the 31st of May 1823 having Reference to Schedule No 1733 registered
+folio 2024 returned to the Registrar &c.
+###	[VAN BAERLE, C H]
+###		PROPRIETOR*
+###	[M'TURK, Michael]
+###		OCC
+###			ROLE[Agent]*
+
+###\tPERS_ID\tAGED^1
+Alexander
+Andrew
+Bacchus
+Baptist
+Baron
+Belfast
+Ben
+Billy
+Boatswain
+Bob
+Boom
+Brandon
+Brutus
+Camp
+Cape
+Chance
+Charles
+Charlie
+Christmas
+Caisa
+Clytus
+Colin
+Cudjoe
+Cupid
+Cupid
+Cuffee
+Daniel
+Davy
+Duncan
+Dick
+Donald
+Douglas
+Duke
+Edward
+![img](../01_IMG/2838.jpg)
+Edwin
+Francois		26		Field		Demerary
+###	{beb34082-22f0-4945-ba23-6d8be37785c9}
+Frank
+Fox
+Gil Blas
+Glasgow
+Goliah
+Goodluck
+Grange
+George
+Green
+Harris
+Harvey
+Hakey
+Haus__
+Hector
+Harry
+Hercules
+How
+Humphrey
+Jack
+Jacob
+Jemings
+Jerry
+Joe
+John
+Johny
+Jonas
+Isaac
+Jupiter
+Kendall
+King
+Leander
+Lucius
+Mercury
+Mingo
+Murphy
+Ned
+Neptune
+![img](../01_IMG/2839.jpg)
+Nero
+Neutrel
+Nicholas
+Nihill
+Parkerson		38		Field		Africa
+###	{9b9eb960-8497-4c6f-92d8-4428ad304f67}
+Pat
+Peter
+Phill
+Philip
+Pitt
+Prine
+Primo
+Prince
+Quacco
+Quitia
+Robert
+Robertson
+Rooth
+Sampson
+Scipio
+Simon
+Telemachus		20		Field
+Thomas			42		Field		Africa		Scar on forehead
+###	{de39c5da-8ac9-4b92-8ee9-962fa50150b6}
+Tom
+Tommy
+Toney
+Trim
+Tyrrell
+Virginia		25		Field		Demerary
+###	{f378e735-381b-49fc-8486-6f51e5d85f43}
+Welcome
+William
+York
+[/]
+###\tEND
+
+Female [/]
+###\tPERS_ID\tAGED^2
+Amba
+Amelia
+Angelique
+Arabella
+Barbary
+Belinda
+Bella
+![img](../01_IMG/2840.jpg)
+Bess
+Betsy
+Bonah
+Carolisius
+Catherine
+Charlotte
+Chloe
+Clarissa
+Clarissa
+Constance
+Cora
+Cumba
+Daphnie
+Diana
+Dido
+Dolly
+Dorothy
+Dorinda
+Eliza
+Elizabeth
+Ellen
+Elsay
+Eoe
+Fanny
+Fatima
+Flora
+Frances
+Francina
+Franky
+Hannah
+Harriott
+Harriott
+Henrietta
+Jane
+Jeannette
+Jenny
+Jenny
+Julia
+Juno
+![img](../01_IMG/2841.jpg)
+Grace
+Kitty
+Kitty
+Lenah
+Lydia
+Louisa
+Madline
+Mary Ann
+Maria
+Mary
+Margaret
+Margo
+Matilda
+Mercey
+Mominia
+Nancy
+Nanny
+Pamelia
+Patty
+Peggy
+Phoebe
+Phil__
+Polly
+Present
+Princess
+Nell
+Quasheba
+Q__
+Rebecca
+Rose
+Rosey
+Salquia
+Sanchey
+Sandus
+Sarah
+Sophia
+Suckey
+Susannah
+Sylvia
+![img](../01_IMG/2842.jpg)
+Venus
+Violet
+###\tEND
+
+Signed
+Michael McTurk qq
+
+Reference to former Registration
+
+Registry of 1820			203
+Increase by Birth			3
+							206
+
+Decrease by Death			14
+Present Number				192
+
+
+[END]
