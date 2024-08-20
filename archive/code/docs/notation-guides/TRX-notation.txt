@@ -1,0 +1,28 @@
+
+![img]	= Link to image
+
+__		= Untranscribed section - difficulty in transcribing (prev "?" + "??")
+
+[...]	= Ommitted section
+
+//word// = Strikethrough
+
+[=====] = Text obscured in image (by fold or bead weights etc)
+
+[XXXXX] = Text unintelligible
+
+
+Annotations
+===========
+
+[/]     = Paragraph break has been inserted
+
+**word** = Highlight 1
+
+*word*  = Highlight 2
+
+>       = Notes
+
+##		= Coding (see MICROFORMATS.txt)
+
+###		= Microformat (see MICROFORMATS.txt)

@@ -1,0 +1,2 @@
+
+2020-12-15, at around 16:30 started getting 502 errors which broke the script. (Could alter script to handle this: try refreshing after a pause...)

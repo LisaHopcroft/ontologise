@@ -1,0 +1,8 @@
+
+Target:
+- Photos - < 1MB
+- Maps - < 100MB
+
+NO TIF
+
+NO ZIP

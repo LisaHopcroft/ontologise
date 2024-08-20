@@ -1,0 +1,19 @@
+
+# Old:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(4b) Adam Rolland Rainy [1862-]
+	m.1887 Annabella Matheson daug of Hugh M Matheson Esq of Hampstead
+	(1c) Adam Rolland Rainy [1889-]
+	(2c) Agnes Rainy [1892-] born at Toorak, Melbourne
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	
+# New:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+4.	Adam Rolland [1862-]
+	m.	MATHESON, Annabella 'of Hampstead' in 1887 
+	1.	Adam Rolland [1889-]
+	2.	Agnes [1892-] 'born at Toorak, Melbourne'
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Notes: 
+1.	Don't include surname for those in the male line of the tree (in this case Rainy).

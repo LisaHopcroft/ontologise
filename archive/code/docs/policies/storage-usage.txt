@@ -1,0 +1,9 @@
+2016/02/10 - consolidation...
+
+Manus 	27.4 -> 13.9
+Newsp 	15.3 -> 10.4
+Offic 	8.7  -> 5.8
+Maps 	7.1  -> 3.7
+Publ 	3.7  -> 3.4
+
+(gigabytes)
