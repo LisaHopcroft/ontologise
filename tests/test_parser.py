@@ -7,6 +7,7 @@ sys.path.append("code/bin")
 
 from utils import Document
 
+
 def generate_file_header(
     record_type="RECORD_TYPE",
     at_string=", ".join(["A", "B", "C", "D", "E"]),
@@ -28,10 +29,10 @@ def generate_file_header(
 
 @pytest.fixture()
 def document_object_to_test(
-    record_types=["RECORD TYPE 1","RECORD TYPE 2"],
+    record_types=["RECORD TYPE 1", "RECORD TYPE 2"],
     at_strings=["LIST, OF, THINGS", "ANOTHER, LIST, OF, THINGS"],
-    atx_strings=["1800_TEXT_TEXT:00","1850_TEXT_TEXT:01"],
-    date_strings=["1800-01-01","1850-01-01"]
+    atx_strings=["1800_TEXT_TEXT:00", "1850_TEXT_TEXT:01"],
+    date_strings=["1800-01-01", "1850-01-01"],
 ):
     """Returns an example header for testing."""
 
@@ -48,7 +49,6 @@ def document_object_to_test(
 
     with open(temp_f.name, "w") as d:
         d.writelines(test_file_content)
-
 
     test_doc = Document(temp_f.name)
     test_doc.read_document()

@@ -1,5 +1,6 @@
 import re
 
+
 class Document:
     def __init__(self, file=""):
 
@@ -16,7 +17,7 @@ class Document:
     def scan_for_source_header(self, l):
         if l.startswith("#["):
             m = re.search(r"\[(.*?)\]", l)
-            self.source_list.append( m.group(1) )
+            self.source_list.append(m.group(1))
 
     def print_summary(self):
         print(f"Document parsed = {self.file}")
