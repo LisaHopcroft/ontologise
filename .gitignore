@@ -164,6 +164,7 @@ cython_debug/
 
 # To avoid uploading a lot of material
 archive/*.zip
+archive/tests/*
 
 # Stopping those annoying Mac files from being pushed
 .DS_Store
