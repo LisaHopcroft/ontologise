@@ -29,15 +29,9 @@ class Document:
             self.header[flag].append(content)
 
     def print_header_information(self):
-        print(
-            "------------------------------------------------------------------------"
-        )
         for key, value in self.header.items():
             for i, j in enumerate(value):
                 print(f"[{key:{header_length}} {i+1:02}]: {j}")
-            print(
-                "------------------------------------------------------------------------"
-            )
 
     def get_source_list(self):
         return self.source_list
