@@ -55,9 +55,25 @@ def document_object_to_test(
 
     return test_doc
 
-
 def test_header_parse(document_object_to_test):
-    assert document_object_to_test.get_source_list() == [
+    assert document_object_to_test.get_header_information('TITLE') == [
         "RECORD TYPE 1",
         "RECORD TYPE 2",
+    ]
+
+def test_at_parse(document_object_to_test):
+    assert document_object_to_test.get_header_information("AT") == [
+        "LIST, OF, THINGS",
+        "ANOTHER, LIST, OF, THINGS",
+    ]
+
+def test_atx_parse(document_object_to_test):
+    assert document_object_to_test.get_header_information("ATX") == [
+        "1800_TEXT_TEXT:00", "1850_TEXT_TEXT:01"
+    ]
+
+def test_date_parse(document_object_to_test):
+    assert document_object_to_test.get_header_information("DATE") == [
+        "1800-01-01",
+        "1850-01-01",
     ]
