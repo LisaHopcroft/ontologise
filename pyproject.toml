@@ -1,6 +1,6 @@
 [project]
 name = "ontologise"
-version = "0.2"
+version = "0.2.1"
 authors = [
   { name="Lisa Hopcroft", email="LisaEMHopcroft@gmail.com" },
   { name="Michael Hopcroft", email="Michael.Hopcroft@gmail.com" }
