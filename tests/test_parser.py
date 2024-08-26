@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 import sys, os
 
-sys.path.append("code/bin")
+sys.path.append("src/ontologise")
 
 from utils import Document
 
