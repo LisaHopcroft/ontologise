@@ -13,6 +13,8 @@ Welcome to Ontologise's documentation!
    about.rst
    prerequisites.rst
 
+   modules.rst
+
 Indices and tables
 ==================
 
