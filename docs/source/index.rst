@@ -10,6 +10,9 @@ Welcome to Ontologise's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   about.rst
+   prerequisites.rst
+
 Indices and tables
 ==================
 
