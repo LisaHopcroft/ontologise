@@ -13,6 +13,8 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath("../../src/ontologise"))
+sys.path.insert(0, os.path.abspath("../../tests"))
+
 
 print( "sys.path locations (i.e., where Sphinx will look for code):")
 for _n, location in enumerate(sys.path):

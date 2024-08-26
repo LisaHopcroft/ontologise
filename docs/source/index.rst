@@ -14,6 +14,7 @@ Welcome to Ontologise's documentation!
    prerequisites.rst
 
    modules.rst
+   test_parser.rst
 
 Indices and tables
 ==================
