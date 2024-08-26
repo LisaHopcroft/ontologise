@@ -2,22 +2,38 @@ import re
 from collections import defaultdict
 
 header_flags = ["TITLE", "AT", "ATX", "DATE"]
-header_length = len( max(header_flags, key=len) )
+header_length = len(max(header_flags, key=len))
+
 
 class Document:
-    def __init__(self, file=""):
+    """
+    A Document object
+    """
 
+    def __init__(self, file=""):
+        """
+        Defining a document object
+        """
         self.file = file
 
         ### Information about the sources
         self.header = defaultdict(list)
 
     def read_document(self):
+        """
+        Reading a document
+        """
         with open(self.file, "r") as d:
             for l in d:
                 self.scan_for_header_lines(l)
 
     def scan_for_header_lines(self, l):
+        """
+        Function that examines the current input file from file.
+        If it's format corresponds to one of the header formats,
+        appropriate slots in the corresponding Document objects
+        `header` dictionary will be updated with appropriate text.
+        """
         if l.startswith("#["):
             m = re.search(r"\[(.*?)\]", l)
             content = m.group(1)
@@ -29,20 +45,24 @@ class Document:
             self.header[flag].append(content)
 
     def print_header_information(self):
+        """
+        Printing the header information for a document object
+        """
         for key, value in self.header.items():
             for i, j in enumerate(value):
                 print(f"[{key:{header_length}} {i+1:02}]: {j}")
 
-    def get_source_list(self):
-        return self.source_list
-
     def print_summary(self):
+        """
+        Printing a summary of a document
+        """
         print(f"Document parsed = {self.file}")
-
         self.print_header_information()
-        # print( dict(self.header) )
 
-    def get_header_information(self,flag):
+    def get_header_information(self, flag):
+        """
+        Returning the value for a specific flag in a document header
+        
+        :meta public:
+        """
         return self.header[flag]
-    
-
