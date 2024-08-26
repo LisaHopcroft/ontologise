@@ -16,7 +16,7 @@ class Document:
         """
         self.file = file
 
-        ### Information about the sources
+        # Information about the sources
         self.header = defaultdict(list)
 
     def read_document(self):
@@ -24,22 +24,22 @@ class Document:
         Reading a document
         """
         with open(self.file, "r") as d:
-            for l in d:
-                self.scan_for_header_lines(l)
+            for line in d:
+                self.scan_for_header_lines(line)
 
-    def scan_for_header_lines(self, l):
+    def scan_for_header_lines(self, line):
         """
         Function that examines the current input file from file.
         If it's format corresponds to one of the header formats,
         appropriate slots in the corresponding Document objects
         `header` dictionary will be updated with appropriate text.
         """
-        if l.startswith("#["):
-            m = re.search(r"\[(.*?)\]", l)
+        if line.startswith("#["):
+            m = re.search(r"\[(.*?)\]", line)
             content = m.group(1)
             self.header["TITLE"].append(content)
-        elif re.match(r"^##\w+:", l):
-            m = re.search(r"^##(.*?):\s+(.*?)$", l)
+        elif re.match(r"^##\w+:", line):
+            m = re.search(r"^##(.*?):\s+(.*?)$", line)
             flag = m.group(1)
             content = m.group(2)
             self.header[flag].append(content)
@@ -62,7 +62,5 @@ class Document:
     def get_header_information(self, flag):
         """
         Returning the value for a specific flag in a document header
-        
-        :meta public:
         """
         return self.header[flag]
