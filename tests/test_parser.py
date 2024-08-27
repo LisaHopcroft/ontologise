@@ -1,6 +1,7 @@
 import sys
 import pytest
 import tempfile
+import inspect
 from pathlib import Path
 
 sys.path.append("src/ontologise")
@@ -28,19 +29,19 @@ def generate_file_header(
 
 
 @pytest.fixture()
-def document_object_to_test(
-    record_types=["RECORD TYPE 1", "RECORD TYPE 2"],
-    at_strings=["LIST, OF, THINGS", "ANOTHER, LIST, OF, THINGS"],
-    atx_strings=["1800_TEXT_TEXT:00", "1850_TEXT_TEXT:01"],
-    date_strings=["1800-01-01", "1850-01-01"],
+def default_document(
+    title=["A", "B"],
+    at=["C", "D"],
+    atx=["E", "F"],
+    date=["G", "H"],
 ):
     """Returns an example header for testing."""
 
     test_file_content = ""
 
-    for i in range(0, len(record_types)):
+    for i in range(0, len(title)):
         this_text = generate_file_header(
-            record_types[i], at_strings[i], atx_strings[i], date_strings[i]
+            title[i], at[i], atx[i], date[i]
         )
 
         test_file_content = f"{test_file_content}{this_text}"
@@ -55,28 +56,21 @@ def document_object_to_test(
 
     return test_doc
 
-def test_header_parse(document_object_to_test):
-    assert document_object_to_test.get_header_information('TITLE') == [
-        "RECORD TYPE 1",
-        "RECORD TYPE 2",
-    ]
+default_header_values = inspect.signature(default_document).parameters.items()
+default_header_values_hash = {}
 
-def test_at_parse(document_object_to_test):
-    assert document_object_to_test.get_header_information("AT") == [
-        "LIST, OF, THINGS",
-        "ANOTHER, LIST, OF, THINGS",
-    ]
+for i, val in enumerate(default_header_values):
+    param_name = val[0]
+    param_default = inspect.signature(default_document).parameters[param_name].default
+    default_header_values_hash.update({param_name.upper(): param_default})
 
-def test_atx_parse(document_object_to_test):
-    assert document_object_to_test.get_header_information("ATX") == [
-        "1800_TEXT_TEXT:00", "1850_TEXT_TEXT:01"
-    ]
 
-def test_date_parse(document_object_to_test):
-    assert document_object_to_test.get_header_information("DATE") == [
-        "1800-01-01",
-        "1850-01-01",
-    ]
+@pytest.mark.parametrize("tag", default_header_values_hash.keys())
+def test_header_parse(default_document,tag):
+    assert (
+        default_document.get_header_information(tag)
+        == default_header_values_hash[tag]
+    )
 
 
 extra_header_tag = extra_header_value = "TEST"
@@ -141,11 +135,11 @@ def create_file_with_extra_header_tag(
     return test_doc
 
 
-def test_extra_header_tag_is_absent(document_object_to_test):
+def test_extra_header_tag_is_absent(default_document):
     """
     Testing that an extra header tag is absent when it should be.
     """
-    assert document_object_to_test.get_header_information(extra_header_tag) == []
+    assert default_document.get_header_information(extra_header_tag) == []
 
 
 def test_extra_header_tag_is_present(create_file_with_extra_header_tag):
