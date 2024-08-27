@@ -2,7 +2,6 @@ import sys
 import pytest
 import tempfile
 import inspect
-from pathlib import Path
 
 sys.path.append("src/ontologise")
 

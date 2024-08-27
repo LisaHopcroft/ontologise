@@ -17,7 +17,11 @@ pytest --rootdir=tests
 pytest --rootdir=tests --cov=src
 
 # Generate requirements files
-pipreqs --savepath=requirements.in src/ && pip-compile --strip-extras
+pipreqs --savepath=requirements.in src/
+pip-compile -r --strip-extras requirements.in -o requirements.txt
+
+# pipreqs --savepath=requirements_tests.in tests/
+# pip-compile -r --strip-extras requirements_tests.in -o requirements_tests.txt
 
 # Test build
 python3 -m build
