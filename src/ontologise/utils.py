@@ -1,8 +1,6 @@
 import re
+import yaml
 from collections import defaultdict
-
-header_flags = ["TITLE", "AT", "ATX", "DATE"]
-header_length = len(max(header_flags, key=len))
 
 
 class Document:
@@ -10,14 +8,29 @@ class Document:
     A Document object
     """
 
-    def __init__(self, file=""):
+    def __init__(self, file="", settings_file="settings.yaml"):
         """
         Defining a document object
         """
         self.file = file
 
+        # Read settings file
+        self.read_settings_file(settings_file)
+
         # Information about the sources
         self.header = defaultdict(list)
+
+    def read_settings_file(self, file):
+        settings = ""
+
+        with open(file) as stream:
+            try:
+                settings = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+
+        self.header_tags = ["TITLE"] + settings["header_tags"]
+        self.header_length = len(max(self.header_tags, key=len))
 
     def read_document(self):
         """
@@ -50,7 +63,7 @@ class Document:
         """
         for key, value in self.header.items():
             for i, j in enumerate(value):
-                print(f"[{key:{header_length}} {i+1:02}]: {j}")
+                print(f"[{key:{self.header_length}} {i+1:02}]: {j}")
 
     def print_summary(self):
         """

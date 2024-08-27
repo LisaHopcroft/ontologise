@@ -14,10 +14,14 @@ ruff check src --output-format=github
 pytest --rootdir=tests
 
 # Check coverage
-pytest --rootdir=tests --cov=src
+pytest --rootdir=tests --cov=src --cov-report term-missing
 
 # Generate requirements files
-pipreqs --savepath=requirements.in src/ && pip-compile --strip-extras
+pipreqs --savepath=requirements.in src/
+pip-compile -r --strip-extras requirements.in -o requirements.txt
+
+# pipreqs --savepath=requirements_tests.in tests/
+# pip-compile -r --strip-extras requirements_tests.in -o requirements_tests.txt
 
 # Test build
 python3 -m build
