@@ -14,7 +14,7 @@ ruff check src --output-format=github
 pytest --rootdir=tests
 
 # Check coverage
-pytest --rootdir=tests --cov=src
+pytest --rootdir=tests --cov=src --cov-report term-missing
 
 # Generate requirements files
 pipreqs --savepath=requirements.in src/
