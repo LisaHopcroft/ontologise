@@ -75,13 +75,16 @@ def test_header_parse(default_document,tag):
 
 extra_header_tag = extra_header_value = "TEST"
 
+extra_tag_list = list(default_header_values_hash.keys()) + [ extra_header_value ]
+extra_tag_list.remove("TITLE")
+extra_tag_list_string = "\n".join(
+    ["  - {}".format(t) for t in extra_tag_list]
+)
+
+extra_tag_settings = f"header_tags:\n{extra_tag_list_string}"
+
 @pytest.fixture()
-def create_file_with_extra_header_tag(
-    record_types=["A"],
-    at_strings=["B"],
-    atx_strings=["C"],
-    date_strings=["D"],
-):
+def create_file_with_extra_header_tag():
     """
     Returns an example Document object that has an extra tag
     in the header, and has been parsed using an appropriate
@@ -100,9 +103,8 @@ def create_file_with_extra_header_tag(
     """
 
     # Create the header
-    test_file_content = generate_file_header(
-        record_types, at_strings, atx_strings, date_strings
-    )
+    test_file_content = generate_file_header()
+
     test_file_content = (
         f"""
 {test_file_content}
@@ -115,16 +117,9 @@ def create_file_with_extra_header_tag(
         d.writelines(test_file_content)
 
     # Create the settings yaml file
-    settings_content = f"""header_tags:
-    - AT
-    - ATX
-    - DATE
-    - {extra_header_value}
-    """
-
     temp_f2 = tempfile.NamedTemporaryFile()
     with open(temp_f2.name, "w") as d:
-        d.writelines(settings_content)
+        d.writelines(extra_tag_settings)
 
     test_doc = Document(file = temp_f1.name,
                         settings_file = temp_f2.name)
