@@ -39,6 +39,7 @@ ch.setFormatter(CustomFormatter())
 
 logger.addHandler(ch)
 
+
 class Peopla:
     """
     A Peopla object
@@ -50,16 +51,19 @@ class Peopla:
         self.attributes = {}
         logger.info(f"Creating PEOPLA object: {self.name} ({self.type})")
 
-    def add_attribute( self, attribute_text, inheritance ):
+    def add_attribute(self, attribute_text, inheritance):
         self.attributes[attribute_text] = inheritance
-        logger.debug(f"This is what is to be inherited:")
-        print( inheritance )
-        logger.info(f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})")
+        logger.debug("This is what is to be inherited:")
+        print(inheritance)
+        logger.info(
+            f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
+        )
 
-    def print_peopla( self ):
+    def print_peopla(self):
         logger.debug(f"I found this {self.type} PEOPLA called {self.name}")
-        logger.debug(f"It has the following attributes:")
-        print( self.attributes )
+        logger.debug("It has the following attributes:")
+        print(self.attributes)
+
 
 class Document:
     """
@@ -104,7 +108,7 @@ class Document:
         with open(self.file, "r") as d:
             for line in d:
                 line_num += 1
-                logger.debug( f"Reading line #{line_num}: {line.rstrip()}")
+                logger.debug(f"Reading line #{line_num}: {line.rstrip()}")
                 self.scan_for_header_lines(line)
                 self.scan_for_peopla_lines(line)
                 if self.peopla_live:
@@ -117,21 +121,21 @@ class Document:
 
         if re.match(r"^\s+$", line):
             if self.peopla_live:
-                logger.debug(f"Resetting peopla")
+                logger.debug("Resetting peopla")
 
             self.peopla_live = False
 
     def scan_for_peopla_attributes(self, line):
-        logger.debug( f"Looking for peopla attributes in {line}")
+        logger.debug(f"Looking for peopla attributes in {line}")
 
         if re.match(r"^###\t\t[^\*]+\*?$", line):
-            logger.debug( f"FOUND a peopla attribute")
+            logger.debug("FOUND a peopla attribute")
 
             m = re.search(r"^###\t\t([^\*]+)(\*?)$", line)
             attribute_text = m.group(1).rstrip()
             inheritance_flag = m.group(2).rstrip()
             logger.debug(f"Identified '{attribute_text}' / '{inheritance_flag}'")
-            inheritance_hash = {} if ( inheritance_flag != "*" ) else self.header
+            inheritance_hash = {} if (inheritance_flag != "*") else self.header
 
             (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
             self.peopla_live = True
@@ -148,7 +152,7 @@ class Document:
             place_flag = m.group(1)
             content = m.group(2)
             logger.debug(f"Identified '{place_flag}' / '{content}'")
-            self.peoplas.append( Peopla(content, place_flag == "@") )
+            self.peoplas.append(Peopla(content, place_flag == "@"))
             self.peopla_live = True
 
     def scan_for_header_lines(self, line):
@@ -186,7 +190,7 @@ class Document:
         self.print_header_information()
 
         for p in self.peoplas:
-            p.print_peopla( )
+            p.print_peopla()
 
     def get_header_information(self, flag):
         """
