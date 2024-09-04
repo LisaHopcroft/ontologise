@@ -230,7 +230,6 @@ generate_file_header_string_defaults = extract_default_values_hash(
     generate_file_header_string
 )
 
-
 def test_default_peopla_parse(document_with_two_peopla):
 
     for i in range(0, len(document_with_two_peopla.peoplas)):
@@ -244,6 +243,10 @@ def test_default_peopla_parse(document_with_two_peopla):
         hash_for_comparison = {}
         if document_with_two_peopla_defaults["MARKER"][i]=="*":
             hash_for_comparison = generate_file_header_string_defaults
+            try:
+                hash_for_comparison.pop("TITLE")
+            except KeyError:
+                pass
 
         assert dict(p.attributes[attr]) == hash_for_comparison
 
@@ -261,5 +264,9 @@ def test_two_attribute_peopla_parse(document_with_two_peopla_attributes):
         hash_for_comparison = {}
         if document_with_two_peopla_attributes_defaults["MARKER"][i] == "*":
             hash_for_comparison = generate_file_header_string_defaults
+            try:
+                hash_for_comparison.pop("TITLE")
+            except KeyError:
+                pass
 
         assert dict(p.attributes[attr]) == hash_for_comparison

@@ -135,7 +135,11 @@ class Document:
             attribute_text = m.group(1).rstrip()
             inheritance_flag = m.group(2).rstrip()
             logger.debug(f"Identified '{attribute_text}' / '{inheritance_flag}'")
-            inheritance_hash = {} if (inheritance_flag != "*") else self.header
+
+            inheritance_hash = {}
+            if inheritance_flag == "*":
+                inheritance_hash = self.header
+                inheritance_hash.pop("TITLE")
 
             (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
             self.peopla_live = True
