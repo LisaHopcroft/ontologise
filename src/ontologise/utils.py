@@ -59,7 +59,7 @@ class Peopla:
             f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
         )
 
-    def print_peopla(self):
+    def print_peopla(self):  # pragma: no cover
         logger.debug(f"I found this {self.type} PEOPLA called {self.name}")
         logger.debug("It has the following attributes:")
         print(self.attributes)
@@ -186,7 +186,7 @@ class Document:
             for i, j in enumerate(value):
                 print(f"[{key:{self.header_length}} {i+1:02}]: {j}")
 
-    def print_summary(self):
+    def print_summary(self):  # pragma: no cover
         """
         Printing a summary of a document
         """
