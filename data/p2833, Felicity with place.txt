@@ -20,7 +20,7 @@ in the lawful Possession of *Michael M'Turk* on the 31st of
 May 1823 having Reference to Schedule No 2188 registered
 folio 2576 Returned to the Registrar &c
 ###	[M'TURK, Michael]
-###		PROPRIETOR*
+###		PROPRIETOR
 
 ###\tPERS_ID\tAGED\tOCC^1
 William
@@ -60,6 +60,9 @@ Dale
 James
 [/]
 ###\tEND
+
+###	@[Somewhere]
+###		PLN*
 
 Female
 ###\tPERS_ID\tAGED\tOCC^2
