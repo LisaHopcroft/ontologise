@@ -35,6 +35,7 @@ def generate_file_header_string(
 ##AT:	{at}
 ##ATX:	{atx}
 ##DATE:	{date}
+
 """
 
     return file_header_string
@@ -145,16 +146,23 @@ def test_extra_header_tag_is_present(document_with_extra_header_tag):
 def generate_peopla_object(
         name="A",
         type="person",
-        attribute="X",
-        inherit=True
+        attribute=["X"],
+        marker=["*"]
 ):
 
-    peopla_string = f"""
-###\t{"@" if type=="place" else ""}[{name}]
-###\t\t{attribute}{"*" if inherit else ""}
-"""
+    peopla_string = f"""###\t{"@" if type=="place" else ""}[{name}]"""
 
-    return peopla_string
+    if isinstance(attribute, list):
+        for i, v in enumerate(attribute):
+            peopla_string = f"""{peopla_string}
+###\t\t{v}{marker[i]}"""
+    else:
+        peopla_string = f"""{peopla_string}
+###\t\t{attribute}{marker}"""
+
+    return f"""{peopla_string}
+
+"""
 
 
 @pytest.fixture()
@@ -162,16 +170,42 @@ def document_with_two_peopla(
     name=["A", "B"],
     type=["person", "place"],
     attribute=["X", "Y"],
-    inherit=[True, False],
+    marker=["*", ""],
 ):
     """Returns an example peopla string for testing."""
 
     test_file_content = generate_file_header_string()
 
     for i in range(0, len(name)):
-        this_text = generate_peopla_object(name[i], type[i], attribute[i], inherit[i])
+        this_text = generate_peopla_object(
+            name[i], type[i], attribute[i], marker[i]
+        )
 
         test_file_content = f"{test_file_content}{this_text}"
+
+    temp_f = tempfile.NamedTemporaryFile()
+
+    with open(temp_f.name, "w") as d:
+        d.writelines(test_file_content)
+
+    test_doc = Document(temp_f.name)
+    test_doc.read_document()
+
+    return test_doc
+
+
+@pytest.fixture()
+def document_with_two_peopla_attributes(
+    name="A",
+    type="person",
+    attribute=["X", "Y"],
+    marker=["*", ""],
+):
+    test_file_content = generate_file_header_string()
+
+    this_text = generate_peopla_object(name, type, attribute, marker)
+
+    test_file_content = f"{test_file_content}{this_text}"
 
     temp_f = tempfile.NamedTemporaryFile()
 
@@ -188,9 +222,14 @@ document_with_two_peopla_defaults = extract_default_values_hash(
     document_with_two_peopla
 )
 
+document_with_two_peopla_attributes_defaults = extract_default_values_hash(
+    document_with_two_peopla_attributes
+)
+
 generate_file_header_string_defaults = extract_default_values_hash(
     generate_file_header_string
 )
+
 
 def test_default_peopla_parse(document_with_two_peopla):
 
@@ -203,7 +242,24 @@ def test_default_peopla_parse(document_with_two_peopla):
         assert attr == document_with_two_peopla_defaults["ATTRIBUTE"][i]
 
         hash_for_comparison = {}
-        if document_with_two_peopla_defaults["INHERIT"][i]:
+        if document_with_two_peopla_defaults["MARKER"][i]=="*":
+            hash_for_comparison = generate_file_header_string_defaults
+
+        assert dict(p.attributes[attr]) == hash_for_comparison
+
+
+def test_two_attribute_peopla_parse(document_with_two_peopla_attributes):
+
+    for i in range(0, len(document_with_two_peopla_attributes.peoplas)):
+        p = document_with_two_peopla_attributes.peoplas[i]
+        assert p.name == document_with_two_peopla_attributes_defaults["NAME"][i]
+        assert p.type == document_with_two_peopla_attributes_defaults["TYPE"][i]
+
+        attr = next(iter(p.attributes.keys()))
+        assert attr == document_with_two_peopla_attributes_defaults["ATTRIBUTE"][i]
+
+        hash_for_comparison = {}
+        if document_with_two_peopla_attributes_defaults["MARKER"][i] == "*":
             hash_for_comparison = generate_file_header_string_defaults
 
         assert dict(p.attributes[attr]) == hash_for_comparison
