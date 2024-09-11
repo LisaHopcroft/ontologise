@@ -1,0 +1,35 @@
+#[SLAVE-REGISTER]
+##AT:	WIN, GUI, DEM, ESC, Felicity
+##ATX:	1823_WIN_GUI_DEM_ESC:19
+##DATE:	1823-05-31
+--------------------------------------------------------------------------------
+
+###\tPERS_ID\tAGED\tOCC^1
+William
+Church			36		Field		Able		Africa
+###	{acbce1c7-cea4-4f46-9b94-83821eb01ff1}
+[/]
+###\tEND
+
+Female
+###\tPERS_ID\tAGED\tOCC^2
+Amelia
+Betsey
+[/]
+###\tEND
+
+Male [/]
+###\tPERS_ID\tAGED\tOCC^1
+Joe
+Jack			41		Field		Able		Africa
+###	{c611c181-4b65-4b33-8542-3b473881673b}
+###\tEND
+
+Female [/]
+###\tPERS_ID\tAGED\tOCC^2
+Adjuiba
+Jessy
+###\tEND
+
+
+[END]
