@@ -3,6 +3,7 @@ import yaml
 from collections import defaultdict
 import logging
 
+data_point_separator = "\\t"
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
@@ -39,6 +40,31 @@ ch.setFormatter(CustomFormatter())
 
 logger.addHandler(ch)
 
+class DataTable:
+
+    def __init__( self, fields ):
+        self.column_names = fields
+        self.column_num = len( fields )
+
+class DataPoint:
+
+    def __init__( self, list, table ):
+
+        logger.debug(f"data point list provided [{list}]")
+        logger.debug(f"needs to fit into [{table.column_num}] slots")
+
+        if len(list) < table.column_num:
+            list += [''] * (table.column_num - len(list))
+        elif len(list) > table.column_num:
+            list = list[: table.column_num]
+
+        logger.debug(f"list doctored to [{list}]")
+
+        tuples = [
+            (key, value)
+            for i, (key, value) in enumerate(zip(table.column_names, list))
+        ]
+        self.cells = dict(tuples)
 
 class Peopla:
     """
@@ -88,6 +114,13 @@ class Document:
         self.peopla_live = False
         self.peoplas = []
 
+        # Saving the data tables
+        self.data_table_live = False
+        self.data_tables = []
+
+        # Saving the data points
+        self.data_points = []
+
     def read_settings_file(self, file):
         settings = ""
 
@@ -111,8 +144,13 @@ class Document:
                 logger.debug(f"Reading line #{line_num}: {line.rstrip()}")
                 self.scan_for_header_lines(line)
                 self.scan_for_peopla_lines(line)
+
                 if self.peopla_live:
                     self.scan_for_peopla_attributes(line)
+                elif self.data_table_live:
+                    self.scan_for_data_points(line)
+                else:
+                    self.scan_for_data_table_header(line)
 
                 self.reset(line)
 
@@ -122,8 +160,62 @@ class Document:
         if re.match(r"^\s+$", line):
             if self.peopla_live:
                 logger.debug("Resetting peopla")
+            if self.data_table_live:
+                logger.debug("Resetting data table")
 
             self.peopla_live = False
+            self.data_table_live = False
+
+    def scan_for_data_table_header(self, line):
+        """
+        Function that exmaines the current input file from file.
+        If it's format corresponds to the header of a data table,
+        a new object will be created and added to the list of
+        data tables that are attached to the Document.
+        """
+
+        if re.match(rf"^###{re.escape(data_point_separator)}.*$", line):
+            # if re.match(r"^###\t[^\^]{1}.*$", line):
+            m = re.search(
+                rf"^###{re.escape(data_point_separator)}([^\^]*)(\^\d+)?$", line
+            )
+            header_content = m.group(1)
+            header_shorthand = m.group(2)
+            header_columns = header_content.split(data_point_separator)
+            logger.debug(f"Identified table header: '{header_content}'")
+            logger.debug(f"with {len(header_columns)} columns")
+            logger.debug(f"with shorthand: {header_shorthand}")
+
+            # m = re.search(rf"^###{re.escape(data_point_separator)}(.*)$", line)
+            # header_content    = m.group(1)
+            # header_columns = header_content.split(data_point_separator)
+            # logger.debug(f"Identified table header: '{header_content}'")
+            # logger.debug(f"with {len(header_columns)} columns")
+
+            self.data_tables.append(DataTable(header_columns))
+            self.data_table_live = True
+
+    def scan_for_data_points(self, line):
+        logger.debug(f"Looking for data table content in {line}")
+
+        current_table = (self.data_tables[-1])
+
+        if re.match(rf"^###{re.escape(data_point_separator)}END$", line):
+            logger.debug("End of table")
+            self.data_table_live = False
+        elif re.match(rf"^\[/\]$", line):
+            logger.debug("Ignore (line break not relevant)")
+        elif re.match(rf"^!.*$", line):
+            logger.debug("Ignore (line starts with !)")
+        elif re.match(r"^###\t\{.*\}$", line):
+            # --- Functionality to be added ---
+            # This is a globcal identifier to be added to the
+            # immediately preceeding data point
+            logger.debug( f"FOUND a global identifer")
+        else:
+            content_list = re.split("\t+",line.rstrip())
+            logger.debug(f"FOUND {len(content_list)} data points for the table")
+            self.data_points.append( DataPoint(content_list, current_table) )
 
     def scan_for_peopla_attributes(self, line):
         logger.debug(f"Looking for peopla attributes in {line}")
@@ -195,6 +287,9 @@ class Document:
 
         for p in self.peoplas:
             p.print_peopla()
+
+        for d in self.data_points:
+            print(d.cells)
 
     def get_header_information(self, flag):
         """
