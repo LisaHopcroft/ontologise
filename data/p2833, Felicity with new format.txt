@@ -1,0 +1,207 @@
+#[SLAVE-REGISTER]
+##AT:	WIN, GUI, DEM, ESC, Felicity
+##ATX:	1823_WIN_GUI_DEM_ESC:19
+##DATE:	1823-05-31
+--------------------------------------------------------------------------------
+###	^1:
+###		ENSLAVED*
+###		!MALE
+###	^2:
+###		ENSLAVED*
+###		!FEMALE
+--------------------------------------------------------------------------------
+>	No indicative occupations
+
+
+![img](../01_IMG/2833.jpg)
+
+No 2258. List of Slaves belonging to Plantation Felicity
+in the lawful Possession of *Michael M'Turk* on the 31st of
+May 1823 having Reference to Schedule No 2188 registered
+folio 2576 Returned to the Registrar &c
+###	[M'TURK, Michael]
+###		PROPRIETOR
+
+###\tPERS_ID\tENSLAVED:AGED\tENSLAVED:ROLE^1
+William
+Dale
+Sandy
+Anson
+Abercromy
+Church			36		Field		Able		Africa
+###	{acbce1c7-cea4-4f46-9b94-83821eb01ff1}
+Colin
+Coffee
+Francis
+Gordon
+Hendrick
+Hector
+Hutcheson
+Rodney
+Sam
+Sutherland
+Tom
+Trim
+Quaco
+Keith
+Coffee
+Inverness
+Munro
+George
+Horatio
+Johnny
+![img](../01_IMG/2834.jpg)
+Don
+Quashy
+Fortune
+Ben
+Caesar
+Dale
+James
+[/]
+###\tEND
+
+
+Female
+###\tPERS_ID\tENSLAVED:AGED\tENSLAVED:ROLE^2
+Amelia
+Betsey
+Cumba
+Caroline
+Clarissa
+Charlotte
+Dutchess
+Francina
+Hellen
+Houter
+Nanny
+Nelly
+Peggy
+Putty
+Queen
+Rose
+Iris
+Sophy
+Bella
+Bella
+Eve
+Jane
+Cora
+Lucy
+Hannah
+Nanny
+Sophia
+Maria
+Queen
+Polly
+Sylvia
+Jennette
+![img](../01_IMG/2835.jpg)
+Pamelia
+Elizabeth
+Sally
+Mary
+Amelia
+[/]
+###\tEND
+
+Male [/]
+###\tPERS_ID\tENSLAVED:AGED\tENSLAVED:ROLE^1
+Joe
+Durham
+Jack			41		Field		Able		Africa
+###	{c611c181-4b65-4b33-8542-3b473881673b}
+Adoe
+Billy
+Quamina
+Sam
+Harry
+Parker
+Achilles
+Moses
+George
+[/]
+###\tEND
+
+Female [/]
+###\tPERS_ID\tENSLAVED:AGED\tENSLAVED:ROLE^2
+Adjuiba
+Jessy
+Mary
+SYlvia
+Bella
+Anny
+Juno
+Hero
+Kitty
+Bino
+Phillis
+Flora
+Clio
+Pallas
+Lilly
+Tinah
+Peggy
+Nncy
+Affiba
+Polly
+S___
+M___
+###\tEND
+
+![img](../01_IMG/2836.jpg)
+
+Male [/]
+###\tPERS_ID\tENSLAVED:AGED\tENSLAVED:ROLE^1
+Bethune
+Heap
+Sancho
+Trim
+W__
+Christmas
+Aleck
+Graham
+Charlie
+Simon
+Bowman
+Lovelace
+Tom George
+Rodney
+Priam
+[/]
+###\tEND
+
+Female [/]
+###\tPERS_ID\tENSLAVED:AGED\tENSLAVED:ROLE^2
+Celia
+Roslina
+Adjuba
+Catharina
+[/]
+###\tEND
+
+Male [/]
+###\tPERS_ID\tENSLAVED:AGED\tENSLAVED:ROLE^1
+Hebe
+Prince
+Phillip
+[/]
+###\tEND
+
+Female [/]
+###\tPERS_ID\tENSLAVED:AGED\tENSLAVED:ROLE^2
+Sarah
+Fanny
+Venus
+Adjiba
+Cara
+Eve
+###\tEND
+
+Reference to Registry of 1820		145
+Increase by Birth					4		149
+Decrease by Death					17		17
+											132
+
+
+[END]
