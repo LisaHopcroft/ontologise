@@ -110,6 +110,10 @@ class Document:
         # Information about the sources
         self.header = defaultdict(list)
 
+        # Saving information about shortcuts
+        self.shortcut_live = False
+        self.shortcuts = []
+
         # Saving the Peopla objects
         self.peopla_live = False
         self.peoplas = []
@@ -142,8 +146,12 @@ class Document:
             for line in d:
                 line_num += 1
                 logger.debug(f"Reading line #{line_num}: {line.rstrip()}")
-                self.scan_for_header_lines(line)
-                self.scan_for_peopla_lines(line)
+
+                if self.shortcut_live:
+                    if not self.scan_for_shortcut_lines(line):
+                        self.scan_for_shortcut_definition(line)
+                else:
+                    self.scan_for_shortcut_lines(line)
 
                 if self.peopla_live:
                     self.scan_for_peopla_attributes(line)
@@ -152,6 +160,10 @@ class Document:
                 else:
                     self.scan_for_data_table_header(line)
 
+                self.scan_for_header_lines(line)
+                self.scan_for_peopla_lines(line)
+
+                #print( f"ASDFASDF: {self.shortcuts}")
                 self.reset(line)
 
     def reset(self, line):
@@ -162,9 +174,67 @@ class Document:
                 logger.debug("Resetting peopla")
             if self.data_table_live:
                 logger.debug("Resetting data table")
+            if self.shortcut_live:
+                logger.debug( "Resetting shortcut")
 
             self.peopla_live = False
             self.data_table_live = False
+            self.shortcut_live = False
+
+    def scan_for_shortcut_lines(self, line):
+        """
+        Function that exmaines the current input file from file.
+        If it's format corresponds to a shortcut definition,
+        a new shortcut object will be created and added to the
+        list of shortcuts that are attached to the Document.
+        """
+        if re.match(rf"^###\t\^\d+:$", line):
+            logger.debug(f"Identified shortcut line: '{line}'")
+
+            m = re.search(r"^###\t\^(\d+):$", line)
+            shortcut_id = m.group(1)
+            logger.debug(f"with shortcut id: {shortcut_id}")
+
+            self.shortcut_live = True
+            self.shortcuts.append( { shortcut_id: {} } )
+            return( True )
+        else:
+            return( False )
+
+    def create_inheritance_hash(self, flag):
+        h = {}
+        if flag == "*":
+            h = dict(self.header)
+            h.pop("TITLE",None)
+        return(h)
+
+    def scan_for_shortcut_definition(self, line):
+        if re.match(r"^###\t[^\*\[\]\{\}]+\*?$", line):
+            logger.debug("FOUND a short cut definition")
+
+            current_shortcut = self.shortcuts[-1]
+            current_shortcut_key = list(current_shortcut.keys())[0]
+
+            m = re.search(r"^###\s*(\!?)([^\*]+)(\*?)$", line)
+
+            property_flag = m.group(1).rstrip()
+            action_text = m.group(2).rstrip()
+            inheritance_flag = m.group(3).rstrip()
+
+            logger.debug(f"Identified shortcut content: '{property_flag}' / '{action_text}' / '{inheritance_flag}'")
+
+            if property_flag == "!":
+                logger.debug(f"a property: {action_text}")
+            else:
+                logger.debug(f"the header is: {dict(self.header)}" )
+                logger.debug(f"self shortcuts: {current_shortcut_key}" )
+
+                inheritance_hash = { action_text: self.create_inheritance_hash(inheritance_flag) }
+                (self.shortcuts[-1])[current_shortcut_key] = inheritance_hash
+                # print( self.shortcuts )
+
+            # (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
+            # self.peopla_live = True
 
     def scan_for_data_table_header(self, line):
         """
@@ -290,6 +360,11 @@ class Document:
 
         for d in self.data_points:
             print(d.cells)
+
+        for s in self.shortcuts:
+            for key, value in s.items():
+                for i, j in enumerate(value):
+                    print(f"[{key} {i+1:02}]: {j}")
 
     def get_header_information(self, flag):
         """
