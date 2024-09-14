@@ -2,6 +2,9 @@ import re
 import yaml
 from collections import defaultdict
 import logging
+import pandas as pd
+from copy import deepcopy
+
 
 data_point_separator = "\\t"
 
@@ -42,9 +45,28 @@ logger.addHandler(ch)
 
 class DataTable:
 
-    def __init__( self, fields ):
+    def __init__( self, fields, shortcuts ):
         self.column_names = fields
         self.column_num = len( fields )
+        self.attributes = shortcuts
+
+        logger.debug("==== Creating a table ====")
+        logger.debug(f"{self.column_num} columns")
+        logger.debug(f"Column names: {','.join(self.column_names)}")
+        logger.debug(f"Attributes are: {self.attributes}")
+        logger.debug("==========================")
+
+        # column_dictionary = {}
+        # for c in fields:
+        #     o = c.split(":")
+        #     if len(o) == 2 :
+        #         column_dictionary.update({o[0]:{o[1],''}})
+        #     else:
+        #         column_dictionary.update({o:''})
+
+        # self.column_dictionary = column_dictionary
+        # logger.debug(-------" Column dictionary -------")
+        # logger.debug( column_dictionary )
 
 class DataPoint:
 
@@ -60,11 +82,35 @@ class DataPoint:
 
         logger.debug(f"list doctored to [{list}]")
 
-        tuples = [
-            (key, value)
-            for i, (key, value) in enumerate(zip(table.column_names, list))
-        ]
-        self.cells = dict(tuples)
+        data = deepcopy(table.attributes)
+
+        # print(f"Making a datapoint: shortcuts1: {table.attributes}")
+        # print(f"Making a datapoint: final data1: {data}")
+
+        for (key,val) in zip(table.column_names, list):
+            if ':' in key:
+                (key,subkey) = key.split(":") 
+                data[key][subkey] = val                    
+            else:
+                data[key] = val
+
+        print(f"Making a datapoint: shortcuts2: {table.attributes}")
+        print(f"Making a datapoint: final data2: {data}")
+
+        self.cells = data
+
+    # def print_data_point( self ):
+
+    #     info_to_print = ""
+    #     for i, (k, v) in enumerate( self.cells.items() ):
+    #         initial_text = f"{i:03} {k}"
+    #         info_to_print = f"{initial_text}"
+    #         if isinstance(v, dict):
+    #             for (sk, sv) in v.items():
+    #                 info_to_print = f"{info_to_print}\n{initial_text} {sk} {sv}\n"
+    #         else:
+    #             info_to_print = f"{info_to_print}\n{v}\n"
+    #     print( info_to_print )
 
 class Peopla:
     """
@@ -167,7 +213,7 @@ class Document:
                 self.scan_for_header_lines(line)
                 self.scan_for_peopla_lines(line)
 
-                #print( f"ASDFASDF: {self.shortcuts}")
+                # print( f"ASDFASDF: {self.shortcuts}")
                 self.reset(line)
 
     def reset(self, line):
@@ -179,6 +225,10 @@ class Document:
             if self.data_table_live:
                 logger.debug("Resetting data table")
             if self.shortcut_live:
+                shortcut_dictionary = {}
+                for s in self.shortcuts:
+                    shortcut_dictionary.update(s)
+                self.shortcuts = shortcut_dictionary
                 logger.debug( "Resetting shortcut")
 
             self.peopla_live = False
@@ -238,9 +288,10 @@ class Document:
                 logger.debug(f"self shortcuts: {current_shortcut_key}" )
 
                 inheritance_hash = { action_text: self.create_inheritance_hash(inheritance_flag) }
-            
+
             (self.shortcuts[-1])[current_shortcut_key].update( inheritance_hash )
-            # print( self.shortcuts )
+            print("Setting self.shortcuts in scan_for_shortcut_definition to:")
+            print( self.shortcuts )
 
             # (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
             # self.peopla_live = True
@@ -259,11 +310,11 @@ class Document:
                 rf"^###{re.escape(data_point_separator)}([^\^]*)(\^\d+)?$", line
             )
             header_content = m.group(1)
-            header_shorthand = m.group(2)
+            header_shortcut = m.group(2).replace("^","")
             header_columns = header_content.split(data_point_separator)
             logger.debug(f"Identified table header: '{header_content}'")
             logger.debug(f"with {len(header_columns)} columns")
-            logger.debug(f"with shorthand: {header_shorthand}")
+            logger.debug(f"with shortcut: {header_shortcut}")
 
             # m = re.search(rf"^###{re.escape(data_point_separator)}(.*)$", line)
             # header_content    = m.group(1)
@@ -271,7 +322,12 @@ class Document:
             # logger.debug(f"Identified table header: '{header_content}'")
             # logger.debug(f"with {len(header_columns)} columns")
 
-            self.data_tables.append(DataTable(header_columns))
+            logger.debug( "Is this header shortcut correct?????")
+            print(self.shortcuts[f"{header_shortcut}"])
+
+            self.data_tables.append(
+                DataTable(header_columns, self.shortcuts[f"{header_shortcut}"])
+            )
             self.data_table_live = True
 
     def scan_for_data_points(self, line):
@@ -294,7 +350,9 @@ class Document:
         else:
             content_list = re.split("\t+",line.rstrip())
             logger.debug(f"FOUND {len(content_list)} data points for the table")
-            self.data_points.append( DataPoint(content_list, current_table) )
+            logger.debug(f"This is the current table attributes: {current_table.attributes}")
+            self.data_points.append( DataPoint(content_list, current_table ) )
+            # (self.data_points[-1]).print_data_point()
 
     def scan_for_peopla_attributes(self, line):
         logger.debug(f"Looking for peopla attributes in {line}")
@@ -367,13 +425,14 @@ class Document:
         for p in self.peoplas:
             p.print_peopla()
 
-        for d in self.data_points:
-            print(d.cells)
+        print(self.shortcuts)
 
-        for s in self.shortcuts:
-            for key, value in s.items():
-                for i, j in enumerate(value):
-                    print(f"[{key} {i+1:02}]: {j}")
+        print(f"Found {len(self.data_points)} data points")
+        for d in self.data_points:
+
+            df = pd.DataFrame.from_dict(d.cells)
+            print( df.index )
+            print( df )
 
     def get_header_information(self, flag):
         """
