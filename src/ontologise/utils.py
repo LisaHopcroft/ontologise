@@ -227,15 +227,20 @@ class Document:
 
             logger.debug(f"Identified shortcut content: '{property_flag}' / '{action_text}' / '{inheritance_flag}'")
 
+            inheritance_hash = {}
+
             if property_flag == "!":
                 logger.debug(f"a property: {action_text}")
+                k = self.shortcut_mappings[action_text]
+                inheritance_hash = { k: action_text }
             else:
                 logger.debug(f"the header is: {dict(self.header)}" )
                 logger.debug(f"self shortcuts: {current_shortcut_key}" )
 
                 inheritance_hash = { action_text: self.create_inheritance_hash(inheritance_flag) }
-                (self.shortcuts[-1])[current_shortcut_key] = inheritance_hash
-                # print( self.shortcuts )
+            
+            (self.shortcuts[-1])[current_shortcut_key].update( inheritance_hash )
+            # print( self.shortcuts )
 
             # (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
             # self.peopla_live = True
