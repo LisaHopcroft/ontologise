@@ -183,9 +183,10 @@ class Document:
         self.header_tags = ["TITLE"] + settings["header_tags"]
         self.header_length = len(max(self.header_tags, key=len))
 
-        self.shortcut_mappings = dict(
-            pair for d in settings["shortcut_mappings"] for pair in d.items()
-        )
+        if settings.get("shortcut_mappings") is not None:
+            self.shortcut_mappings = dict(
+                pair for d in settings["shortcut_mappings"] for pair in d.items()
+            )
 
     def read_document(self):
         """
