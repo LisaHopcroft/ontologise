@@ -43,6 +43,21 @@ ch.setFormatter(CustomFormatter())
 
 logger.addHandler(ch)
 
+
+def flatten_dict(nested_dict):
+    res = {}
+    if isinstance(nested_dict, dict):
+        for k in nested_dict:
+            flattened_dict = flatten_dict(nested_dict[k])
+            for key, val in flattened_dict.items():
+                key = list(key)
+                key.insert(0, k)
+                res[tuple(key)] = val
+    else:
+        res[()] = nested_dict
+    return res
+
+
 class DataTable:
 
     def __init__( self, fields, shortcuts ):
@@ -217,6 +232,9 @@ class Document:
                 # print( f"ASDFASDF: {self.shortcuts}")
                 self.reset(line)
 
+        ### flatten the datapoints into a table here
+        self.data_points_df = self.generate_table_from_datapoints()
+
     def reset(self, line):
         logger.debug(f"Considering reset with: '{line}'")
 
@@ -231,6 +249,9 @@ class Document:
                     shortcut_dictionary.update(s)
                 self.shortcuts = shortcut_dictionary
                 logger.debug( "Resetting shortcut")
+                logger.debug(
+                    f"Shortcut dictionary has been created: {shortcut_dictionary}"
+                )
 
             self.peopla_live = False
             self.data_table_live = False
@@ -291,8 +312,8 @@ class Document:
                 inheritance_hash = { action_text: self.create_inheritance_hash(inheritance_flag) }
 
             (self.shortcuts[-1])[current_shortcut_key].update( inheritance_hash )
-            print("Setting self.shortcuts in scan_for_shortcut_definition to:")
-            print( self.shortcuts )
+            logger.debug("Setting self.shortcuts in scan_for_shortcut_definition to:")
+            logger.debug(self.shortcuts)
 
             # (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
             # self.peopla_live = True
@@ -323,8 +344,8 @@ class Document:
             # logger.debug(f"Identified table header: '{header_content}'")
             # logger.debug(f"with {len(header_columns)} columns")
 
-            logger.debug( "Is this header shortcut correct?????")
-            print(self.shortcuts[f"{header_shortcut}"])
+            logger.debug(f"Is this header shortcut ({header_shortcut}) correct?????")
+            logger.debug(self.shortcuts[f"{header_shortcut}"])
 
             self.data_tables.append(
                 DataTable(header_columns, self.shortcuts[f"{header_shortcut}"])
@@ -354,6 +375,20 @@ class Document:
             logger.debug(f"This is the current table attributes: {current_table.attributes}")
             self.data_points.append( DataPoint(content_list, current_table ) )
             # (self.data_points[-1]).print_data_point()
+
+    def generate_table_from_datapoints(self):
+        datapoint_table = pd.DataFrame()
+
+        for d in self.data_points:
+            d_dict_tuples = flatten_dict(d.cells)
+            d_dict_flat = {}
+            for k, v in d_dict_tuples.items():
+                new_key = '_'.join(k)
+                d_dict_flat[new_key] = v
+            d_df = pd.DataFrame.from_dict(d_dict_flat)
+            datapoint_table = pd.concat([datapoint_table, d_df])
+
+        return datapoint_table
 
     def scan_for_peopla_attributes(self, line):
         logger.debug(f"Looking for peopla attributes in {line}")
@@ -429,11 +464,8 @@ class Document:
         print(self.shortcuts)
 
         print(f"Found {len(self.data_points)} data points")
-        for d in self.data_points:
 
-            df = pd.DataFrame.from_dict(d.cells)
-            print( df.index )
-            print( df )
+        print(self.data_points_df)
 
     def get_header_information(self, flag):
         """
