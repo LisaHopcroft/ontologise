@@ -3,6 +3,10 @@ import pytest
 import tempfile
 import inspect
 import unittest
+import string
+import re
+import pandas as pd
+
 
 sys.path.append("src/ontologise")
 
@@ -164,7 +168,6 @@ def generate_peopla_object(
 
 """
 
-
 @pytest.fixture()
 def document_with_two_peopla(
     name=["A", "B"],
@@ -270,3 +273,92 @@ def test_two_attribute_peopla_parse(document_with_two_peopla_attributes):
                 pass
 
         assert dict(p.attributes[attr]) == hash_for_comparison
+
+
+@pytest.fixture()
+def document_with_datapoints():
+    """Returns an example datapoint file testing."""
+
+    test_file_content = f"""
+{generate_file_header_string()}
+
+{generate_shortcut_header()}
+
+{generate_data_points()}
+"""
+
+    temp_f = tempfile.NamedTemporaryFile()
+
+    with open(temp_f.name, "w") as d:
+        d.writelines(test_file_content)
+
+    test_doc = Document(temp_f.name)
+    test_doc.read_document()
+
+    return test_doc
+
+
+def generate_shortcut_header(
+    shortcut_content=[
+        ["ENSLAVED*", "!MALE"],
+        ["ENSLAVED*", "!FEMALE"],
+    ]
+):
+
+    shortcut_string = "-" * 70
+    shortcut_string += "\n"
+
+    for i, t in enumerate(shortcut_content):
+        shortcut_string += f"###\t^{i+1}:\n"
+        for j in t:
+            shortcut_string += f"###\t\t{j}\n"
+
+    shortcut_string += "-" * 70
+
+    return shortcut_string
+
+def generate_data_points(
+    columns=string.ascii_uppercase[0:3],
+    shortcut_labels=["", "", "1"],
+    datapoint_content=[["A1"], ["B1", "B2", "B3"], ["C1", "C2", "C3", "C4"]],
+):
+
+    shortcut_markers = [re.sub(r"^(\d+)$", r"^\1", i) for i in shortcut_labels]
+    column_list = [x + y for x, y in zip(columns, shortcut_markers)]
+    column_string = "\\t".join(column_list)
+
+    datapoint_strings = [f"""###\\t{column_string}"""]
+
+    for d in datapoint_content:
+        datapoint_strings.append("\t".join(d))
+
+    datapoint_strings.append("[/]")
+    datapoint_strings.append("###\\tEND")
+
+    return "\n".join(datapoint_strings)
+
+
+def test_datapoint_parse(document_with_datapoints):
+    for d in document_with_datapoints.data_points:
+        for i, (k, v) in enumerate(d.cells.items()):
+            print( f"{i} : [{k}] : [{v}]\n" )
+        print( d.cells )
+        print( len( d.cells ) ) 
+        # df = pd.DataFrame.from_dict(d.cells)
+        # print( df.index )
+        # print( df )
+        # print( d.cells[1] )
+    assert False
+
+# asdf = f"""
+# {generate_file_header_string()}
+
+# {generate_shortcut_header()}
+
+# {generate_data_points()}
+# """
+
+
+# temp_f = "data/testout.txt"
+# with open(temp_f, "w") as d:
+#     d.writelines(asdf)
