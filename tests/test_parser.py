@@ -318,9 +318,9 @@ def generate_shortcut_header(
     return shortcut_string
 
 def generate_data_points(
-    columns=string.ascii_uppercase[0:3],
+    columns=list(string.ascii_uppercase[23:26]),
     shortcut_labels=["", "", "1"],
-    datapoint_content=[["A1"], ["B1", "B2", "B3"], ["C1", "C2", "C3", "C4"]],
+    datapoint_content=[["L1"], ["M1", "M2", "M3"], ["N1", "N2", "N3", "N4"]],
 ):
 
     shortcut_markers = [re.sub(r"^(\d+)$", r"^\1", i) for i in shortcut_labels]
@@ -338,6 +338,66 @@ def generate_data_points(
     return "\n".join(datapoint_strings)
 
 
+generate_shortcut_header_defaults = extract_default_values_hash(
+    generate_shortcut_header
+)
+
+generate_data_points_defaults = extract_default_values_hash(
+    generate_data_points
+)
+
+
+def create_default_datapoint_df( ):
+    print( generate_file_header_string_defaults )
+
+    print("-------\n")
+    print(generate_shortcut_header_defaults)
+
+    print("-------\n")
+    print(generate_data_points_defaults)
+
+    ###      ENSLAVED_AT       ENSLAVED_ATX ENSLAVED_DATE GENDER   X    Y   Z
+    ###   0  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  L1
+    ###   0  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  M1  M2  M3
+    ###   0  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  N1  N2  N3
+
+    ### How many datapoints are we expecting?
+    num_datapoints = len( generate_data_points_defaults["DATAPOINT_CONTENT"] )
+
+    ### Are any shortcut labels used? --- Taking the last label for now
+    relevant_shortcut_label = int(generate_data_points_defaults["SHORTCUT_LABELS"][-1])
+    relevant_shortcut = generate_shortcut_header_defaults["SHORTCUT_CONTENT"][
+        relevant_shortcut_label-1]
+    print( relevant_shortcut )
+    relevant_inheritance_shortcuts = [
+        m.replace("*","") for m in relevant_shortcut if re.match(r"^[A-Z]+\*$", m)
+    ]
+
+    print ("inheritance shortcuts")
+    print( relevant_inheritance_shortcuts )
+
+    skeleton_df = (
+        pd.DataFrame.from_dict(generate_file_header_string_defaults)
+        .drop(columns=["TITLE"])
+    )
+
+    default_df_tmp = {var: skeleton_df for var in relevant_inheritance_shortcuts}
+    for k in default_df_tmp.keys():
+        default_df_tmp[k] = default_df_tmp[k].add_prefix(f"{k}_")
+
+    default_df = pd.concat(default_df_tmp.values(), axis=1)
+
+    print(default_df)
+
+    # for ( s in relevant_inheritance_shortcuts ):
+    #     default_df
+
+    # print( default_df)
+
+
+create_default_datapoint_df()
+
+
 def test_datapoint_parse(document_with_datapoints):
     for d in document_with_datapoints.data_points:
         for i, (k, v) in enumerate(d.cells.items()):
@@ -348,6 +408,9 @@ def test_datapoint_parse(document_with_datapoints):
         # print( df.index )
         # print( df )
         # print( d.cells[1] )
+
+    print(document_with_datapoints.data_points_df)
+
     assert False
 
 # asdf = f"""
