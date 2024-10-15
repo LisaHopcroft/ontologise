@@ -311,11 +311,13 @@ class Document:
                 logger.debug(f"a property: {action_text}")
                 k = self.shortcut_mappings[action_text]
                 inheritance_hash = { k: action_text }
-            else:
+            elif inheritance_flag == '*':
                 logger.debug(f"the header is: {dict(self.header)}" )
                 logger.debug(f"self shortcuts: {current_shortcut_key}" )
 
                 inheritance_hash = { action_text: self.create_inheritance_hash(inheritance_flag) }
+            else:
+                logger.warning(f"shortcut format not recognised: {line}")
 
             (self.shortcuts[-1])[current_shortcut_key].update( inheritance_hash )
             logger.debug("Setting self.shortcuts in scan_for_shortcut_definition to:")
