@@ -43,6 +43,16 @@ ch.setFormatter(CustomFormatter())
 
 logger.addHandler(ch)
 
+def read_settings_file(file):
+    settings = ""
+
+    with open(file) as stream:
+        try:
+            settings = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            logger.error(exc)
+    
+    return( settings )
 
 def flatten_dict(nested_dict):
     res = {}
@@ -166,7 +176,7 @@ class Document:
 
         # Read settings file
         logger.info(f"Reading settings file: '{settings_file}'")
-        self.read_settings_file(settings_file)
+        self.add_settings_to_document(settings_file)
 
         # Information about the sources
         self.header = defaultdict(list)
@@ -186,15 +196,11 @@ class Document:
         # Saving the data points
         self.data_points = []
 
-    def read_settings_file(self, file):
-        settings = ""
+    def add_settings_to_document(self, file):
 
-        with open(file) as stream:
-            try:
-                settings = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                logger.error(exc)
+        settings = read_settings_file( file )
 
+        self.settings_file = file
         self.header_tags = ["TITLE"] + settings["header_tags"]
         self.header_length = len(max(self.header_tags, key=len))
 
