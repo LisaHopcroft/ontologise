@@ -1,6 +1,6 @@
 from src.ontologise.utils import Document
 
-file_to_parse = "data/p2833, Felicity with place.txt"
+file_to_parse = "data/p2833, Felicity with new format sample.txt"
 
 d = Document(file_to_parse)
 
