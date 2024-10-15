@@ -6,11 +6,12 @@ import unittest
 import string
 import re
 import pandas as pd
+from pandas import testing
 
 
 sys.path.append("src/ontologise")
 
-from utils import Document
+from utils import Document, read_settings_file
 
 def extract_default_values_hash(f):
     v = inspect.signature(f).parameters.items()
@@ -342,9 +343,7 @@ generate_shortcut_header_defaults = extract_default_values_hash(
     generate_shortcut_header
 )
 
-generate_data_points_defaults = extract_default_values_hash(
-    generate_data_points
-)
+generate_data_points_defaults = extract_default_values_hash(generate_data_points)
 
 
 def create_default_datapoint_df( ):
@@ -356,10 +355,20 @@ def create_default_datapoint_df( ):
     print("-------\n")
     print(generate_data_points_defaults)
 
+    print("-------\n")
+    default_settings = read_settings_file( Document().settings_file )
+
+    print( default_settings )
+
+    default_shortcut_mappings_dict = dict(
+        pair for d in default_settings.get("shortcut_mappings") for pair in d.items()
+    )
+    print(default_shortcut_mappings_dict)
+
     ###      ENSLAVED_AT       ENSLAVED_ATX ENSLAVED_DATE GENDER   X    Y   Z
     ###   0  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  L1
-    ###   0  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  M1  M2  M3
-    ###   0  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  N1  N2  N3
+    ###   1  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  M1  M2  M3
+    ###   2  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  N1  N2  N3
 
     ### How many datapoints are we expecting?
     num_datapoints = len( generate_data_points_defaults["DATAPOINT_CONTENT"] )
@@ -368,18 +377,24 @@ def create_default_datapoint_df( ):
     relevant_shortcut_label = int(generate_data_points_defaults["SHORTCUT_LABELS"][-1])
     relevant_shortcut = generate_shortcut_header_defaults["SHORTCUT_CONTENT"][
         relevant_shortcut_label-1]
+
     print( relevant_shortcut )
     relevant_inheritance_shortcuts = [
         m.replace("*","") for m in relevant_shortcut if re.match(r"^[A-Z]+\*$", m)
     ]
 
+    relevant_autogenerate_shortcuts = [
+        m.replace("!", "") for m in relevant_shortcut if re.match(r"^![A-Z]+$", m)
+    ]
+
     print ("inheritance shortcuts")
     print( relevant_inheritance_shortcuts )
 
-    skeleton_df = (
-        pd.DataFrame.from_dict(generate_file_header_string_defaults)
-        .drop(columns=["TITLE"])
-    )
+    print("autogeneration shortcuts")
+    print(relevant_autogenerate_shortcuts)
+
+    skeleton_df = pd.DataFrame.from_dict(generate_file_header_string_defaults)
+    skeleton_df = skeleton_df[default_settings.get("header_tags")]
 
     default_df_tmp = {var: skeleton_df for var in relevant_inheritance_shortcuts}
     for k in default_df_tmp.keys():
@@ -387,31 +402,45 @@ def create_default_datapoint_df( ):
 
     default_df = pd.concat(default_df_tmp.values(), axis=1)
 
-    print(default_df)
+    for auto_generate_content in relevant_autogenerate_shortcuts:
+        column_name = default_shortcut_mappings_dict[auto_generate_content]
+        column_value = auto_generate_content
+        default_df[ column_name ] = column_value
 
-    # for ( s in relevant_inheritance_shortcuts ):
-    #     default_df
+    default_df = ( 
+        default_df.loc[default_df.index.repeat(num_datapoints)]
+        .reset_index()
+        .drop( columns=['index'] )
+    )
 
-    # print( default_df)
+    ### Add the extra columns from the data table
+    datapoint_list = generate_data_points_defaults["COLUMNS"]
+    datapoint_content = generate_data_points_defaults['DATAPOINT_CONTENT']
 
+    for i, data_item in enumerate( datapoint_content ):
+        if len(data_item) < num_datapoints:
+            data_item += [""] * (num_datapoints - len(data_item))
+        elif len(data_item) > num_datapoints:
+            data_item = data_item[:num_datapoints]
 
-create_default_datapoint_df()
+        datapoint_content[i] = data_item
+
+    print( datapoint_list )
+    print( datapoint_content )
+
+    datapoint_df = pd.DataFrame(datapoint_content, columns=datapoint_list)
+
+    default_df = default_df.join( datapoint_df )
+
+    return( default_df )
 
 
 def test_datapoint_parse(document_with_datapoints):
-    for d in document_with_datapoints.data_points:
-        for i, (k, v) in enumerate(d.cells.items()):
-            print( f"{i} : [{k}] : [{v}]\n" )
-        print( d.cells )
-        print( len( d.cells ) ) 
-        # df = pd.DataFrame.from_dict(d.cells)
-        # print( df.index )
-        # print( df )
-        # print( d.cells[1] )
 
-    print(document_with_datapoints.data_points_df)
+    expected = create_default_datapoint_df()
+    observed = document_with_datapoints.data_points_df
 
-    assert False
+    testing.assert_frame_equal(observed, expected)
 
 # asdf = f"""
 # {generate_file_header_string()}
@@ -420,7 +449,6 @@ def test_datapoint_parse(document_with_datapoints):
 
 # {generate_data_points()}
 # """
-
 
 # temp_f = "data/testout.txt"
 # with open(temp_f, "w") as d:

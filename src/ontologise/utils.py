@@ -394,7 +394,7 @@ class Document:
             d_df = pd.DataFrame.from_dict(d_dict_flat)
             datapoint_table = pd.concat([datapoint_table, d_df])
 
-        return datapoint_table
+        return datapoint_table.reset_index().drop( columns=['index'] )
 
     def scan_for_peopla_attributes(self, line):
         logger.debug(f"Looking for peopla attributes in {line}")
