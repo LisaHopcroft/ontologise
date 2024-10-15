@@ -335,29 +335,75 @@ class Document:
         """
 
         if re.match(rf"^###{re.escape(data_point_separator)}.*$", line):
-            # if re.match(r"^###\t[^\^]{1}.*$", line):
+            ### Previous approach where only one caret was present:
+            # m = re.search(
+            #     rf"^###{re.escape(data_point_separator)}([^\^]*)(\^\d+)?$", line
+            # )
+            # header_content = m.group(1)
+            # header_shortcut = m.group(2).replace("^","")
+            # header_columns = header_content.split(data_point_separator)
+            # logger.debug(f"Identified table header: '{header_content}'")
+            # logger.debug(f"with {len(header_columns)} columns")
+            # logger.debug(f"with shortcut: {header_shortcut}")
+
+            ### Now we can have more than one shortcut
             m = re.search(
-                rf"^###{re.escape(data_point_separator)}([^\^]*)(\^\d+)?$", line
-            )
+                rf"^###{re.escape(data_point_separator)}([^\^]*)([\^\d]+)$", line
+                )
+
             header_content = m.group(1)
-            header_shortcut = m.group(2).replace("^","")
+            header_shortcuts = list( filter(None, m.group(2).split("^") ) )
             header_columns = header_content.split(data_point_separator)
             logger.debug(f"Identified table header: '{header_content}'")
             logger.debug(f"with {len(header_columns)} columns")
-            logger.debug(f"with shortcut: {header_shortcut}")
+            logger.debug(f"with shortcut: {header_shortcuts}")
 
+            print( self.shortcuts )
             # m = re.search(rf"^###{re.escape(data_point_separator)}(.*)$", line)
             # header_content    = m.group(1)
             # header_columns = header_content.split(data_point_separator)
             # logger.debug(f"Identified table header: '{header_content}'")
             # logger.debug(f"with {len(header_columns)} columns")
 
-            logger.debug(f"Is this header shortcut ({header_shortcut}) correct?????")
-            logger.debug(self.shortcuts[f"{header_shortcut}"])
+            logger.debug(f"Is/are the header shortcut(s) ({header_shortcuts}) correct?????")
 
+            ### check: are all the shortcuts present in the table header
+            ###        actually defined in the document header?
+
+            check = all(e in list(self.shortcuts.keys()) for e in header_shortcuts )
+
+            if check:
+                logger.debug(
+                    f"All shortcut keys ({','.join(header_shortcuts)}) have been defined in the header"
+                )
+            else:
+                missing_definitions = [
+                    e for e in header_shortcuts if e not in list(self.shortcuts.keys())
+                ]
+                logger.debug(
+                    f"Some shortcut keys ({','.join(missing_definitions)}) have been NOT been defined in the header"
+                )
+                logger.debug(self.shortcuts)
+
+            ### Extract only the shortcut information required for this table
+            relevant_header_shortcuts = {k: self.shortcuts[k] for k in header_shortcuts}
+            logger.debug("-------------------\n")
+            logger.debug(relevant_header_shortcuts)
+
+            ### Combine the shortcut information into one dictionary (this is necessary where
+            ### more than one shortcut marker, has been applied to the table)
+            relevant_header_shortcuts_combined = {}
+            for d in relevant_header_shortcuts.values():
+                relevant_header_shortcuts_combined.update(d)
+
+            logger.debug("-------------------\n")
+            logger.debug(relevant_header_shortcuts_combined)
+
+            ### Add the definition of this table to the document
             self.data_tables.append(
-                DataTable(header_columns, self.shortcuts[f"{header_shortcut}"])
+                DataTable(header_columns, relevant_header_shortcuts_combined)
             )
+
             self.data_table_live = True
 
     def scan_for_data_points(self, line):
