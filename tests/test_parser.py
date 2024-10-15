@@ -1,11 +1,10 @@
 import sys
 import pytest
+import pandas as pd
 import tempfile
 import inspect
-import unittest
 import string
 import re
-import pandas as pd
 from pandas import testing
 
 
