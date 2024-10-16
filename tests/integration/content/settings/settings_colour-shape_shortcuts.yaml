@@ -1,0 +1,11 @@
+header_tags:
+  - AT
+  - ATX
+  - DATE
+shortcut_mappings:
+  - MALE: GENDER
+  - FEMALE: GENDER
+  - RED: COLOUR
+  - BLUE: COLOUR
+  - CIRCLE: SHAPE
+  - SQUARE: SHAPE
