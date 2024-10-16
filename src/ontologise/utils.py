@@ -391,7 +391,7 @@ class Document:
             logger.debug(relevant_header_shortcuts)
 
             ### Combine the shortcut information into one dictionary (this is necessary where
-            ### more than one shortcut marker, has been applied to the table)
+            ### more than one shortcut marker has been applied to the table)
             relevant_header_shortcuts_combined = {}
             for d in relevant_header_shortcuts.values():
                 relevant_header_shortcuts_combined.update(d)
