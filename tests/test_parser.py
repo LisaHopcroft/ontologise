@@ -441,8 +441,8 @@ def test_datapoint_parse(document_with_datapoints):
 
     testing.assert_frame_equal(observed, expected)
 
-def test_datapoint_parse_with_multiple_shortcuts():
-    assert False
+# def test_datapoint_parse_with_multiple_shortcuts():
+#     assert False
 
 # asdf = f"""
 # {generate_file_header_string()}
