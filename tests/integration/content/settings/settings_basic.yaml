@@ -1,0 +1,7 @@
+header_tags:
+  - AT
+  - ATX
+  - DATE
+shortcut_mappings:
+  - MALE: GENDER
+  - FEMALE: GENDER

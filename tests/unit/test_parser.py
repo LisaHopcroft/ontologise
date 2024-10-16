@@ -44,6 +44,9 @@ def generate_file_header_string(
 
     return file_header_string
 
+
+@pytest.mark.unittest
+
 @pytest.fixture()
 def document_with_two_sources(
     title=["A", "B"], at=["C", "D"], atx=["E", "F"], date=["G", "H"],
@@ -440,6 +443,9 @@ def test_datapoint_parse(document_with_datapoints):
     observed = document_with_datapoints.data_points_df
 
     testing.assert_frame_equal(observed, expected)
+
+# def test_datapoint_parse_with_multiple_shortcuts():
+#     assert False
 
 # asdf = f"""
 # {generate_file_header_string()}
