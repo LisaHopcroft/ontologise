@@ -12,6 +12,8 @@ sys.path.append("src/ontologise")
 
 from utils import Document, read_settings_file
 
+@pytest.mark.integrationtest
+
 def extract_default_values_hash(f):
     v = inspect.signature(f).parameters.items()
     v_hash = {}
