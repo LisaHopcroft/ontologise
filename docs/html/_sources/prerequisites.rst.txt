@@ -10,7 +10,32 @@ Definitions
 
 There are a few concepts that will be used when describing what this format is:
 
-*Insert diagram*
+.. mermaid::
+    :name: concept_map
+    
+    flowchart LR
+        subgraph d1 [Document]
+            subgraph sN [Source N]
+                A@{ shape: doc, label: "__Header (req)__
+                Shortcuts (opt)
+                Peopla (opt)
+                DataTable (opt)
+                DataPoints (opt)
+                "}
+            end
+            subgraph sep[...]
+                C:::hidden
+            end
+            style sep fill:none,stroke:none
+            subgraph s1 [Source 1]
+                B@{ shape: doc, label: "__Header (req)__
+                Shortcuts (opt)
+                Peopla (opt)
+                DataTable (opt)
+                DataPoints (opt)
+                " }
+            end
+        end
 
 Document
     A single plain text file that contains Ontologise content.
