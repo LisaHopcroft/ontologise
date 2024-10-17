@@ -272,7 +272,7 @@ class Document:
         a new shortcut object will be created and added to the
         list of shortcuts that are attached to the Document.
         """
-        if re.match(rf"^###\t\^\d+:$", line):
+        if re.match(r"^###\t\^\d+:$", line):
             logger.debug(f"Identified shortcut line: '{line}'")
 
             m = re.search(r"^###\t\^(\d+):$", line)
@@ -422,15 +422,15 @@ class Document:
         if re.match(rf"^###{re.escape(data_point_separator)}END$", line):
             logger.debug("End of table")
             self.data_table_live = False
-        elif re.match(rf"^\[/\]$", line):
+        elif re.match(r"^\[/\]$", line):
             logger.debug("Ignore (line break not relevant)")
-        elif re.match(rf"^!.*$", line):
+        elif re.match(r"^!.*$", line):
             logger.debug("Ignore (line starts with !)")
         elif re.match(r"^###\t\{.*\}$", line):
             # --- Functionality to be added ---
             # This is a globcal identifier to be added to the
             # immediately preceeding data point
-            logger.debug(f"FOUND a global identifer")
+            logger.debug("FOUND a global identifer")
         else:
             content_list = re.split("\t+", line.rstrip())
             logger.debug(f"FOUND {len(content_list)} data points for the table")

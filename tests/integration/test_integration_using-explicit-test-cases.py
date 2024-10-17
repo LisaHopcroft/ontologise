@@ -1,25 +1,14 @@
-import sys
 import pytest
 from pathlib import Path
 import pandas as pd
-import tempfile
-import inspect
-import string
-import re
-import os
 from pandas import testing
+from utils import Document
 
-sys.path.append("src/ontologise")
-sys.path.append("tests/integration/content")
 
 BASE_DIR = Path(__file__).parents[1]
 DATA_DIR = BASE_DIR / "integration" / "content" / "input"
 SETTINGS_DIR = BASE_DIR / "integration" / "content" / "settings"
 EXPECTED_DIR = BASE_DIR / "integration" / "content" / "expected"
-
-
-from utils import Document, read_settings_file
-
 
 ### -----------------------------------------------------------------
 ### Integration test cases
