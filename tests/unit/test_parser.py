@@ -12,6 +12,7 @@ sys.path.append("src/ontologise")
 
 from utils import Document, read_settings_file
 
+
 def extract_default_values_hash(f):
     v = inspect.signature(f).parameters.items()
     v_hash = {}
@@ -23,7 +24,8 @@ def extract_default_values_hash(f):
             param_default = [param_default]
         v_hash.update({param_name.upper(): param_default})
 
-    return( v_hash )
+    return v_hash
+
 
 def generate_file_header_string(
     title="RECORD_TYPE",
@@ -46,7 +48,6 @@ def generate_file_header_string(
 
 
 @pytest.mark.unittest
-
 @pytest.fixture()
 def document_with_two_sources(
     title=["A", "B"], at=["C", "D"], atx=["E", "F"], date=["G", "H"],
@@ -70,7 +71,11 @@ def document_with_two_sources(
 
     return test_doc
 
-document_with_two_sources_defaults = extract_default_values_hash(document_with_two_sources)
+
+document_with_two_sources_defaults = extract_default_values_hash(
+    document_with_two_sources
+)
+
 
 @pytest.mark.parametrize("tag", document_with_two_sources_defaults.keys())
 def test_header_parse(document_with_two_sources, tag):
@@ -150,12 +155,7 @@ def test_extra_header_tag_is_present(document_with_extra_header_tag):
     ]
 
 
-def generate_peopla_object(
-        name="A",
-        type="person",
-        attribute=["X"],
-        marker=["*"]
-):
+def generate_peopla_object(name="A", type="person", attribute=["X"], marker=["*"]):
 
     peopla_string = f"""###\t{"@" if type=="place" else ""}[{name}]"""
 
@@ -171,21 +171,17 @@ def generate_peopla_object(
 
 """
 
+
 @pytest.fixture()
 def document_with_two_peopla(
-    name=["A", "B"],
-    type=["person", "place"],
-    attribute=["X", "Y"],
-    marker=["*", ""],
+    name=["A", "B"], type=["person", "place"], attribute=["X", "Y"], marker=["*", ""],
 ):
     """Returns an example peopla string for testing."""
 
     test_file_content = generate_file_header_string()
 
     for i in range(0, len(name)):
-        this_text = generate_peopla_object(
-            name[i], type[i], attribute[i], marker[i]
-        )
+        this_text = generate_peopla_object(name[i], type[i], attribute[i], marker[i])
 
         test_file_content = f"{test_file_content}{this_text}"
 
@@ -202,10 +198,7 @@ def document_with_two_peopla(
 
 @pytest.fixture()
 def document_with_two_peopla_attributes(
-    name="A",
-    type="person",
-    attribute=["X", "Y"],
-    marker=["*", ""],
+    name="A", type="person", attribute=["X", "Y"], marker=["*", ""],
 ):
     test_file_content = generate_file_header_string()
 
@@ -236,6 +229,7 @@ generate_file_header_string_defaults = extract_default_values_hash(
     generate_file_header_string
 )
 
+
 def test_default_peopla_parse(document_with_two_peopla):
 
     for i in range(0, len(document_with_two_peopla.peoplas)):
@@ -247,7 +241,7 @@ def test_default_peopla_parse(document_with_two_peopla):
         assert attr == document_with_two_peopla_defaults["ATTRIBUTE"][i]
 
         hash_for_comparison = {}
-        if document_with_two_peopla_defaults["MARKER"][i]=="*":
+        if document_with_two_peopla_defaults["MARKER"][i] == "*":
             hash_for_comparison = generate_file_header_string_defaults
             try:
                 hash_for_comparison.pop("TITLE")
@@ -302,10 +296,7 @@ def document_with_datapoints():
 
 
 def generate_shortcut_header(
-    shortcut_content=[
-        ["ENSLAVED*", "!MALE"],
-        ["ENSLAVED*", "!FEMALE"],
-    ]
+    shortcut_content=[["ENSLAVED*", "!MALE"], ["ENSLAVED*", "!FEMALE"],]
 ):
 
     shortcut_string = "-" * 70
@@ -319,6 +310,7 @@ def generate_shortcut_header(
     shortcut_string += "-" * 70
 
     return shortcut_string
+
 
 def generate_data_points(
     columns=list(string.ascii_uppercase[23:26]),
@@ -348,8 +340,8 @@ generate_shortcut_header_defaults = extract_default_values_hash(
 generate_data_points_defaults = extract_default_values_hash(generate_data_points)
 
 
-def create_default_datapoint_df( ):
-    print( generate_file_header_string_defaults )
+def create_default_datapoint_df():
+    print(generate_file_header_string_defaults)
 
     print("-------\n")
     print(generate_shortcut_header_defaults)
@@ -358,9 +350,9 @@ def create_default_datapoint_df( ):
     print(generate_data_points_defaults)
 
     print("-------\n")
-    default_settings = read_settings_file( Document().settings_file )
+    default_settings = read_settings_file(Document().settings_file)
 
-    print( default_settings )
+    print(default_settings)
 
     default_shortcut_mappings_dict = dict(
         pair for d in default_settings.get("shortcut_mappings") for pair in d.items()
@@ -373,24 +365,25 @@ def create_default_datapoint_df( ):
     ###   2  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  N1  N2  N3
 
     ### How many datapoints are we expecting?
-    num_datapoints = len( generate_data_points_defaults["DATAPOINT_CONTENT"] )
+    num_datapoints = len(generate_data_points_defaults["DATAPOINT_CONTENT"])
 
     ### Are any shortcut labels used? --- Taking the last label for now
     relevant_shortcut_label = int(generate_data_points_defaults["SHORTCUT_LABELS"][-1])
     relevant_shortcut = generate_shortcut_header_defaults["SHORTCUT_CONTENT"][
-        relevant_shortcut_label-1]
+        relevant_shortcut_label - 1
+    ]
 
-    print( relevant_shortcut )
+    print(relevant_shortcut)
     relevant_inheritance_shortcuts = [
-        m.replace("*","") for m in relevant_shortcut if re.match(r"^[A-Z]+\*$", m)
+        m.replace("*", "") for m in relevant_shortcut if re.match(r"^[A-Z]+\*$", m)
     ]
 
     relevant_autogenerate_shortcuts = [
         m.replace("!", "") for m in relevant_shortcut if re.match(r"^![A-Z]+$", m)
     ]
 
-    print ("inheritance shortcuts")
-    print( relevant_inheritance_shortcuts )
+    print("inheritance shortcuts")
+    print(relevant_inheritance_shortcuts)
 
     print("autogeneration shortcuts")
     print(relevant_autogenerate_shortcuts)
@@ -407,19 +400,19 @@ def create_default_datapoint_df( ):
     for auto_generate_content in relevant_autogenerate_shortcuts:
         column_name = default_shortcut_mappings_dict[auto_generate_content]
         column_value = auto_generate_content
-        default_df[ column_name ] = column_value
+        default_df[column_name] = column_value
 
-    default_df = ( 
+    default_df = (
         default_df.loc[default_df.index.repeat(num_datapoints)]
         .reset_index()
-        .drop( columns=['index'] )
+        .drop(columns=["index"])
     )
 
     ### Add the extra columns from the data table
     datapoint_list = generate_data_points_defaults["COLUMNS"]
-    datapoint_content = generate_data_points_defaults['DATAPOINT_CONTENT']
+    datapoint_content = generate_data_points_defaults["DATAPOINT_CONTENT"]
 
-    for i, data_item in enumerate( datapoint_content ):
+    for i, data_item in enumerate(datapoint_content):
         if len(data_item) < num_datapoints:
             data_item += [""] * (num_datapoints - len(data_item))
         elif len(data_item) > num_datapoints:
@@ -427,14 +420,14 @@ def create_default_datapoint_df( ):
 
         datapoint_content[i] = data_item
 
-    print( datapoint_list )
-    print( datapoint_content )
+    print(datapoint_list)
+    print(datapoint_content)
 
     datapoint_df = pd.DataFrame(datapoint_content, columns=datapoint_list)
 
-    default_df = default_df.join( datapoint_df )
+    default_df = default_df.join(datapoint_df)
 
-    return( default_df )
+    return default_df
 
 
 def test_datapoint_parse(document_with_datapoints):
@@ -443,6 +436,7 @@ def test_datapoint_parse(document_with_datapoints):
     observed = document_with_datapoints.data_points_df
 
     testing.assert_frame_equal(observed, expected)
+
 
 # def test_datapoint_parse_with_multiple_shortcuts():
 #     assert False

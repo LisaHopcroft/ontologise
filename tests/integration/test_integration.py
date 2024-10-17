@@ -30,60 +30,25 @@ from utils import Document, read_settings_file
 
 table_shortcuts_multiple_A_expected = pd.DataFrame(
     {
-        "ENSLAVED_AT": [
-            "PLACE",
-            "PLACE",
-            "PLACE",
-        ],
+        "ENSLAVED_AT": ["PLACE", "PLACE", "PLACE",],
         "ENSLAVED_ATX": [
             "1800_TEXT_TEXT:00",
             "1800_TEXT_TEXT:00",
             "1800_TEXT_TEXT:00",
         ],
-        "ENSLAVED_DATE": [
-            "1800-01-01",
-            "1800-01-01",
-            "1800-01-01",
-        ],
-        "GENDER": [
-            "MALE",
-            "MALE",
-            "MALE",
-        ],
-        "COLOUR": [
-            "BLUE",
-            "BLUE",
-            "BLUE",
-        ],
-        "X": [
-            "L1",
-            "M1",
-            "N1",
-        ],
-        "Y": [
-            "",
-            "M2",
-            "N2",
-        ],
-        "Z": [
-            "",
-            "M3",
-            "N3",
-        ],
+        "ENSLAVED_DATE": ["1800-01-01", "1800-01-01", "1800-01-01",],
+        "GENDER": ["MALE", "MALE", "MALE",],
+        "COLOUR": ["BLUE", "BLUE", "BLUE",],
+        "X": ["L1", "M1", "N1",],
+        "Y": ["", "M2", "N2",],
+        "Z": ["", "M3", "N3",],
     }
 )
 
 
 table_shortcuts_multiple_B_expected = pd.DataFrame(
     {
-        "ENSLAVED_AT": [
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-        ],
+        "ENSLAVED_AT": ["PLACE", "PLACE", "PLACE", "PLACE", "PLACE", "PLACE",],
         "ENSLAVED_ATX": [
             "1800_TEXT_TEXT:00",
             "1800_TEXT_TEXT:00",
@@ -100,60 +65,18 @@ table_shortcuts_multiple_B_expected = pd.DataFrame(
             "1800-01-01",
             "1800-01-01",
         ],
-        "GENDER": [
-            "MALE",
-            "MALE",
-            "MALE",
-            "FEMALE",
-            "FEMALE",
-            "FEMALE",
-        ],
-        "COLOUR": [
-            "BLUE",
-            "BLUE",
-            "BLUE",
-            "BLUE",
-            "BLUE",
-            "BLUE",
-        ],
-        "X": [
-            "L1",
-            "M1",
-            "N1",
-            "O1",
-            "P1",
-            "Q1",
-        ],
-        "Y": [
-            "",
-            "M2",
-            "N2",
-            "",
-            "P2",
-            "Q2",
-        ],
-        "Z": [
-            "",
-            "M3",
-            "N3",
-            "",
-            "P3",
-            "Q3",
-        ],
+        "GENDER": ["MALE", "MALE", "MALE", "FEMALE", "FEMALE", "FEMALE",],
+        "COLOUR": ["BLUE", "BLUE", "BLUE", "BLUE", "BLUE", "BLUE",],
+        "X": ["L1", "M1", "N1", "O1", "P1", "Q1",],
+        "Y": ["", "M2", "N2", "", "P2", "Q2",],
+        "Z": ["", "M3", "N3", "", "P3", "Q3",],
     }
 )
 
 
 table_shortcuts_multiple_C_expected = pd.DataFrame(
     {
-        "ENSLAVED_AT": [
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-        ],
+        "ENSLAVED_AT": ["PLACE", "PLACE", "PLACE", "PLACE", "PLACE", "PLACE",],
         "ENSLAVED_ATX": [
             "1800_TEXT_TEXT:00",
             "1800_TEXT_TEXT:00",
@@ -170,60 +93,18 @@ table_shortcuts_multiple_C_expected = pd.DataFrame(
             "1800-01-01",
             "1800-01-01",
         ],
-        "GENDER": [
-            "MALE",
-            "MALE",
-            "MALE",
-            "FEMALE",
-            "FEMALE",
-            "FEMALE",
-        ],
-        "COLOUR": [
-            "BLUE",
-            "BLUE",
-            "BLUE",
-            "RED",
-            "RED",
-            "RED",
-        ],
-        "X": [
-            "L1",
-            "M1",
-            "N1",
-            "O1",
-            "P1",
-            "Q1",
-        ],
-        "Y": [
-            "",
-            "M2",
-            "N2",
-            "",
-            "P2",
-            "Q2",
-        ],
-        "Z": [
-            "",
-            "M3",
-            "N3",
-            "",
-            "P3",
-            "Q3",
-        ],
+        "GENDER": ["MALE", "MALE", "MALE", "FEMALE", "FEMALE", "FEMALE",],
+        "COLOUR": ["BLUE", "BLUE", "BLUE", "RED", "RED", "RED",],
+        "X": ["L1", "M1", "N1", "O1", "P1", "Q1",],
+        "Y": ["", "M2", "N2", "", "P2", "Q2",],
+        "Z": ["", "M3", "N3", "", "P3", "Q3",],
     }
 )
 
 
 table_shortcuts_multiple_D1_expected = pd.DataFrame(
     {
-        "ENSLAVED_AT": [
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-        ],
+        "ENSLAVED_AT": ["PLACE", "PLACE", "PLACE", "PLACE", "PLACE", "PLACE",],
         "ENSLAVED_ATX": [
             "1800_TEXT_TEXT:00",
             "1800_TEXT_TEXT:00",
@@ -240,68 +121,19 @@ table_shortcuts_multiple_D1_expected = pd.DataFrame(
             "1800-01-01",
             "1800-01-01",
         ],
-        "GENDER": [
-            "MALE",
-            "MALE",
-            "MALE",
-            "FEMALE",
-            "FEMALE",
-            "FEMALE",
-        ],
-        "COLOUR": [
-            "BLUE",
-            "BLUE",
-            "BLUE",
-            "RED",
-            "RED",
-            "RED",
-        ],
-        "SHAPE": [
-            "CIRCLE",
-            "CIRCLE",
-            "CIRCLE",
-            None,
-            None,
-            None,
-        ],
-        "X": [
-            "L1",
-            "M1",
-            "N1",
-            "O1",
-            "P1",
-            "Q1",
-        ],
-        "Y": [
-            "",
-            "M2",
-            "N2",
-            "",
-            "P2",
-            "Q2",
-        ],
-        "Z": [
-            "",
-            "M3",
-            "N3",
-            "",
-            "P3",
-            "Q3",
-        ],
+        "GENDER": ["MALE", "MALE", "MALE", "FEMALE", "FEMALE", "FEMALE",],
+        "COLOUR": ["BLUE", "BLUE", "BLUE", "RED", "RED", "RED",],
+        "SHAPE": ["CIRCLE", "CIRCLE", "CIRCLE", None, None, None,],
+        "X": ["L1", "M1", "N1", "O1", "P1", "Q1",],
+        "Y": ["", "M2", "N2", "", "P2", "Q2",],
+        "Z": ["", "M3", "N3", "", "P3", "Q3",],
     }
 )
 
 
 table_shortcuts_multiple_D2_expected = pd.DataFrame(
     {
-        "ENSLAVED_AT": [
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-        ],
+        "ENSLAVED_AT": ["PLACE", "PLACE", "PLACE", "PLACE", "PLACE", "PLACE",],
         "ENSLAVED_ATX": [
             "1800_TEXT_TEXT:00",
             "1800_TEXT_TEXT:00",
@@ -318,67 +150,18 @@ table_shortcuts_multiple_D2_expected = pd.DataFrame(
             "1800-01-01",
             "1800-01-01",
         ],
-        "GENDER": [
-            "MALE",
-            "MALE",
-            "MALE",
-            "FEMALE",
-            "FEMALE",
-            "FEMALE",
-        ],
-        "COLOUR": [
-            "BLUE",
-            "BLUE",
-            "BLUE",
-            "RED",
-            "RED",
-            "RED",
-        ],
-        "SHAPE": [
-            None,
-            None,
-            None,
-            "CIRCLE",
-            "CIRCLE",
-            "CIRCLE",
-        ],
-        "X": [
-            "L1",
-            "M1",
-            "N1",
-            "O1",
-            "P1",
-            "Q1",
-        ],
-        "Y": [
-            "",
-            "M2",
-            "N2",
-            "",
-            "P2",
-            "Q2",
-        ],
-        "Z": [
-            "",
-            "M3",
-            "N3",
-            "",
-            "P3",
-            "Q3",
-        ],
+        "GENDER": ["MALE", "MALE", "MALE", "FEMALE", "FEMALE", "FEMALE",],
+        "COLOUR": ["BLUE", "BLUE", "BLUE", "RED", "RED", "RED",],
+        "SHAPE": [None, None, None, "CIRCLE", "CIRCLE", "CIRCLE",],
+        "X": ["L1", "M1", "N1", "O1", "P1", "Q1",],
+        "Y": ["", "M2", "N2", "", "P2", "Q2",],
+        "Z": ["", "M3", "N3", "", "P3", "Q3",],
     }
 )
 
 table_shortcuts_multiple_E_expected = pd.DataFrame(
     {
-        "ENSLAVED_AT": [
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-            "PLACE",
-        ],
+        "ENSLAVED_AT": ["PLACE", "PLACE", "PLACE", "PLACE", "PLACE", "PLACE",],
         "ENSLAVED_ATX": [
             "1800_TEXT_TEXT:00",
             "1800_TEXT_TEXT:00",
@@ -395,46 +178,11 @@ table_shortcuts_multiple_E_expected = pd.DataFrame(
             "1800-01-01",
             "1800-01-01",
         ],
-        "GENDER": [
-            "MALE",
-            "MALE",
-            "MALE",
-            "FEMALE",
-            "FEMALE",
-            "FEMALE",
-        ],
-        "COLOUR": [
-            "BLUE",
-            "BLUE",
-            "BLUE",
-            None,
-            None,
-            None,
-        ],
-        "X": [
-            "L1",
-            "M1",
-            "N1",
-            "O1",
-            "P1",
-            "Q1",
-        ],
-        "Y": [
-            "",
-            "M2",
-            "N2",
-            "",
-            "P2",
-            "Q2",
-        ],
-        "Z": [
-            "",
-            "M3",
-            "N3",
-            "",
-            "P3",
-            "Q3",
-        ],
+        "GENDER": ["MALE", "MALE", "MALE", "FEMALE", "FEMALE", "FEMALE",],
+        "COLOUR": ["BLUE", "BLUE", "BLUE", None, None, None,],
+        "X": ["L1", "M1", "N1", "O1", "P1", "Q1",],
+        "Y": ["", "M2", "N2", "", "P2", "Q2",],
+        "Z": ["", "M3", "N3", "", "P3", "Q3",],
     }
 )
 
@@ -495,7 +243,6 @@ table_shortcuts_multiple_E_expected = pd.DataFrame(
         ),
     ],
 )
-
 def test_datapoint_extraction(test_name, settings_file, expected_df):
 
     content_f = DATA_DIR / f"{test_name}.txt"
