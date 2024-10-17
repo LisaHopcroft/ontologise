@@ -189,8 +189,8 @@ def generate_peopla_object(name="A", type="person", attribute=["X"], marker=["*"
     :returns: a string of the peopla object
     """
 
-    ### To check: that type is in the expected list of options
-    ### To check: that the number of attributes matches the number of markers
+    # To check: that type is in the expected list of options
+    # To check: that the number of attributes matches the number of markers
 
     peopla_string = f"""###\t{"@" if type=="place" else ""}[{name}]"""
 

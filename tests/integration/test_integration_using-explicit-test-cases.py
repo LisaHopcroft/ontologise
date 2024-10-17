@@ -10,12 +10,12 @@ DATA_DIR = BASE_DIR / "integration" / "content" / "input"
 SETTINGS_DIR = BASE_DIR / "integration" / "content" / "settings"
 EXPECTED_DIR = BASE_DIR / "integration" / "content" / "expected"
 
-### -----------------------------------------------------------------
-### Integration test cases
-### -----------------------------------------------------------------
-### - Testing that one table shortcut works
-### - Testing that multiple table shortcuts work
-###   input: content/table_shortcuts_multiple.txt
+# -----------------------------------------------------------------
+# Integration test cases
+# -----------------------------------------------------------------
+# - Testing that one table shortcut works
+# - Testing that multiple table shortcuts work
+#   input: content/table_shortcuts_multiple.txt
 
 table_shortcuts_multiple_A_expected = pd.DataFrame(
     {
@@ -179,52 +179,52 @@ table_shortcuts_multiple_E_expected = pd.DataFrame(
 @pytest.mark.parametrize(
     "test_name,settings_file,expected_df",
     [
-        ### TEST: Are multiple table shortcut values inherited appropriately in
-        ###       the eventual data table?
-        ### Context: 1 table, 2 shortcuts
+        # TEST: Are multiple table shortcut values inherited appropriately in
+        #       the eventual data table?
+        # Context: 1 table, 2 shortcuts
         (
             "table_shortcuts_multiple_A",
             "settings_colour_shortcuts.yaml",
             table_shortcuts_multiple_A_expected,
         ),
-        ### TEST: Are multiple table shortcut values inherited appropriately in
-        ###       the eventual data table?
-        ### Context: 2 tables, 2 shortcuts on each, 1 overlapping shortcut
+        # TEST: Are multiple table shortcut values inherited appropriately in
+        #       the eventual data table?
+        # Context: 2 tables, 2 shortcuts on each, 1 overlapping shortcut
         (
             "table_shortcuts_multiple_B",
             "settings_colour_shortcuts.yaml",
             table_shortcuts_multiple_B_expected,
         ),
-        ### TEST: Are multiple table shortcut values inherited appropriately in
-        ###       the eventual data table?
-        ### Context: 2 tables, 2 shortcuts on each, no overlapping shortcuts
+        # TEST: Are multiple table shortcut values inherited appropriately in
+        #       the eventual data table?
+        # Context: 2 tables, 2 shortcuts on each, no overlapping shortcuts
         (
             "table_shortcuts_multiple_C",
             "settings_colour_shortcuts.yaml",
             table_shortcuts_multiple_C_expected,
         ),
-        ### TEST: Are multiple table shortcut values inherited appropriately in
-        ###       the eventual data table?
-        ### Context: 2 tables, 2 shortcuts on each, no overlapping shortcuts, one
-        ###          additional shortcut on FIRST table
+        # TEST: Are multiple table shortcut values inherited appropriately in
+        #       the eventual data table?
+        # Context: 2 tables, 2 shortcuts on each, no overlapping shortcuts, one
+        #          additional shortcut on FIRST table
         (
             "table_shortcuts_multiple_D1",
             "settings_colour-shape_shortcuts.yaml",
             table_shortcuts_multiple_D1_expected,
         ),
-        ### TEST: Are multiple table shortcut values inherited appropriately in
-        ###       the eventual data table?
-        ### Context: 2 tables, 2 shortcuts on each, no overlapping shortcuts, one
-        ###          additional shortcut on SECOND table
+        # TEST: Are multiple table shortcut values inherited appropriately in
+        #       the eventual data table?
+        # Context: 2 tables, 2 shortcuts on each, no overlapping shortcuts, one
+        #          additional shortcut on SECOND table
         pytest.param(
             "table_shortcuts_multiple_D2",
             "settings_colour-shape_shortcuts.yaml",
             table_shortcuts_multiple_D2_expected,
             marks=pytest.mark.xfail(reason="Bug (see issue #36)"),
         ),
-        ### TEST: Are multiple table shortcut values inherited appropriately in
-        ###       the eventual data table?
-        ### Context: 2 tables, 2 shortcuts on one, 1 on the other, no overlapping shortcuts
+        # TEST: Are multiple table shortcut values inherited appropriately in
+        #       the eventual data table?
+        # Context: 2 tables, 2 shortcuts on one, 1 on the other, no overlapping shortcuts
         (
             "table_shortcuts_multiple_E",
             "settings_colour_shortcuts.yaml",
