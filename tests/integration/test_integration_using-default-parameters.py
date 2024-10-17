@@ -12,6 +12,7 @@ sys.path.append("src/ontologise")
 
 from utils import Document, read_settings_file
 
+
 def extract_default_values_hash(f):
     """
     Extract the default parameter values of a function
@@ -33,7 +34,8 @@ def extract_default_values_hash(f):
             param_default = [param_default]
         v_hash.update({param_name.upper(): param_default})
 
-    return( v_hash )
+    return v_hash
+
 
 def generate_file_header_string(
     title="RECORD_TYPE",
@@ -93,7 +95,11 @@ def document_with_two_sources(
 
     return test_doc
 
-document_with_two_sources_defaults = extract_default_values_hash(document_with_two_sources)
+
+document_with_two_sources_defaults = extract_default_values_hash(
+    document_with_two_sources
+)
+
 
 @pytest.mark.parametrize("tag", document_with_two_sources_defaults.keys())
 def test_header_parse(document_with_two_sources, tag):
@@ -117,6 +123,7 @@ extra_tag_list.remove("TITLE")
 extra_tag_list_string = "\n".join(["  - {}".format(t) for t in extra_tag_list])
 
 extra_tag_settings = f"header_tags:\n{extra_tag_list_string}"
+
 
 @pytest.fixture()
 def document_with_extra_header_tag():
@@ -170,12 +177,7 @@ def test_extra_header_tag_is_present(document_with_extra_header_tag):
     ]
 
 
-def generate_peopla_object(
-        name="A",
-        type="person",
-        attribute=["X"],
-        marker=["*"]
-):
+def generate_peopla_object(name="A", type="person", attribute=["X"], marker=["*"]):
     """
     Create text to represent a peopla object for a marked up Ontologise file
 
@@ -204,12 +206,10 @@ def generate_peopla_object(
 
 """
 
+
 @pytest.fixture()
 def document_with_two_peopla(
-    name=["A", "B"],
-    type=["person", "place"],
-    attribute=["X", "Y"],
-    marker=["*", ""],
+    name=["A", "B"], type=["person", "place"], attribute=["X", "Y"], marker=["*", ""],
 ):
     """
     Python fixture that:
@@ -222,9 +222,7 @@ def document_with_two_peopla(
     test_file_content = generate_file_header_string()
 
     for i in range(0, len(name)):
-        this_text = generate_peopla_object(
-            name[i], type[i], attribute[i], marker[i]
-        )
+        this_text = generate_peopla_object(name[i], type[i], attribute[i], marker[i])
 
         test_file_content = f"{test_file_content}{this_text}"
 
@@ -241,10 +239,7 @@ def document_with_two_peopla(
 
 @pytest.fixture()
 def document_with_two_peopla_attributes(
-    name="A",
-    type="person",
-    attribute=["X", "Y"],
-    marker=["*", ""],
+    name="A", type="person", attribute=["X", "Y"], marker=["*", ""],
 ):
     """
     Python fixture that:
@@ -300,7 +295,7 @@ def test_default_peopla_parse(document_with_two_peopla):
         assert attr == document_with_two_peopla_defaults["ATTRIBUTE"][i]
 
         hash_for_comparison = {}
-        if document_with_two_peopla_defaults["MARKER"][i]=="*":
+        if document_with_two_peopla_defaults["MARKER"][i] == "*":
             hash_for_comparison = generate_file_header_string_defaults
             try:
                 hash_for_comparison.pop("TITLE")
@@ -336,10 +331,7 @@ def test_two_attribute_peopla_parse(document_with_two_peopla_attributes):
 
 
 def generate_shortcut_header(
-    shortcut_content=[
-        ["ENSLAVED*", "!MALE"],
-        ["ENSLAVED*", "!FEMALE"],
-    ]
+    shortcut_content=[["ENSLAVED*", "!MALE"], ["ENSLAVED*", "!FEMALE"],]
 ):
     """
     Generates text for a shortcut header to be used in a marked up Ontologise file
@@ -378,6 +370,7 @@ def generate_shortcut_header(
     shortcut_string += "-" * 70
 
     return shortcut_string
+
 
 def generate_data_points(
     columns=list(string.ascii_uppercase[23:26]),
@@ -460,7 +453,7 @@ def create_default_datapoint_df():
 
     # Also need to extract the settings as represented by the
     # default settings file, and then represented them as a dictionary
-    default_settings = read_settings_file( Document().settings_file )
+    default_settings = read_settings_file(Document().settings_file)
 
     default_shortcut_mappings_dict = dict(
         pair for d in default_settings.get("shortcut_mappings") for pair in d.items()
@@ -473,16 +466,17 @@ def create_default_datapoint_df():
     #   2  A, B, C, D, E  1800_TEXT_TEXT:00    1800-01-01   MALE  N1  N2  N3
 
     # How many datapoints are we expecting?
-    num_datapoints = len( generate_data_points_defaults["DATAPOINT_CONTENT"] )
+    num_datapoints = len(generate_data_points_defaults["DATAPOINT_CONTENT"])
 
     # Are any shortcut labels used? --- Taking the last label for now
     relevant_shortcut_label = int(generate_data_points_defaults["SHORTCUT_LABELS"][-1])
     relevant_shortcut = generate_shortcut_header_defaults["SHORTCUT_CONTENT"][
-        relevant_shortcut_label-1]
+        relevant_shortcut_label - 1
+    ]
 
     # Are any of these shortcut labels an inheritance marker?
     relevant_inheritance_shortcuts = [
-        m.replace("*","") for m in relevant_shortcut if re.match(r"^[A-Z]+\*$", m)
+        m.replace("*", "") for m in relevant_shortcut if re.match(r"^[A-Z]+\*$", m)
     ]
 
     # Are any of these shortcut labels an autogeneration marker?
@@ -517,7 +511,7 @@ def create_default_datapoint_df():
     for auto_generate_content in relevant_autogenerate_shortcuts:
         column_name = default_shortcut_mappings_dict[auto_generate_content]
         column_value = auto_generate_content
-        default_df[ column_name ] = column_value
+        default_df[column_name] = column_value
 
     # (4) Repeat these values for the number of datapoints that are known to exist.
     #     For the example above, this will look like:
@@ -539,9 +533,9 @@ def create_default_datapoint_df():
     #     A, B, C, D, E     1800_TEXT_TEXT:00   1800-01-01      MALE    M1  M2  M3
     #     A, B, C, D, E     1800_TEXT_TEXT:00   1800-01-01      MALE    N1  N2  N3
     datapoint_list = generate_data_points_defaults["COLUMNS"]
-    datapoint_content = generate_data_points_defaults['DATAPOINT_CONTENT']
+    datapoint_content = generate_data_points_defaults["DATAPOINT_CONTENT"]
 
-    for i, data_item in enumerate( datapoint_content ):
+    for i, data_item in enumerate(datapoint_content):
         if len(data_item) < num_datapoints:
             data_item += [""] * (num_datapoints - len(data_item))
         elif len(data_item) > num_datapoints:
@@ -550,10 +544,10 @@ def create_default_datapoint_df():
         datapoint_content[i] = data_item
 
     datapoint_df = pd.DataFrame(datapoint_content, columns=datapoint_list)
-    default_df = default_df.join( datapoint_df )
+    default_df = default_df.join(datapoint_df)
 
     # (6) Return the dataframe
-    return( default_df )
+    return default_df
 
 
 def test_datapoint_parse(document_with_datapoints):
