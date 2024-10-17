@@ -63,8 +63,6 @@ def generate_file_header_string(
     return file_header_string
 
 
-@pytest.mark.unittest
-
 @pytest.fixture()
 def document_with_two_sources(
     title=["A", "B"], at=["C", "D"], atx=["E", "F"], date=["G", "H"],
