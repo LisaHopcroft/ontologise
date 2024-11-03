@@ -43,6 +43,7 @@ ch.setFormatter(CustomFormatter())
 
 logger.addHandler(ch)
 
+
 def read_settings_file(file):
     settings = ""
 
@@ -51,8 +52,9 @@ def read_settings_file(file):
             settings = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             logger.error(exc)
-    
-    return( settings )
+
+    return settings
+
 
 def flatten_dict(nested_dict):
     res = {}
@@ -69,10 +71,9 @@ def flatten_dict(nested_dict):
 
 
 class DataTable:
-
-    def __init__( self, fields, shortcuts ):
+    def __init__(self, fields, shortcuts):
         self.column_names = fields
-        self.column_num = len( fields )
+        self.column_num = len(fields)
         self.attributes = shortcuts
 
         logger.debug("==== Creating a table ====")
@@ -93,15 +94,15 @@ class DataTable:
         # logger.debug(-------" Column dictionary -------")
         # logger.debug( column_dictionary )
 
-class DataPoint:
 
-    def __init__( self, list, table ):
+class DataPoint:
+    def __init__(self, list, table):
 
         logger.debug(f"data point list provided [{list}]")
         logger.debug(f"needs to fit into [{table.column_num}] slots")
 
         if len(list) < table.column_num:
-            list += [''] * (table.column_num - len(list))
+            list += [""] * (table.column_num - len(list))
         elif len(list) > table.column_num:
             list = list[: table.column_num]
 
@@ -112,10 +113,10 @@ class DataPoint:
         # print(f"Making a datapoint: shortcuts1: {table.attributes}")
         # print(f"Making a datapoint: final data1: {data}")
 
-        for (key,val) in zip(table.column_names, list):
-            if ':' in key:
-                (key,subkey) = key.split(":") 
-                data[key][subkey] = val                    
+        for (key, val) in zip(table.column_names, list):
+            if ":" in key:
+                (key, subkey) = key.split(":")
+                data[key][subkey] = val
             else:
                 data[key] = val
 
@@ -136,6 +137,7 @@ class DataPoint:
     #         else:
     #             info_to_print = f"{info_to_print}\n{v}\n"
     #     print( info_to_print )
+
 
 class Peopla:
     """
@@ -198,7 +200,7 @@ class Document:
 
     def add_settings_to_document(self, file):
 
-        settings = read_settings_file( file )
+        settings = read_settings_file(file)
 
         self.settings_file = file
         self.header_tags = ["TITLE"] + settings["header_tags"]
@@ -254,7 +256,7 @@ class Document:
                 for s in self.shortcuts:
                     shortcut_dictionary.update(s)
                 self.shortcuts = shortcut_dictionary
-                logger.debug( "Resetting shortcut")
+                logger.debug("Resetting shortcut")
                 logger.debug(
                     f"Shortcut dictionary has been created: {shortcut_dictionary}"
                 )
@@ -265,12 +267,12 @@ class Document:
 
     def scan_for_shortcut_lines(self, line):
         """
-        Function that exmaines the current input file from file.
+        Function that examines the current input file from file.
         If it's format corresponds to a shortcut definition,
         a new shortcut object will be created and added to the
         list of shortcuts that are attached to the Document.
         """
-        if re.match(rf"^###\t\^\d+:$", line):
+        if re.match(r"^###\t\^\d+:$", line):
             logger.debug(f"Identified shortcut line: '{line}'")
 
             m = re.search(r"^###\t\^(\d+):$", line)
@@ -278,17 +280,17 @@ class Document:
             logger.debug(f"with shortcut id: {shortcut_id}")
 
             self.shortcut_live = True
-            self.shortcuts.append( { shortcut_id: {} } )
-            return( True )
+            self.shortcuts.append({shortcut_id: {}})
+            return True
         else:
-            return( False )
+            return False
 
     def create_inheritance_hash(self, flag):
         h = {}
         if flag == "*":
             h = dict(self.header)
-            h.pop("TITLE",None)
-        return(h)
+            h.pop("TITLE", None)
+        return h
 
     def scan_for_shortcut_definition(self, line):
         if re.match(r"^###\t[^\*\[\]\{\}]+\*?$", line):
@@ -303,23 +305,27 @@ class Document:
             action_text = m.group(2).rstrip()
             inheritance_flag = m.group(3).rstrip()
 
-            logger.debug(f"Identified shortcut content: '{property_flag}' / '{action_text}' / '{inheritance_flag}'")
+            logger.debug(
+                f"Identified shortcut content: '{property_flag}' / '{action_text}' / '{inheritance_flag}'"
+            )
 
             inheritance_hash = {}
 
             if property_flag == "!":
                 logger.debug(f"a property: {action_text}")
                 k = self.shortcut_mappings[action_text]
-                inheritance_hash = { k: action_text }
-            elif inheritance_flag == '*':
-                logger.debug(f"the header is: {dict(self.header)}" )
-                logger.debug(f"self shortcuts: {current_shortcut_key}" )
+                inheritance_hash = {k: action_text}
+            elif inheritance_flag == "*":
+                logger.debug(f"the header is: {dict(self.header)}")
+                logger.debug(f"self shortcuts: {current_shortcut_key}")
 
-                inheritance_hash = { action_text: self.create_inheritance_hash(inheritance_flag) }
+                inheritance_hash = {
+                    action_text: self.create_inheritance_hash(inheritance_flag)
+                }
             else:
                 logger.warning(f"shortcut format not recognised: {line}")
 
-            (self.shortcuts[-1])[current_shortcut_key].update( inheritance_hash )
+            (self.shortcuts[-1])[current_shortcut_key].update(inheritance_hash)
             logger.debug("Setting self.shortcuts in scan_for_shortcut_definition to:")
             logger.debug(self.shortcuts)
 
@@ -349,28 +355,30 @@ class Document:
             ### Now we can have more than one shortcut
             m = re.search(
                 rf"^###{re.escape(data_point_separator)}([^\^]*)([\^\d]+)$", line
-                )
+            )
 
             header_content = m.group(1)
-            header_shortcuts = list( filter(None, m.group(2).split("^") ) )
+            header_shortcuts = list(filter(None, m.group(2).split("^")))
             header_columns = header_content.split(data_point_separator)
             logger.debug(f"Identified table header: '{header_content}'")
             logger.debug(f"with {len(header_columns)} columns")
             logger.debug(f"with shortcut: {header_shortcuts}")
 
-            print( self.shortcuts )
+            print(self.shortcuts)
             # m = re.search(rf"^###{re.escape(data_point_separator)}(.*)$", line)
             # header_content    = m.group(1)
             # header_columns = header_content.split(data_point_separator)
             # logger.debug(f"Identified table header: '{header_content}'")
             # logger.debug(f"with {len(header_columns)} columns")
 
-            logger.debug(f"Is/are the header shortcut(s) ({header_shortcuts}) correct?????")
+            logger.debug(
+                f"Is/are the header shortcut(s) ({header_shortcuts}) correct?????"
+            )
 
             ### check: are all the shortcuts present in the table header
             ###        actually defined in the document header?
 
-            check = all(e in list(self.shortcuts.keys()) for e in header_shortcuts )
+            check = all(e in list(self.shortcuts.keys()) for e in header_shortcuts)
 
             if check:
                 logger.debug(
@@ -409,25 +417,27 @@ class Document:
     def scan_for_data_points(self, line):
         logger.debug(f"Looking for data table content in {line}")
 
-        current_table = (self.data_tables[-1])
+        current_table = self.data_tables[-1]
 
         if re.match(rf"^###{re.escape(data_point_separator)}END$", line):
             logger.debug("End of table")
             self.data_table_live = False
-        elif re.match(rf"^\[/\]$", line):
+        elif re.match(r"^\[/\]$", line):
             logger.debug("Ignore (line break not relevant)")
-        elif re.match(rf"^!.*$", line):
+        elif re.match(r"^!.*$", line):
             logger.debug("Ignore (line starts with !)")
         elif re.match(r"^###\t\{.*\}$", line):
             # --- Functionality to be added ---
             # This is a globcal identifier to be added to the
             # immediately preceeding data point
-            logger.debug( f"FOUND a global identifer")
+            logger.debug("FOUND a global identifer")
         else:
-            content_list = re.split("\t+",line.rstrip())
+            content_list = re.split("\t+", line.rstrip())
             logger.debug(f"FOUND {len(content_list)} data points for the table")
-            logger.debug(f"This is the current table attributes: {current_table.attributes}")
-            self.data_points.append( DataPoint(content_list, current_table ) )
+            logger.debug(
+                f"This is the current table attributes: {current_table.attributes}"
+            )
+            self.data_points.append(DataPoint(content_list, current_table))
             # (self.data_points[-1]).print_data_point()
 
     def generate_table_from_datapoints(self):
@@ -437,12 +447,12 @@ class Document:
             d_dict_tuples = flatten_dict(d.cells)
             d_dict_flat = {}
             for k, v in d_dict_tuples.items():
-                new_key = '_'.join(k)
+                new_key = "_".join(k)
                 d_dict_flat[new_key] = v
             d_df = pd.DataFrame.from_dict(d_dict_flat)
             datapoint_table = pd.concat([datapoint_table, d_df])
 
-        return datapoint_table.reset_index().drop( columns=['index'] )
+        return datapoint_table.reset_index().drop(columns=["index"])
 
     def scan_for_peopla_attributes(self, line):
         logger.debug(f"Looking for peopla attributes in {line}")
