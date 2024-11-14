@@ -129,12 +129,13 @@ class Peopla:
     A Peopla object
     """
 
-    def __init__(self, input, place_flag=False):
+    def __init__(self, input, place_flag=False, global_id=None):
         self.type = "place" if place_flag else "person"
         self.name = input
         self.attributes = {}
+        self.global_id = global_id
 
-        logger.info(f"Creating a PEOPLA object: {self.name} ({self.type})")
+        logger.info(f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.global_id})")
 
     def add_attribute(self, attribute_text, inheritance):
         self.attributes[attribute_text] = inheritance        
@@ -147,6 +148,8 @@ class Peopla:
     def print_peopla(self):  # pragma: no cover
         logger.info(f"I found this {self.type} PEOPLA called {self.name}")
         logger.info(f"It has the following attributes:\n{log_pretty(self.attributes)}")
+        if self.global_id:
+            logger.info(f"It has the following global ID: {self.global_id}")
 
 
 class Document:
@@ -474,12 +477,15 @@ class Document:
         will be created and added to the list of PEOPLA that are
         attached to the Document.
         """
-        if re.match(r"^###\t@?\[.*\]$", line):
-            m = re.search(r"^###\t(\@?)\[(.*?)\]$", line)
+        if re.match(r"^###\t@?\[.*\](\{.*\})?$", line):
+            m = re.search(r"^###\t(\@?)\[(.*?)\](\{.*\})?$", line)
             place_flag = m.group(1)
             content = m.group(2)
-            logger.debug(f"Identified '{place_flag}' / '{content}'")
-            self.peoplas.append(Peopla(content, place_flag == "@"))
+            global_id = None
+            if m.group(3):
+                global_id = re.sub('[\{\}]','',m.group(3))
+            logger.debug(f"Identified '{place_flag}' / '{content}' / '{global_id}'")
+            self.peoplas.append(Peopla(content, place_flag == "@", global_id))
             self.peopla_live = True
 
     def scan_for_header_lines(self, line):
