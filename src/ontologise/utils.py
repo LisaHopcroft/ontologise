@@ -202,8 +202,8 @@ class Document:
                 pair for d in settings["shortcut_mappings"] for pair in d.items()
             )
 
-        logger.info(f"Shortcut mappings provided:")
-        logger.info(f"{log_pretty(self.shortcut_mappings)}")
+            logger.info(f"Shortcut mappings provided:")
+            logger.info(f"{log_pretty(self.shortcut_mappings)}")
 
     def read_document(self):
         """
