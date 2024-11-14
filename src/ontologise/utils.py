@@ -418,9 +418,6 @@ class Document:
         elif re.match(r"^!.*$", line):
             logger.debug("Ignore (line starts with !)")
         elif re.match(r"^###\t\{.*\}$", line):
-            # --- Functionality to be added ---
-            # This is a globcal identifier to be added to the
-            # immediately preceeding data point
             m = re.search(r"^###\t\{(.*)\}$$", line)
             global_id = m.group(1).rstrip()
             logger.debug(f"Found a global identifer: {global_id}")
