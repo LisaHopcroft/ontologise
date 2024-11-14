@@ -122,7 +122,7 @@ extra_tag_list = list(document_with_two_sources_defaults.keys()) + [extra_header
 extra_tag_list.remove("TITLE")
 extra_tag_list_string = "\n".join(["  - {}".format(t) for t in extra_tag_list])
 
-extra_tag_settings = f"header_tags:\n{extra_tag_list_string}"
+extra_tag_settings = f"header_tags:\n{extra_tag_list_string}\n"
 
 
 @pytest.fixture()
@@ -139,7 +139,7 @@ def document_with_extra_header_tag():
     test_file_content = generate_file_header_string()
 
     test_file_content = f"""
-{test_file_content}
+{test_file_content.rstrip()}
 ##{extra_header_tag}:\t{extra_header_value}\n
 """
 
@@ -153,6 +153,9 @@ def document_with_extra_header_tag():
         d.writelines(extra_tag_settings)
 
     test_doc = Document(file=temp_f1.name, settings_file=temp_f2.name)
+
+    print( "file name: "     + temp_f1.name )
+    print( "settings file: " + temp_f2.name )
 
     test_doc.read_document()
     test_doc.print_header_information()
@@ -546,7 +549,10 @@ def create_default_datapoint_df():
     datapoint_df = pd.DataFrame(datapoint_content, columns=datapoint_list)
     default_df = default_df.join(datapoint_df)
 
-    # (6) Return the dataframe
+    # (6) Add the global_id column
+    default_df[ "global_id"] = None
+
+    # (7) Return the dataframe
     return default_df
 
 
