@@ -428,6 +428,11 @@ table_shortcuts_multiple_F_expected = pd.DataFrame(
             "MALE",
             "MALE",
         ],
+        "COLOUR": [
+            "BLUE",
+            "BLUE",
+            "BLUE",
+        ],
         "X": [
             "L1",
             "M1",
@@ -521,6 +526,10 @@ def test_datapoint_extraction(test_name, settings_file, expected_df):
     test_doc.read_document()
     observed_df = test_doc.data_points_df
 
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
     print("OBSERVED\n")
     print(observed_df)
