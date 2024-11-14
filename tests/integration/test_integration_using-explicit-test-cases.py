@@ -406,6 +406,48 @@ table_shortcuts_multiple_E_expected = pd.DataFrame(
 )
 
 
+table_shortcuts_multiple_F_expected = pd.DataFrame(
+    {
+        "ENSLAVED_AT": [
+            "PLACE",
+            "PLACE",
+            "PLACE",
+        ],
+        "ENSLAVED_ATX": [
+            "1800_TEXT_TEXT:00",
+            "1800_TEXT_TEXT:00",
+            "1800_TEXT_TEXT:00",
+        ],
+        "ENSLAVED_DATE": [
+            "1800-01-01",
+            "1800-01-01",
+            "1800-01-01",
+        ],
+        "GENDER": [
+            "MALE",
+            "MALE",
+            "MALE",
+        ],
+        "X": [
+            "L1",
+            "M1",
+            "N1",
+        ],
+        "Y": [
+            "",
+            "M2",
+            "N2",
+        ],
+        "Z": [
+            "",
+            "M3",
+            "N3",
+        ],
+        "global_id": ["i-1", "j-2", "k-3"],
+    }
+)
+
+
 @pytest.mark.parametrize(
     "test_name,settings_file,expected_df",
     [
@@ -460,8 +502,16 @@ table_shortcuts_multiple_E_expected = pd.DataFrame(
             "settings_colour_shortcuts.yaml",
             table_shortcuts_multiple_E_expected,
         ),
+        # TEST: Are global IDs being picked up and assigned correctly?
+        # Context: 1 table, 2 shortcuts on one, 1 on the other, no overlapping shortcuts
+        (
+            "table_shortcuts_multiple_F",
+            "settings_colour_shortcuts.yaml",
+            table_shortcuts_multiple_F_expected,
+        ),
     ],
 )
+
 def test_datapoint_extraction(test_name, settings_file, expected_df):
 
     content_f = DATA_DIR / f"{test_name}.txt"
