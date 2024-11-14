@@ -119,20 +119,10 @@ class DataPoint:
                 data[key] = val
 
         self.cells = data
-
-    # def print_data_point( self ):
-
-    #     info_to_print = ""
-    #     for i, (k, v) in enumerate( self.cells.items() ):
-    #         initial_text = f"{i:03} {k}"
-    #         info_to_print = f"{initial_text}"
-    #         if isinstance(v, dict):
-    #             for (sk, sv) in v.items():
-    #                 info_to_print = f"{info_to_print}\n{initial_text} {sk} {sv}\n"
-    #         else:
-    #             info_to_print = f"{info_to_print}\n{v}\n"
-    #     print( info_to_print )
-
+        self.global_id = None
+    
+    def add_global_id( self, id ):
+        self.global_id = id
 
 class Peopla:
     """
@@ -434,6 +424,7 @@ class Document:
             m = re.search(r"^###\t\{(.*)\}$$", line)
             global_id = m.group(1).rstrip()
             logger.debug(f"Found a global identifer: {global_id}")
+            self.data_points[-1].add_global_id( global_id )
         else:
             content_list = re.split("\t+", line.rstrip())
             logger.debug(f"Found {len(content_list)} data points for the table")
@@ -453,6 +444,9 @@ class Document:
                 new_key = "_".join(k)
                 d_dict_flat[new_key] = v
             d_df = pd.DataFrame.from_dict(d_dict_flat)
+
+            d_df[ "global_id" ] = d.global_id
+
             datapoint_table = pd.concat([datapoint_table, d_df])
 
         return datapoint_table.reset_index().drop(columns=["index"])
