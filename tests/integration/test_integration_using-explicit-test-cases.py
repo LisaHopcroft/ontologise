@@ -15,6 +15,7 @@ EXPECTED_DIR = BASE_DIR / "integration" / "content" / "expected"
 # -----------------------------------------------------------------
 # -
 
+
 @pytest.mark.parametrize(
     "test_name,settings_file,expected_num_peoplas,expected_global_ids",
     # parameters are:
@@ -29,6 +30,9 @@ EXPECTED_DIR = BASE_DIR / "integration" / "content" / "expected"
         # TEST: Are the peoplas extracted correctly
         # Context: 1 peopla, with a global ID
         ("peopla_content_B", "settings_basic.yaml", 1, ["i-1"]),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 2 peopla, the first has a global ID
+        ("peopla_content_C", "settings_basic.yaml", 2, ["i-1",None]),
     ],
 )
 def test_peopla_content(test_name, settings_file, expected_num_peoplas, expected_global_ids):
