@@ -4,7 +4,10 @@ from collections import defaultdict
 import logging
 import pandas as pd
 from copy import deepcopy
+import pprint
 
+
+PROJECT_NAME = 'Ontologise'
 
 data_point_separator = "\\t"
 
@@ -18,11 +21,14 @@ class CustomFormatter(logging.Formatter):
     magenta = "\x1b[45m"
     bold_red = "\x1b[41m"
     reset = "\x1b[0m"
-    format = "\033[1m [%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s] \033[0m %(message)s"
+    # format = "\033[1m [%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s] \033[0m \n%(message)s"
+    debug_format = "\033[1m🪲 [%(filename)s::%(funcName)s::%(lineno)d]\033[0m\n%(message)s"
+    info_format = "\033[1m%(message)s"
+    format = "\033[1m%(message)s"
 
     FORMATS = {
-        logging.DEBUG: cyan + format + reset,
-        logging.INFO: grey + format + reset,
+        logging.DEBUG: cyan + debug_format + reset,
+        logging.INFO: grey + info_format + reset,
         logging.WARNING: magenta + format + reset,
         logging.ERROR: bold_red + format + reset,
         logging.CRITICAL: bold_red + format + reset,
@@ -34,7 +40,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-logger = logging.getLogger("Ontologise".upper())
+logger = logging.getLogger(PROJECT_NAME.upper())
 logger.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()
@@ -43,6 +49,13 @@ ch.setFormatter(CustomFormatter())
 
 logger.addHandler(ch)
 
+# set up pretty printer
+# https://stackoverflow.com/questions/77991049/is-there-a-way-to-print-a-formatted-dictionary-to-a-python-log-file
+pp = pprint.PrettyPrinter(indent=2, sort_dicts=False)
+
+def log_pretty(obj):
+    pretty_out = f"{pp.pformat(obj)}"
+    return f"{pretty_out}\n"
 
 def read_settings_file(file):
     settings = ""
@@ -76,42 +89,27 @@ class DataTable:
         self.column_num = len(fields)
         self.attributes = shortcuts
 
-        logger.debug("==== Creating a table ====")
-        logger.debug(f"{self.column_num} columns")
-        logger.debug(f"Column names: {','.join(self.column_names)}")
-        logger.debug(f"Attributes are: {self.attributes}")
-        logger.debug("==========================")
-
-        # column_dictionary = {}
-        # for c in fields:
-        #     o = c.split(":")
-        #     if len(o) == 2 :
-        #         column_dictionary.update({o[0]:{o[1],''}})
-        #     else:
-        #         column_dictionary.update({o:''})
-
-        # self.column_dictionary = column_dictionary
-        # logger.debug(-------" Column dictionary -------")
-        # logger.debug( column_dictionary )
+        logger.info("Creating a table")
+        logger.debug(f" - {self.column_num} columns")
+        logger.debug(f" - Column names: {','.join(self.column_names)}")
+        logger.debug(f" - Attributes are: {self.attributes}")
 
 
 class DataPoint:
     def __init__(self, list, table):
 
-        logger.debug(f"data point list provided [{list}]")
-        logger.debug(f"needs to fit into [{table.column_num}] slots")
+        logger.info("Creating a datapoint")
+        logger.debug(f" - data point list provided [{list}]")
+        logger.debug(f" - needs to fit into [{table.column_num}] slots")
 
         if len(list) < table.column_num:
             list += [""] * (table.column_num - len(list))
         elif len(list) > table.column_num:
             list = list[: table.column_num]
 
-        logger.debug(f"list doctored to [{list}]")
+        logger.debug(f" - list doctored to [{list}]")
 
         data = deepcopy(table.attributes)
-
-        # print(f"Making a datapoint: shortcuts1: {table.attributes}")
-        # print(f"Making a datapoint: final data1: {data}")
 
         for (key, val) in zip(table.column_names, list):
             if ":" in key:
@@ -119,9 +117,6 @@ class DataPoint:
                 data[key][subkey] = val
             else:
                 data[key] = val
-
-        print(f"Making a datapoint: shortcuts2: {table.attributes}")
-        print(f"Making a datapoint: final data2: {data}")
 
         self.cells = data
 
@@ -148,20 +143,20 @@ class Peopla:
         self.type = "place" if place_flag else "person"
         self.name = input
         self.attributes = {}
-        logger.info(f"Creating PEOPLA object: {self.name} ({self.type})")
+
+        logger.info(f"Creating a PEOPLA object: {self.name} ({self.type})")
 
     def add_attribute(self, attribute_text, inheritance):
-        self.attributes[attribute_text] = inheritance
-        logger.debug("This is what is to be inherited:")
-        print(inheritance)
+        self.attributes[attribute_text] = inheritance        
+        logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
+
         logger.info(
             f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
         )
 
     def print_peopla(self):  # pragma: no cover
-        logger.debug(f"I found this {self.type} PEOPLA called {self.name}")
-        logger.debug("It has the following attributes:")
-        print(self.attributes)
+        logger.info(f"I found this {self.type} PEOPLA called {self.name}")
+        logger.info(f"It has the following attributes:\n{log_pretty(self.attributes)}")
 
 
 class Document:
@@ -173,7 +168,9 @@ class Document:
         """
         Defining a document object
         """
-        logger.info(f"Reading input file: '{file}'")
+
+        logger.info(f"Creating a document object from:\n - {file}\n - {settings_file})")
+
         self.file = file
 
         # Read settings file
@@ -200,7 +197,11 @@ class Document:
 
     def add_settings_to_document(self, file):
 
+        logger.info(f"Reading settings file [{file}]")
+
         settings = read_settings_file(file)
+
+        logger.info(f"{log_pretty(settings)}")
 
         self.settings_file = file
         self.header_tags = ["TITLE"] + settings["header_tags"]
@@ -211,6 +212,9 @@ class Document:
                 pair for d in settings["shortcut_mappings"] for pair in d.items()
             )
 
+        logger.info(f"Shortcut mappings provided:")
+        logger.info(f"{log_pretty(self.shortcut_mappings)}")
+
     def read_document(self):
         """
         Reading a document
@@ -219,6 +223,7 @@ class Document:
         with open(self.file, "r") as d:
             for line in d:
                 line_num += 1
+
                 logger.debug(f"Reading line #{line_num}: {line.rstrip()}")
 
                 if self.shortcut_live:
@@ -237,7 +242,6 @@ class Document:
                 self.scan_for_header_lines(line)
                 self.scan_for_peopla_lines(line)
 
-                # print( f"ASDFASDF: {self.shortcuts}")
                 self.reset(line)
 
         ### flatten the datapoints into a table here
@@ -294,7 +298,7 @@ class Document:
 
     def scan_for_shortcut_definition(self, line):
         if re.match(r"^###\t[^\*\[\]\{\}]+\*?$", line):
-            logger.debug("FOUND a short cut definition")
+            logger.debug("Found a short cut definition")
 
             current_shortcut = self.shortcuts[-1]
             current_shortcut_key = list(current_shortcut.keys())[0]
@@ -329,9 +333,6 @@ class Document:
             logger.debug("Setting self.shortcuts in scan_for_shortcut_definition to:")
             logger.debug(self.shortcuts)
 
-            # (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
-            # self.peopla_live = True
-
     def scan_for_data_table_header(self, line):
         """
         Function that exmaines the current input file from file.
@@ -364,7 +365,7 @@ class Document:
             logger.debug(f"with {len(header_columns)} columns")
             logger.debug(f"with shortcut: {header_shortcuts}")
 
-            print(self.shortcuts)
+            logger.debug(f"Shortcuts are: {log_pretty(self.shortcuts)}\n")
             # m = re.search(rf"^###{re.escape(data_point_separator)}(.*)$", line)
             # header_content    = m.group(1)
             # header_columns = header_content.split(data_point_separator)
@@ -382,20 +383,20 @@ class Document:
 
             if check:
                 logger.debug(
-                    f"All shortcut keys ({','.join(header_shortcuts)}) have been defined in the header"
+                    f"--> All shortcut keys ({','.join(header_shortcuts)}) have been defined in the header"
                 )
             else:
                 missing_definitions = [
                     e for e in header_shortcuts if e not in list(self.shortcuts.keys())
                 ]
                 logger.debug(
-                    f"Some shortcut keys ({','.join(missing_definitions)}) have been NOT been defined in the header"
+                    f"--> Some shortcut keys ({','.join(missing_definitions)}) have been NOT been defined in the header"
                 )
                 logger.debug(self.shortcuts)
 
             ### Extract only the shortcut information required for this table
             relevant_header_shortcuts = {k: self.shortcuts[k] for k in header_shortcuts}
-            logger.debug("-------------------\n")
+            logger.debug("Extracting only the shortcut information required for this table\n")
             logger.debug(relevant_header_shortcuts)
 
             ### Combine the shortcut information into one dictionary (this is necessary where
@@ -404,7 +405,7 @@ class Document:
             for d in relevant_header_shortcuts.values():
                 relevant_header_shortcuts_combined.update(d)
 
-            logger.debug("-------------------\n")
+            logger.debug("Combine the header shortcut information\n")
             logger.debug(relevant_header_shortcuts_combined)
 
             ### Add the definition of this table to the document
@@ -430,10 +431,12 @@ class Document:
             # --- Functionality to be added ---
             # This is a globcal identifier to be added to the
             # immediately preceeding data point
-            logger.debug("FOUND a global identifer")
+            m = re.search(r"^###\t\{(.*)\}$$", line)
+            global_id = m.group(1).rstrip()
+            logger.debug(f"Found a global identifer: {global_id}")
         else:
             content_list = re.split("\t+", line.rstrip())
-            logger.debug(f"FOUND {len(content_list)} data points for the table")
+            logger.debug(f"Found {len(content_list)} data points for the table")
             logger.debug(
                 f"This is the current table attributes: {current_table.attributes}"
             )
@@ -458,7 +461,7 @@ class Document:
         logger.debug(f"Looking for peopla attributes in {line}")
 
         if re.match(r"^###\t\t[^\*]+\*?$", line):
-            logger.debug("FOUND a peopla attribute")
+            logger.debug("Found a peopla attribute")
 
             m = re.search(r"^###\t\t([^\*]+)(\*?)$", line)
             attribute_text = m.group(1).rstrip()
