@@ -154,8 +154,8 @@ def document_with_extra_header_tag():
 
     test_doc = Document(file=temp_f1.name, settings_file=temp_f2.name)
 
-    print( "file name: "     + temp_f1.name )
-    print( "settings file: " + temp_f2.name )
+    print("file name: " + temp_f1.name)
+    print("settings file: " + temp_f2.name)
 
     test_doc.read_document()
     test_doc.print_header_information()
@@ -550,7 +550,7 @@ def create_default_datapoint_df():
     default_df = default_df.join(datapoint_df)
 
     # (6) Add the global_id column
-    default_df[ "global_id"] = None
+    default_df["global_id"] = None
 
     # (7) Return the dataframe
     return default_df
