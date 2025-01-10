@@ -8,8 +8,11 @@ import pprint
 
 
 PROJECT_NAME = "Ontologise"
+DEFAULT_SETTINGS = "settings.yaml"
 
 data_point_separator = "\\t"
+
+
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4

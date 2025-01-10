@@ -1,10 +1,7 @@
-from src.ontologise.utils import Document
+from src.ontologise.utils import Document, DEFAULT_SETTINGS
 import argparse
 from argparse import ArgumentParser
 import os.path
-
-### Defining the default settings file
-default_settings_file = "settings.yaml"
 
 ### Checking that a file is valid
 def is_valid_file(parser, arg):
@@ -45,7 +42,7 @@ settings_to_use = None
 
 if args.settings_yaml is None:
     print( "No value provided for the settings file, using the default settings file" )
-    settings_to_use = default_settings_file
+    settings_to_use = DEFAULT_SETTINGS
 else:
     settings_to_use = args.settings_yaml.name
 
