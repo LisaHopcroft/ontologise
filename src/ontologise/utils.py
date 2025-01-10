@@ -7,7 +7,7 @@ from copy import deepcopy
 import pprint
 
 
-PROJECT_NAME = 'Ontologise'
+PROJECT_NAME = "Ontologise"
 
 data_point_separator = "\\t"
 
@@ -22,7 +22,9 @@ class CustomFormatter(logging.Formatter):
     bold_red = "\x1b[41m"
     reset = "\x1b[0m"
     # format = "\033[1m [%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s] \033[0m \n%(message)s"
-    debug_format = "\033[1m🪲 [%(filename)s::%(funcName)s::%(lineno)d]\033[0m\n%(message)s"
+    debug_format = (
+        "\033[1m🪲 [%(filename)s::%(funcName)s::%(lineno)d]\033[0m\n%(message)s"
+    )
     info_format = "\033[1m%(message)s"
     format = "\033[1m%(message)s"
 
@@ -53,9 +55,11 @@ logger.addHandler(ch)
 # https://stackoverflow.com/questions/77991049/is-there-a-way-to-print-a-formatted-dictionary-to-a-python-log-file
 pp = pprint.PrettyPrinter(indent=2, sort_dicts=False)
 
+
 def log_pretty(obj):
     pretty_out = f"{pp.pformat(obj)}"
     return f"{pretty_out}\n"
+
 
 def read_settings_file(file):
     settings = ""
@@ -120,9 +124,10 @@ class DataPoint:
 
         self.cells = data
         self.global_id = None
-    
-    def add_global_id( self, id ):
+
+    def add_global_id(self, id):
         self.global_id = id
+
 
 class Peopla:
     """
@@ -135,10 +140,12 @@ class Peopla:
         self.attributes = {}
         self.global_id = global_id
 
-        logger.info(f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.global_id})")
+        logger.info(
+            f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.global_id})"
+        )
 
     def add_attribute(self, attribute_text, inheritance):
-        self.attributes[attribute_text] = inheritance        
+        self.attributes[attribute_text] = inheritance
         logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
 
         logger.info(
@@ -389,7 +396,9 @@ class Document:
 
             ### Extract only the shortcut information required for this table
             relevant_header_shortcuts = {k: self.shortcuts[k] for k in header_shortcuts}
-            logger.debug("Extracting only the shortcut information required for this table\n")
+            logger.debug(
+                "Extracting only the shortcut information required for this table\n"
+            )
             logger.debug(relevant_header_shortcuts)
 
             ### Combine the shortcut information into one dictionary (this is necessary where
@@ -424,7 +433,7 @@ class Document:
             m = re.search(r"^###\t\{(.*)\}$$", line)
             global_id = m.group(1).rstrip()
             logger.debug(f"Found a global identifer: {global_id}")
-            self.data_points[-1].add_global_id( global_id )
+            self.data_points[-1].add_global_id(global_id)
         else:
             content_list = re.split("\t+", line.rstrip())
             logger.debug(f"Found {len(content_list)} data points for the table")
@@ -445,7 +454,7 @@ class Document:
                 d_dict_flat[new_key] = v
             d_df = pd.DataFrame.from_dict(d_dict_flat)
 
-            d_df[ "global_id" ] = d.global_id
+            d_df["global_id"] = d.global_id
 
             datapoint_table = pd.concat([datapoint_table, d_df])
 
@@ -483,7 +492,7 @@ class Document:
             content = m.group(2)
             global_id = None
             if m.group(3):
-                global_id = re.sub('[\{\}]','',m.group(3))
+                global_id = re.sub("[\{\}]", "", m.group(3))
             logger.debug(f"Identified '{place_flag}' / '{content}' / '{global_id}'")
             self.peoplas.append(Peopla(content, place_flag == "@", global_id))
             self.peopla_live = True
