@@ -1,8 +1,9 @@
 from src.ontologise.utils import Document, DEFAULT_SETTINGS, logger
+import logging
 import argparse
-from argparse import ArgumentParser
 import os.path
 import sys
+
 
 ### Checking that a file is valid
 def is_valid_file(parser, arg):
@@ -10,6 +11,7 @@ def is_valid_file(parser, arg):
         logger.critical("The file '%s' does not exist!" % arg)
     else:
         return open(arg, "r")  # return an open file handle
+
 
 ### Parsing the command line argument
 parser = argparse.ArgumentParser(description="Parsing Ontologise markup documents")
@@ -36,13 +38,60 @@ parser.add_argument(
     type=lambda x: is_valid_file(parser, x),
 )
 
+
+### This argument sets the logging information
+parser.add_argument(
+    "-q",
+    dest="quiet",
+    required=False,
+    help="Suppress any logging messages",
+    action="store_true",
+)
+
+logging_level_mapping = {
+    "critical": logging.CRITICAL,
+    "error": logging.ERROR,
+    "warn": logging.WARNING,
+    "warning": logging.WARNING,
+    "info": logging.INFO,
+    "debug": logging.DEBUG,
+}
+
+### This argument sets the logging information
+parser.add_argument(
+    "-l",
+    dest="log",
+    choices=logging_level_mapping.keys(),
+    required=False,
+    help="The logging level",
+    metavar="LOGGING LEVEL",
+)
+
+
 ### Parse the arguments
 args = parser.parse_args()
-logger.debug(args)
+
+### Set the logging level first (default logging is 'info')
+logging_level = ""
+
+if args.log is None:
+    logging_level = logging.INFO
+else:
+    logging_level = logging_level_mapping[args.log.lower()]
+
+if args.quiet:
+    logger.disabled = True
+else:
+    logger.setLevel(logging_level)
+    logging_level_name = logging.getLevelName(logger.getEffectiveLevel())
+
+    logger.info(f"Logging level is '{logging_level_name}'")
+
+    logger.debug(args)
 
 ### Stop processing if the file name is missing
-if ( args.file is None):
-    sys.exit( 1 )
+if args.file is None:
+    sys.exit(1)
 
 ### If the file name is present, use it
 file_to_read = args.file.name
@@ -51,7 +100,9 @@ file_to_read = args.file.name
 settings_to_use = None
 
 if args.settings_yaml is None:
-    logger.info( "No value provided for the settings file, using the default settings file" )
+    logger.info(
+        "No value provided for the settings file, using the default settings file"
+    )
     settings_to_use = DEFAULT_SETTINGS
 else:
     settings_to_use = args.settings_yaml.name
