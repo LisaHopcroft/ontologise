@@ -1,0 +1,885 @@
+#[PEDIGREE]
+#{UNIV:	File}
+##AUTH:	CRAWFURD, Andrew
+##DATE:	.
+##PP:	20
+--------------------------------------------------------------------------------
+>	Local families which AC was related to:
+>	M:
+>	- Adam (Johnshill)
+>	MM:
+>	- Ewing (Highlands)
+>	MFM:
+>	- Cochrane (Linthills)
+>	  - Orr (Gavin)
+>	F later wives:
+>	- Kirkwood (Bridgend)
+>	- Barclay (Kirkton)
+>	Siblings:
+>	- Logan (Master mason)
+>	- Young (Merchant)
+
+
+![p021](../01_IMG/0024.jpg)
+
+V.	Jean Adam of the 3/4 land of Johnshill
+	She was born [blank] June 1762.
+###	[ADAM, Jean](5){80071ca9-d47a-4cb6-b283-f96ce7ad1618}
+###		OF
+###			@[SCO, REN, LWH, Johnshill]
+###		BORN
+###			:[1762-06]
+>	AC's mother
+>	Husband's brother in WI
+
+		She married Andrew Crawfurd son
+	of Charles Crawfurd master mason
+	in the parish of Falkirk pp 115 189 [0083]
+###	w/[CRAWFURD, Andrew](x){5cf88045-6337-428c-ab5b-8ea9b1a50103}
+###	(	OCC
+###	(		ROLE[Mason]
+###	(		@[SCO, Falkirk]
+###		MARRIED
+>	WI connections through marriage [see 0083]
+>	Year?
+
+		*Jean Adam obtained a charter from*
+	*Wm McDowall of Castlesemple in the*
+	*3/4 land of Johnshill in 1779*.
+###	[ADAM, Jean](5)
+###	vs[M'DOWALL, William]{9b477094-b78f-43b0-b36a-c2d17ccd4a07}
+###	(	OF
+###	(		@[SCO, REN, LWH, Castle Semple]
+###		CHARTER
+###			@[SCO, REN, LWH, Johnshill]
+###			:[1779]
+>	An heiress?
+
+		Andrew Crawford secondly married
+	Janet Kirkwood daughter of Robert
+	Kirkwood of the Brigend. [->]
+###	[CRAWFURD, Andrew](x)
+###	w/[KIRKWOOD, Janet](x){99940970-a7e5-4fc9-9a71-6a82bbcf7b52}
+###	(>	*FATHER*
+###	(>	[KIRKWOOD, Robert]
+###	(>		OF
+###	(>			@[SCO, REN, LWH, Bridgend]
+###		MARRIED
+
+		He thirdly married Margaret doch-
+	ter of Alexander Barclay fewar in the
+	Kirktoun. By his third marriage he
+	no issue.
+###	[CRAWFURD, Andrew](x)
+###	w/[BARCLAY, Margaret]{385c9bf6-df87-4253-b587-bc827ca1b2db}
+###	(>	*FATHER*
+###	(>	[BARCLAY, Alexander]
+###	(>		OCC
+###	(>			ROLE[Fewar]
+###	(>			@[SCO, REN, LWH, Kirkton]
+###		MARRIED
+
+		He had by his first wife, Jean
+###	[ADAM, Jean](5)
+###	w/[CRAWFURD, Andrew](x)
+
+	1.	Wm Crawfurd of whom belyve.
+###	>	*SON*
+###	>	[CRAWFURD, William](6)
+>		Uncle in WI
+>		AC's brother
+
+![img](../01_IMG/0025.jpg)
+
+	2.	Andro Crawfurd
+		was **at the school of Lochwinioch kept by**
+		**Mr Henderson**. [/]
+###	>	*SON*
+###	>	[CRAWFURD, Andrew](6){b4fa4688-e78d-4bc0-b5e6-e99a3bc6aa67}
+###	>	vs[HENDERSON, .]{bb4bfaab-8331-41f8-885b-f9ad778d0957}
+###	>		EDUCATED
+###	>			@[SCO, REN, LWH, Lochwinnoch]
+>		Uncle in WI
+>		The author
+>		"Mr Henderson": David Henderson ?
+
+		Taught English Grammar by
+		John McKinlay in Lochwinioch. [/]
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[M'KINLAY, John]{4f3210e4-9a04-4a04-a30a-cacdf177008a}
+###	>		EDUCATED
+###	>			@[SCO, REN, LWH, Lochwinnoch]
+>		"John McKinlay": co-author of the Scotchman
+
+		Was sent
+		to the Paisley schools writing and drawing
+		two months. [/]
+###	>	[CRAWFURD, Andrew](6)
+###	>		EDUCATED
+###	>			@[SCO, REN, Paisley]
+
+		He was then clerk to Mr Aber-
+		crombie bleacher Calderhauch Field, one
+		year or so. [/]
+###	>	vs[ABERCROMBIE, .]
+###	>		OCC
+###	>			ROLE[Clerk]
+###	>			@[SCO, REN, LWH, Calderhaugh Bleachfield]
+###	>			DUR[1 yr]
+
+		Was clerk to
+		MacCaulay & Hart manufacturers in
+		Causeyside Paisley for several years in
+		compliance with *his father's inclination to*
+		*make him a manufacturer*. [/]
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[+MACCAULAY+HART]
+###	>		OCC
+###	>			ROLE[Clerk]
+###	>			@[SCO, REN, Paisley, Causeyside]
+>		TODO: find out more about MacCaulay & Hart manufacturers in Causeyside
+
+		But he
+		took lessons in Latin from Alexander Campbell
+		[/]
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[CAMPBELL, Alexander]{ad26b362-aa43-4651-a222-494b86a3b0fe}
+###	>		EDUCATED
+>		Schoolmaster in 1791
+
+		and afterwards from Dr Reid the orientalist
+		[/]
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[REID, Dr]{bb022729-4692-4c24-bcac-353bac1064ea}
+###	>	(	!ALIAS[The orientalist]
+###	>		EDUCATED
+>		"Dr Reid the orientalist": who ?
+
+		He went to Glasgow College in Nov 1810.
+		He continued there for 8 years. [-] He obtained
+		a prize in the Greek class. [-] He got a prize in the
+		Logic class and another prize for an essay 1814.
+		[-] He obtained the first prize of the Ethic class
+		unanimously, May 1814. [-] *He got a Prize for*
+		*a Latin Oration delivered in the Common Hall*
+		*before the University in 1816*. [-] He was elected as
+		a memember of the Commercial and Library Society
+		on the recommendation of Prof Nylne in 1816.
+		[-] He took a diploma from the Faculty of Physicians
+		and Surgeons of Glasgow in 1818. [/]
+###	>	[CRAWFURD, Andrew](6)
+###	>		EDUCATED
+###	>			@[SCO, Glasgow, College]
+###	>			:[1810-11->1818]
+###	>		GRADUATED
+###	>			@[SCO, Glasgow, College]
+###	>			:[1818]
+>		TODO: find his essay of 1814?
+>		"Prize for Latin Oration": later speechless ...
+
+		He practised
+		medicine at Rothesay in 1818 and 1819. [/]
+###	>		OCC
+###	>			ROLE[Medical practitioner]
+###	>			@[SCO, BUT, Rothesay]
+###	>			:[1818->1819]
+
+		He had
+		typhus fever in Dec 1819, But he *recovered from*
+		*it without a leg and with hemiplegia*. He
+		was brought home to Johnshill. [/]
+###	>		HEALTH
+###	>			CONDITION[Typhus fever]
+###	>			:[1819-12]
+###	>		HEALTH
+###	>			CONDITION[Hemiplegia]
+###	>			:[1819-12->]
+###	>		RESIDED
+###	>			@[SCO, REN, LWH, Johnshill]
+###	>			:[1820->]~
+
+		He
+		was elected as an honourary member of the Glasgow
+		University Chemical Society 6 May 1826.
+
+![]
+
+		[> Shift to first person]
+
+			*John Mackinlay* from Lochwinioch.
+		Student, teacher in Lochwinioch, the Largs,
+		and Glasgow. He [>John] took up a fancy to
+		lash of the mountebank, Lancaster, and be-
+		gan the Scotchman printed by Stephen in
+		Paisley 1813.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[M'KINLAY, John]{4f3210e4-9a04-4a04-a30a-cacdf177008a}
+###			FRIEND
+>		"mountebank": a person who deceives others
+>		"Lancaster": ... ?
+
+			**I assisted him in his fancy wee perio-**
+		**dical**. p.28, 37, 73, 85, 99.
+>		Paisley, 1813 - The Scotchman | PART [RHC & GUSC]
+
+			I was the **chief writer in the Attic**
+		**Stories**. See Cairn XXI. p.437. This
+		periodical work in Glasgow in 1817.
+>		Glasgow, 1818 - Attic Stories | GOT
+
+			I sent to the Greenock visitor in 1818, viz
+		1.	Alexander Wilson, p.167
+		2.	William Dunbar, p.223
+		3.	Jean Adam of Cartsyde, p.263, 295
+		4.	The Travels of a Tramper, &c 53, 83, 151.
+		5.	The Spensis of Wester Kames, p.99
+		6.	Robert Pinkertoun's Letter, p.97
+		7.	Geological Account of Bute, p.231
+		8.	Lines on a window in Alloa, p.163
+		9.	The Pouir of Consciens, p.182
+		10.	Ane Adventure, &c. p.243
+		11.	Inscription, &c. Roslin, p.309
+		12.	Lines, &c Rumblin Brig, p.310
+>		Greenock, 1818 - Greenock Visitor | GOT
+
+![img](../01_IMG/0026.jpg)
+
+			I collected 2 volumes of manuscript
+		of Auld Ballads in aiding **my friend**
+		*Mr Motherwell* for his Minstrelsy, 1827.
+		page CIV. Second Introduction, p.X
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[MOTHERWELL, .]
+###	>		FRIEND
+>		MOTHERWELL, 1827 - Minstrelsy | GOT
+>		"my friend"
+>		His first concerted activity post disability ?
+
+			I sent into the Paisley Magazine, edi-
+		ted by Mr Motherwell, in 1828, viz
+		1.	Illustrative Notes, p.313
+		2.	Notices, p.482
+		3.	Antiquities, p.523
+		4.	Incidents, p.582
+		5.	Celtic Derivatives, p.635
+		6.	Traditions &c p.680
+>		1828 - Paisley Magazine
+>		https://www.google.co.uk/books/edition/The_Paisley_magazine_Vol_1/hqIHAAAAQAAJ?hl=en
+
+			I assisted *George Fowler* in his
+		Sketches of the towns in Renfrewshire,
+		1830, I began at Renfrew, page 14,
+		to the end chiefly.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[FOWLER, George]
+###	>		ACQUAINTANCE
+>		FOWLER, 1830 - Commercial Directory | GOT
+>		"begn at Renfrew": all towns except Paisley and Johnstone ?
+
+			*Dr Cairnie* of the Lairgs begged me
+		for the Lochwinioch Curling Stories for
+		his essay on Curling in 1833. My
+		letter began at page 7 and ended at
+		page 101.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[CAIRNIE, .]
+###	>		ACQUAINTANCE
+>		CAIRNIE, 1833 - Essay on Curling | GOT
+
+			*Mr David Robertson*, the Queen's Book-
+![]
+		seller for Glasgow, began his *Laird of*
+		*Logan*, (various editions) about
+		1835, and the last in 1841. He peti-
+		tioned for many stories, second
+		series, *1837*, p.22, 24, and 25 -
+		Wull Speir, Wull Speir & the Earl - Better
+		a wee Buss, &c - Page 48, Changed
+		Tunes, p.107, Too common: Page
+		191, Disconsolate widow; Page 199
+		Difficult &c Page 225, Marriage
+		&c - Page 226, Question, &c -
+		Page 228, The Cock, &c - Page 284,
+		Attending, &c - Page 287, Cautionry
+		&c.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[ROBERTSON, David]
+###	>		ACQUAINTANCE
+>		ROBERTSON, 1835 - Laird of Logan | GOT
+>		ROBERTSON, 1837 - Laird of Logan | GOT
+
+			Key to the Passage, Edition, 1841,
+		p.481, - the definition marked X. But
+		**a few marked with X are not by him [>AC]**
+		**by accident in the editing: viz. Four**
+		**hours, Struishle, Thrapple,**
+		**Wat ye?**
+
+			**However an immense number by**
+		**him [>AC] himself not marked by an X, by**
+![img](../01_IMG/0027.jpg)
+		**some unaccountable accident.**
+
+			I was the author of a song in
+		the 3 series of Whistlebinkie, page
+		84, called A Baillie's morning
+		Adventure.
+>		ROBERTSON, 1832 - Whistle-Binkie | GOT
+
+			*John Mitchell*, Paisley, published
+		Philosophy of Witchcraft, in 1839.
+		He petitioned me for some Loch-
+		winioch witchcraft Stories. I gave
+		him a rude draft and I expected
+		him to colour them. But I was
+		very sorry for he printed them in
+		their rude form! Dreadful.
+		Page 278 and 293.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[MITCHELL, John]{fefd3ad8-f0da-4d24-a9bb-104aa5cf7f13}
+###	>		ACQUAINTANCE
+>		MITCHELL, 1839 - Philosophy of Witchcraft
+>		This John Mitchell also wrote poems about Calder Glen
+
+			*Mr Robertson* published his Nur-
+		sery Songs in 1844, and he requested
+		me to watch the Scots words in his
+		Glossary - "Pronounciation according
+		to the principles laid
+		down by Walker."
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[ROBERTSON, .]
+###	>		ACQUAINTANCE
+>		ROBERTSON, 1833 - Nursery Songs
+>		AC = an authority on the Scots language.
+
+![]
+
+			*Mr Phillip Ramsay* engaged with
+		*Mr. R. Chambers*, in Edinburgh,
+		assisting him in his Popular Rhy-
+		mes, Edin. 1842, crown 8 vo. - Mr
+		Ramsay requested me for some few
+		notices: pp.48, 65, 73, &c.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[RAMSAY, Philip]
+###	>		ACQUAINTANCE
+>		CHAMBERS, 1842 - Popular Rhymes | GOT
+
+			He edited Tannahill, Paisley
+		and I gave him a few notices
+		chiefly in the pedigree of the Poet.
+>		RAMSAY, 1838 - Tannahill | GOT
+
+			He was also engaged to write
+		the letter press with the Views of the
+		^Places in Renfrewshire^
+		Edin 1839: 4 __ I assisted
+		him with Castle-sempill, p.133;
+		Barr, p.137 - and some scattered
+		through this work.
+>		RAMSAY, 1839 - Views of the Places in Renfrewshire | TODO: find
+
+			I aided some local writers, viz
+		*Joseph Swan* in his Views on the River
+		Clyde, Port Glasgow; also his
+		Select Views of the Scots Lakes,
+		Lochwinioch - Castlesemple, and Barr,
+		page 213.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[SWAN, Joseph]
+###	>		ACQUAINTANCE
+>		"local writer": ... ?
+>		SWAN, 1829 - Views on the River Clyde | TODO: find
+>		SWAN, 1837 - Select Views of the Scots Lakes | GOT
+>		
+
+![img](../01_IMG/0028.jpg)
+
+			I gave Stewart Bookseller, Paisley,
+		in his Paisley Annual with an article,
+		Oam Trintle, p.
+
+			I assisted *Dr Smith* in his Sta-
+		tistic Account of Lochwinioch, in
+		1836 - about a third of it, viz
+		Renfrewshire Statisitscs, p.74.
+>		Statistical Account of Scotland | GOT
+
+			*Thomas Hutchison* in Paisley,
+		as a sort of an Editor for John Hen-
+		derson, the Belfast Edition of the Poems
+		of Sannie Wilson, the Paisley Scots Poet,
+		applied to me to define a few Scots words
+		in his Glossary only; Printed in 1844;
+		though he acknowledged this obligation,
+		so kindly, p. XII.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[HUTCHISON, Thomas]
+###	>		ACQUAINTANCE
+>		HENDERSON, 1844 - Alexander Wilson | GOT
+
+			I sent to Paisley an article The
+		History of Spunkie, to *George Cald-*
+		*well*, the publisher of the Scots Hag-
+		gis, printed in --- [blank]
+>		CALDWELL, ____ - Scots Haggis | TODO: find
+
+			I wrote a trifle or two, viz the Pre-
+![]
+		face to the Crune of the Peil in 1838.
+		But the said Crune came hither by
+		the Post-Office without a name.
+>		ANON, 1838 - Crune of the Peil | GOT [in the Cairn]
+>		AC wrote the preface, not the poem ... ?
+>		"came hither by the Post-Office without a name": he wasn't credited?
+
+			*Mr James Paterson*, native of Kil-
+		marnock, now, or then, Editor of the
+		Ayr Observer, or about 1832, or
+		thereby, requested me to aid him in
+		his printed History of Ayrshire. -
+		He sent many proof slips to correct
+		and add to Lochwinioch. I added
+		many passages in the text and in
+		the notes. He published the first
+		volume in 1847. He acknowledged
+		this obligation, p. VII.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[PATERSON, James]
+###	>		ACQUAINTANCE
+>		PATERSON, 1847 - History of Ayrshire | GOT
+>		PATERSON, 1852 - History of Ayrshire | GOT
+
+			Mr Paterson, edited the Ballads
+		and Songs of Ayrshire in 1846 - He
+		solicited from me a copy of a song -
+		called ["]No to be married awa["] - I cen-
+		sured the spelling, and I gave a
+		copy more correct, I thought. But I
+		was not expecting to used at all. How-
+![img](../01_IMG/0029.jpg)
+		ever Mr Paterson, rather rashly, I
+		thought, in his own taste to print
+		the more correct copy in spelling
+		vol II p 82.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[PATERSON, .]
+###	>		ACQUAINTANCE
+>		PATERSON, 1847 - Ballads of Ayrshire | GOT
+
+			Mr Paterson carried on his
+		Scottish Journal of Topographical,
+		Antiquities, Traditions, &c in 1847,
+		and 1848. 2 volumes. I gave
+		1.	Lady Glencairn, &c p.17
+		2.	Renfrewshire Memorials in 1745, 28
+		3.	Jenny Lind, p.41
+		4.	List of Arms in Kelchurn Castle
+		5.	Round of Western Kames, p.175
+		6.	Lindsays of Dunrod, p.273
+		7.	The Deil of Ardrossan, p.316
+		8.	Marriage at the Dooks, in 1744
+>		1847 - Scottish Journal of Topographical | GOT
+
+		1.	House at Johnshill in 1636, p.11
+		2.	Pro - Ross, p.26
+		3.	Lord Lyle, v. Earl of Buchan, p. 165
+		4.	Inglises of Corflat, p.180
+		5.	Rothesay &c p.197 [> reprint of Attic Stories?]
+		6.	Trial of Wilson the Poet, p.228, 245
+		7.	Ecclesiastical of Kilbachan, p.257
+		8.	Lord Lyle v. Sempill p.292
+>		1848 - Scottish Journal of Topographical | GOT
+
+![]
+
+			Mr Paterson changed his Journal
+		to the other form, Edinburgh Topo-
+		graphical, Traditional and Anti-
+		quarian Magazine, 1848. I sent in
+		to his magazine,
+		1.	Papers illustr Comwellian Period, p.69
+		2.	Margaret Patoun in Lochunioch, p.74
+		3.	Minutes of Commissions of Renf. p.101
+>		1848 - Edinburgh Topographical &c | GOT
+
+			Mr Paterson was engaged by a
+		bookseller as Editor of the Works of
+		the Sempills of Beltrees, with Biogra-
+		phical Notices; Edin. 1849. I en-
+		gaged with Paterson to give him
+		my voluminious
+		1.	Monastery of Paisley, p.19
+![img](../01_IMG/0030.jpg)
+		2.	Fishing Colony in Ireland, p.24
+		3.	Stewarts of Minto, p.40
+>		PATERSON, 1849 - Poems of the Sempills | GOT
+
+			Mr *William Dobie* of Grangevale
+		wrote a small Book on the Churches
+		and Kirkyards of Ayrshire, 4 to 1847.
+		I gave him a passage on the Inscrip-
+		tion of William Smith minister at the
+		Largs carried off by the Plague in 1647
+		page 26.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[DOBIE, William]{807c3894-8b93-4c74-b3f0-03913df1e817}
+###	>		ACQUAINTANCE
+>		DOBIE, 1847 - Churches and Kirkyards of Ayrshire | TODO: find
+>		https://openlibrary.org/books/OL20714353M/The_parish_churches_and_burying-grounds_of_Ayrshire
+
+			*Mr Malcolm Kerr*, Barrister, in Lon-
+		don wrote Nugae Antiquae, or Gen-
+		ealogical Notices of Montfode of that
+		Ilk: Privately printed, in 1847. He gave
+		a far more handsome compli-
+		ment to me than the truth: p.8.
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[KERR, Malcolm]
+###	>		ACQUAINTANCE
+>		KERR, 1847 - Nugae Antiquae | TODO: find
+>		https://en.wikipedia.org/wiki/Robert_Malcolm_Kerr
+
+![]
+
+[>margin:]
+An interesting notice of Barbara's
+History. See Cairn IX p.21
+
+	3.	Barbara Crawfurd married James
+		Logan superintendant of county-
+		buildings in the North of Scotland,
+		son of John Logan master mason
+		in Lochwinyoch. She died 20 October
+		1825 at Johnshill (Cairn V. 291)
+###	>	*DAUG*
+###	>	[CRAWFURD, Barbara]{dad5c5cd-d92d-4ba4-a8fe-23ea24871bea}
+###	>		DIED
+###	>			:[1825-10-20]
+###	>			@[SCO, REN, LWH, Johnshill]
+###	>	w/[LOGAN, James]{6b624adf-41fa-4eb8-bc1c-857823da9072}
+###	>	(	OF
+###	>	(		@[SCO, REN, LWH, Lochwinnoch]
+###	>		MARRIED
+>		AC's sister
+>		Uncle in WI
+>		[Also, Brother in WI] [Vol.5.0255]
+>		(Is James Logan the poet?)
+
+		1.	John Logan - Died in his 14 year
+			of age.
+###	>	>	*SON*
+###	>	>	[LOGAN, John]
+###	>	>		DIED
+###	>	>			AGED[14]
+>			[Uncle in WI] [Vol.5.0255]
+
+		2.	Andro Logan. Died about 12
+			of his age.
+###	>	>	*SON*
+###	>	>	[LOGAN, Andrew]
+###	>	>		DIED
+###	>	>			AGED[12]~
+>			[Uncle in WI] [Vol.5.0255]
+
+		3.	George Logan
+###	>	>	*SON*
+###	>	>	[LOGAN, George]
+>			[Uncle in WI] [Vol.5.0255]
+
+		4.	Wm Crawfurd Logan
+###	>	>	*SON*
+###	>	>	[LOGAN, William Crawfurd]
+>			[Uncle in WI] [Vol.5.0255]
+
+		5.	James Logan
+###	>	>	*SON*
+###	>	>	[LOGAN, James]
+>			[Uncle in WI] [Vol.5.0255]
+
+			mar'd at Glasgow 28 Augt
+			1843 by Dr Forbes, Mr Geo-
+			rge Logan, writer, Edin-
+			burgh to Margaret only
+			dochter of late Mr James
+			Crawfurd, mer-
+			chant, Lochwin-
+			noch.
+>			... above ?
+
+	4.	Mary Crawfurd married George
+		Young merchant in Lochwinyoch,
+		son of Robert Young farmer in [blank]
+###	>	*DAUG*
+###	>	[CRAWFURD, Mary]{81ec707a-fa1b-4c26-9efe-21ac4f1fad5f}
+###	>	w/[YOUNG, George]{5170d015-f4b5-498c-a15f-2dc5aa4f4a0f}
+###	>	(	OCC
+###	>	(		ROLE[Merchant]
+###	>	(		@[SCO, REN, LWH, Lochwinnoch]
+###	>	(>	*FATHER*
+###	>	(>	[YOUNG, Robert]
+###	>	(>		OCC
+###	>	(>			ROLE[Farmer]
+###	>		MARRIED
+>		AC's sister
+>		Uncle in WI
+>		This family inherited the Cairn?
+
+![img](../01_IMG/0031.jpg)
+
+			Issue,
+
+		1.	Jean Young
+###	>	>	*DAUG*
+###	>	>	[YOUNG, Jean]
+
+		2.	Mary Young. Died in infancy.
+###	>	>	*DAUG*
+###	>	>	[YOUNG, Mary]
+###	>	>		DIED
+###	>	>			INF
+
+		3.	Andro Young
+###	>	>	*SON*
+###	>	>	[YOUNG, Andrew]{2e5342d3-d7f5-41fa-a7a3-b85616af2c1f}
+>			Custodian and annotator of The Cairn
+
+		4.	Robert Young
+###	>	>	*SON*
+###	>	>	[YOUNG, Robert]
+
+		5.	A son stil born
+###	>	>	*SON*
+###	>	>	[YOUNG, .]
+###	>	>		DIED
+###	>	>			BIRTH
+
+		6.	Mary Young
+###	>	>	*DAUG*
+###	>	>	[YOUNG, Mary]
+
+	5.	Jean Crawfurd. Died aged three
+		months old.
+###	>	*DAUG*
+###	>	[CRAWFURD, Jean]
+###	>		DIED
+###	>			AGED[3 mo]
+>		AC's sister
+>		Uncle in WI
+
+		By his second wife, Janet Kirkwood
+###	[CRAWFURD, Andrew](x)
+###	w/[KIRKWOOD, Janet](x)
+
+	6.	Margaret Crawfurd
+###	>	*DAUG*
+###	>	[CRAWFURD, Margaret]
+>		AC's half-sister
+>		Uncle in WI
+
+		Andrew Crawfurd [>the father] was *a partner*
+	*in Yardfute's Company*, William
+	Caldwell &Co cotton spinners. *They bought the Fac-*
+	*tory about 1790 from Alexander*
+	*Couper, and they built the Boghead*
+	*Cotton Mill about 1792 or so.*
+###	[CRAWFURD, Andrew](x){5cf88045-6337-428c-ab5b-8ea9b1a50103}
+###		PARTNER
+###			GROUP[+Wm Caldwell & Co]
+###	+	[+Wm Caldwell & Co]
+###	+		BUILT
+###	+			@[SCO, REN, LWH, Boghead Mill]
+###	+			:[1792]
+###	+		LAND-PURCH
+###	+			@[SCO, REN, LWH, Protofactory]
+###	+			:[1790]
+
+
+IV.	William Crawford *portioner of Johnshill*.
+	He attended the college of Glasgow and
+	Edinburgh. He took a diploma from
+	Edinburgh as a surgeon. He settled
+	in practice in Port Glasgow. He obtain-
+	ed the Degree of M.D. from the
+	College Glasgow.
+###	[CRAWFURD, William](6){3996f2ab-ce89-44eb-8c09-fe08dcfc1d11}
+###		OCC
+###			ROLE[Portioner]
+###			@[SCO, REN, LWH, Johnshill]
+###		EDUCATED
+###			@[SCO, Glasgow]
+###		EDUCATED
+###			@[SCO, Edinburgh]
+###		OCC
+###			ROLE[Surgeon]
+###			@[SCO, REN, Pt Glasgow]
+###		DIED
+###			@[SCO, Glasgow, Clifton Grove Crescent, 2]
+###			:[1849-08-25] [<-]
+>	Uncle in WI
+>	AC's elder brother
+
+		He **married Margaret daughter of**
+	**Alexander Steven merchant in Port**
+	**Glasgow**
+###	w/[STEVEN, Margaret](6){a10aac22-fd4c-4cd0-90ea-f94153427c1f}
+###	(>	*FATHER*
+###	(>	[STEVEN, Alexander]{70596c92-87d1-4dcf-af1f-9ba891a91bd1}
+###	(>		OCC
+###	(>			ROLE[Merchant]
+###	(>			@[SCO, REN, Pt Glasgow]
+###		MARRIED
+>	Wife's father a Pt Glasgow merchant. WI connections?
+
+![img](../01_IMG/0032.jpg)
+
+	Issue,
+
+	1.	Andrew Crawfurd, Died in in-
+		fancy.
+###	>	*SON*
+###	>	[CRAWFURD, Andrew]
+###	>		DIED
+###	>			INF
+>		AC's nephew
+
+	2.	Alexander Crawfurd a surgeon at
+		Port Glasgow. [/]
+###	>	*SON*
+###	>	[CRAWFURD, Alexander]
+###	>		OCC
+###	>			ROLE[Surgeon]
+###	>			@[SCO, REN, PTG, Pt Glasgow]
+>		AC's nephew
+
+		*He went off to Bombay*
+		*in the end of 1842, to ward off the __*
+		*of consumption*. But he died in the
+		passage, near Maderia.
+###	>		OUT
+###	>			@[EIN, Bombay]
+###	>			:[1842]
+###	>			MOTIVE[Health]
+###	>		DIED
+###	>			@[EUR, Madeira]
+
+	3.	Andrew Crawfurd had the degree of
+		M.D. from the College of Glasgow about
+		1842. He succeeded his brother. He was tired
+		of the Practice. [/]
+###	>	*SON*
+###	>	[CRAWFURD, Andrew]{de5af87b-0cec-493f-a431-451410eb1bf9}
+###	>		EDUCATED
+###	>			@[SCO, Glasgow]
+###	>			:[1842]
+###	>		OCC
+###	>			ROLE[Physician]
+>		AC's nephew
+>		Lived with AC in 1841 census
+
+		He had a voyage to Que-
+		bec. He fell overboard [>died?] of the steamer near
+		Montreal 10 August 1846.
+###	>		OUT
+###	>			@[CNA, Quebec]
+###	>			:[1846]
+###	>		DIED
+###	>			@[Sea]
+###	>			:[1846-08-10]
+>		AC's nephew
+
+	4.	Margaret Crawfurd
+###	>	*DAUG*
+###	>	[CRAWFURD, Margaret]
+>		AC's neice
+
+	5.	Jeanie Crawfurd
+###	>	*DAUG*
+###	>	[CRAWFURD, Jeanie]
+>		AC's neice
+
+	6.	Agnes. Died in infancy.
+###	>	*DAUG*
+###	>	[CRAWFURD, Agnes]
+###	>		DIED
+###	>			INF
+>		AC's neice
+
+	7.	Mary Crawford
+###	>	*DAUG*
+###	>	[CRAWFURD, Mary]
+>		AC's neice
+
+	8.	Janet Crawfurd died of consumption
+		at 52 Milton Street, Glasgow, 2d April,
+		1849.
+###	>	*DAUG*
+###	>	[CRAWFURD, Janet]
+###	>		DIED
+###	>			CAUSE[Consumption]
+###	>			@[SCO, Glasgow, Milton St, 52]
+###	>			:[1849-04-02]
+>		AC's neice
+
+			Her father [>William?] had an attack of palsy on
+		the right side about 1839. He had a second at-
+		tack about 1845 which deprived him all power
+		of speaking. He died 25 August 1849 at 2 Clifton
+		Grove Crescent, Glasgow. [<-]
+>		Crawfurd's brother also had a palsy of the right side and lost the power of speech !
+>		Why mentioned here? Added in as it happened...
+
+	9.	Agnes Crawfurd
+		Died of consumption [>TB] brought by the Kirk-
+		host at Johnshill, 5 Oct 1840, at
+		half past 3 oclock. *She was near the*
+		*six year of her age. She was a good*
+		*reader. She was very clever. She*
+		*made remarks, very far above*
+		*her age. She had much mind.*
+		*She was burried, 12 Oct (a splend-*
+		*id day) in the Johnshill Lair*.
+##!!! ##AC-BIOG
+###	>	*DAUG*
+###	>	[CRAWFURD, Agnes]
+###	>		DIED
+###	>			CAUSE[Tuberculosis]
+###	>			:[1840-10-05]
+###	>			AGED[6]
+###	>		BURIED
+###	>			:[1840-10-12]
+###	>			@[SCO, REN, LWH, Lochwinnoch, Kirkyard]
+>		AC's neice
+>		"brought by the Kirk-host": ... ?
+>		"Johnshill Lair": ... ?
+>		No headstone?
+
+		*The family left Johnshill about a week*
+	*after the burial [>1840], and by the Train through*
+	*Glasgow and by a Steam Boat to Port Glasgow, with*
+	*me also*. [/]
+##AC-BIOG
+>	A memorable experience for AC? A rare trip away? Going to their home in Pt Glasgow?
+
+	Mrs Crawfurd [>mother] was laid up the next day into
+	bed. She died of consumption [>TB] 29 Decr 1840.
+###	[STEVEN, Margaret](6){a10aac22-fd4c-4cd0-90ea-f94153427c1f}
+###		DIED
+###			CAUSE[Tuberculosis]
+###			:[1840-12-29]
+
+					Cairn XXXIV p.30
+					Also **a separate volume**
+					**containing Bowfield, Johnshill**
+					**Adams, Cambusnethan and**
+					**Johnshill Crawfurds**, p.34
+>					Reference to the separate volumes
+
+	He [>William?] died 25 Aug 1849.
+###	[CRAWFURD, William](6){3996f2ab-ce89-44eb-8c09-fe08dcfc1d11}
+###		DIED
+###			:[1849-08-25]
+
+
+[END]
