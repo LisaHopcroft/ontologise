@@ -146,13 +146,29 @@ class Peopla:
             f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.global_id})"
         )
 
-    def add_attribute(self, attribute_text, inheritance):
-        self.attributes[attribute_text] = inheritance
-        logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
+    def add_attribute(self, attribute_text, inheritance, secondary_peopla=None):
+
+        # self.attributes[attribute_text]["secondary_peopla"] = secondary_peopla
 
         logger.info(
             f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
         )
+
+        if secondary_peopla:
+            logger.info(
+                f"NB. attribute includes reference to secondary PEOPLA object {secondary_peopla.name}"
+            )
+            logger.debug(
+                f"This information involves another Peopla: {secondary_peopla.name}"
+            )
+            logger.debug(f"Adding this to the inheritance object")
+            inheritance["secondary"] = secondary_peopla
+        else:
+            logger.debug(f"No other Peopla is involved")
+
+        logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
+
+        self.attributes[attribute_text] = inheritance
 
     def print_peopla(self):  # pragma: no cover
         logger.info(f"I found this {self.type} PEOPLA called {self.name}")
@@ -482,8 +498,10 @@ class Document:
                 logger.debug(f"This information is relevant to the secondary Peopla")
             else:
                 logger.debug(f"This information is relevant to the primary Peopla")
-            logger.debug(f"Identified '{attribute_text}' / '{inheritance_flag}' / '{secondary_flag}'")
-            
+            logger.debug(
+                f"Identified '{attribute_text}' / '{inheritance_flag}' / '{secondary_flag}'"
+            )
+
             inheritance_hash = {}
             if inheritance_flag == "*":
                 inheritance_hash = self.header
@@ -493,16 +511,27 @@ class Document:
             ### AND we have a relationship currently live (i.e., a secondary
             ### Peopla that is part of this relationship) then that secondary
             ### Peopla should be recorded as part of the relationship
-            if ( not secondary_flag and self.peopla_relationship_live ):
-                logger.debug( f"This is information that defines a relationship between two Peoplas" )
-                logger.debug( f"1. primary  : {self.peoplas_primary[-1].name}" )
-                logger.debug( f"2. secondary: {self.peoplas_secondary[-1].name}" )
+            secondary_peopla_object = None
+            if not secondary_flag and self.peopla_relationship_live:
+                logger.debug(
+                    f"This is information that defines a relationship between two Peoplas"
+                )
+                logger.debug(f"1. primary  : {self.peoplas_primary[-1].name}")
+                logger.debug(f"2. secondary: {self.peoplas_secondary[-1].name}")
+                secondary_peopla_object = self.peoplas_secondary[-1]
 
             ### Work out which Peopla we should update with the information -
             ### the primary or the secondary Peopla
-            peopla_to_update = (self.peoplas_secondary[-1]) if secondary_flag else (self.peoplas_primary[-1])
+            peopla_to_update = (
+                (self.peoplas_secondary[-1])
+                if secondary_flag
+                else (self.peoplas_primary[-1])
+            )
 
-            peopla_to_update.add_attribute(attribute_text, inheritance_hash)
+            peopla_to_update.add_attribute(
+                attribute_text, inheritance_hash, secondary_peopla_object
+            )
+
             self.peopla_live = True
 
         elif re.match(r"^###\tw/.*$", line):
@@ -518,7 +547,7 @@ class Document:
                 Peopla(
                     peopla_content_parsed["content"],
                     peopla_content_parsed["place_flag"],
-                    peopla_content_parsed["global_id"]
+                    peopla_content_parsed["global_id"],
                 )
             )
 
