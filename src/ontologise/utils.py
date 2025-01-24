@@ -489,6 +489,17 @@ class Document:
                 inheritance_hash = self.header
                 inheritance_hash.pop("TITLE")
 
+            ### If this information is relevant for the primary Peopla
+            ### AND we have a relationship currently live (i.e., a secondary
+            ### Peopla that is part of this relationship) then that secondary
+            ### Peopla should be recorded as part of the relationship
+            if ( not secondary_flag and self.peopla_relationship_live ):
+                logger.debug( f"This is information that defines a relationship between two Peoplas" )
+                logger.debug( f"1. primary  : {self.peoplas_primary[-1].name}" )
+                logger.debug( f"2. secondary: {self.peoplas_secondary[-1].name}" )
+
+            ### Work out which Peopla we should update with the information -
+            ### the primary or the secondary Peopla
             peopla_to_update = (self.peoplas_secondary[-1]) if secondary_flag else (self.peoplas_primary[-1])
 
             peopla_to_update.add_attribute(attribute_text, inheritance_hash)
