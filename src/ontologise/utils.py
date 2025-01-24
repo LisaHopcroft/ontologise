@@ -536,7 +536,6 @@ class Document:
             ### Add this information to the attribute dictionary
             peopla_to_update.update_attribute( self.current_attribute, info )
 
-
         elif re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
             logger.debug("Found a peopla attribute")
 
@@ -662,13 +661,22 @@ class Document:
         print(f"Document parsed = {self.file}")
         self.print_header_information()
 
+        print("---------------------\n")
+        print(f"Primary Peoplas:")
         for p in self.peoplas_primary:
             p.print_peopla()
 
+        print("---------------------\n")
+        print(f"Secondary Peoplas:")
+        for p in self.peoplas_secondary:
+            p.print_peopla()
+
+        print("---------------------\n")
+        print("Shortcuts:")
         print(self.shortcuts)
 
+        print("---------------------\n")
         print(f"Found {len(self.data_points)} data points")
-
         print(self.data_points_df)
 
     def get_header_information(self, flag):
