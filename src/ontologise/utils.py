@@ -136,14 +136,15 @@ class Peopla:
     A Peopla object
     """
 
-    def __init__(self, input, place_flag=False, global_id=None):
+    def __init__(self, input, place_flag=False, local_id=None, global_id=None):
         self.type = "place" if place_flag else "person"
         self.name = input
         self.attributes = {}
         self.global_id = global_id
+        self.local_id = local_id
 
         logger.info(
-            f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.global_id})"
+            f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.local_id}) ({self.global_id})"
         )
 
     def add_attribute(self, attribute_text, inheritance, secondary_peopla=None):
@@ -598,6 +599,7 @@ class Document:
                 Peopla(
                     peopla_content_parsed["content"],
                     peopla_content_parsed["place_flag"],
+                    peopla_content_parsed["local_id"],
                     peopla_content_parsed["global_id"],
                 )
             )
@@ -624,7 +626,7 @@ class Document:
             logger.debug(
                 f"Identified '{place_flag}' / '{content}' / '{local_id}'/ '{global_id}'"
             )
-            self.peoplas_primary.append(Peopla(content, place_flag == "@", global_id))
+            self.peoplas_primary.append(Peopla(content, place_flag == "@", local_id, global_id))
             self.peopla_live = True
 
     def scan_for_header_lines(self, line):
