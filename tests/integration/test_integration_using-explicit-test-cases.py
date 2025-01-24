@@ -184,20 +184,20 @@ def test_peopla_content(
 # -----------------------------------------------------------------
 # Integration test cases: one to one primary and secondary peoplas
 # -----------------------------------------------------------------
-# Note that these tests ONLY cover one to one relationships between
+# Note that these tests ONLY cover one to one action_groups between
 # primary and secondary Peoplas. That is, if there is more than one
 # secondary Peopla for a primary Peopla then this test will fail.
 # -
 
 
 @pytest.mark.parametrize(
-    "test_name,settings_file,expected_primary_peoplas_names,expected_secondary_peoplas_names,relationship_key",
+    "test_name,settings_file,expected_primary_peoplas_names,expected_secondary_peoplas_names,action_group_key",
     # parameters are:
     # (1) content file
     # (2) settings file
     # (3) the expected names of the primary peoplas
     # (4) the expected names of the secondary peoplas
-    # (5) the attribute that defines the relationship between the two
+    # (5) the attribute that defines the action_group between the two
     [
         # TEST: Are the peoplas extracted correctly
         # Context: 1 primary peopla and 1 secondary peopla, related by J
@@ -212,7 +212,7 @@ def test_secondary_peopla_content(
     settings_file,
     expected_primary_peoplas_names,
     expected_secondary_peoplas_names,
-    relationship_key,
+    action_group_key,
 ):
 
     content_f = DATA_DIR / f"{test_name}.txt"
@@ -230,10 +230,10 @@ def test_secondary_peopla_content(
     for (i, this_peopla) in enumerate(test_doc.peoplas_primary):
         this_peopla.print_peopla()
         assert this_peopla.name == expected_primary_peoplas_names[i]
-        assert relationship_key in this_peopla.attributes
-        assert type(this_peopla.attributes[relationship_key]["secondary"]) is Peopla
+        assert action_group_key in this_peopla.attributes
+        assert type(this_peopla.attributes[action_group_key]["secondary"]) is Peopla
         assert (
-            this_peopla.attributes[relationship_key]["secondary"].name == 
+            this_peopla.attributes[action_group_key]["secondary"].name == 
             expected_secondary_peoplas_names[i]
         )
 

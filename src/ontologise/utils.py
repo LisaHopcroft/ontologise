@@ -225,8 +225,8 @@ class Document:
         self.peopla_live = False
         self.peoplas_primary = []
 
-        # Saving the Peopla objects that are derived from relationships
-        self.peopla_relationship_live = False
+        # Saving the Peopla objects that are derived from action_groups
+        self.peopla_action_group_live = False
         self.peoplas_secondary = []
 
         # Saving the data tables
@@ -559,13 +559,13 @@ class Document:
                 inheritance_hash.pop("TITLE")
 
             ### If this information is relevant for the primary Peopla
-            ### AND we have a relationship currently live (i.e., a secondary
-            ### Peopla that is part of this relationship) then that secondary
-            ### Peopla should be recorded as part of the relationship
+            ### AND we have a action_group currently live (i.e., a secondary
+            ### Peopla that is part of this action_group) then that secondary
+            ### Peopla should be recorded as part of the action_group
             secondary_peopla_object = None
-            if not secondary_flag and self.peopla_relationship_live:
+            if not secondary_flag and self.peopla_action_group_live:
                 logger.debug(
-                    f"This is information that defines a relationship between two Peoplas"
+                    f"This is information that defines a action_group between two Peoplas"
                 )
                 logger.debug(f"1. primary  : {self.peoplas_primary[-1].name}")
                 logger.debug(f"2. secondary: {self.peoplas_secondary[-1].name}")
@@ -586,7 +586,7 @@ class Document:
             self.peopla_live = True
 
         elif re.match(r"^###\tw/.*$", line):
-            logger.debug("Found a peopla relationship")
+            logger.debug("Found a peopla action_group")
 
             peopla_content = re.sub(r"^###\s+", "", line)
 
@@ -602,7 +602,7 @@ class Document:
                 )
             )
 
-            self.peopla_relationship_live = True
+            self.peopla_action_group_live = True
 
     def scan_for_peopla_lines(self, line):
         """
