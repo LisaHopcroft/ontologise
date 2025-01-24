@@ -10,33 +10,6 @@ Definitions
 
 There are a few concepts that will be used when describing what this format is:
 
-.. mermaid::
-    :name: concept_map
-    
-    flowchart LR
-        subgraph d1 [Document]
-            subgraph sN [Source N]
-                A@{ shape: doc, label: "__Header (req)__
-                Shortcuts (opt)
-                Peopla (opt)
-                DataTable (opt)
-                DataPoints (opt)
-                "}
-            end
-            subgraph sep[...]
-                C:::hidden
-            end
-            style sep fill:none,stroke:none
-            subgraph s1 [Source 1]
-                B@{ shape: doc, label: "__Header (req)__
-                Shortcuts (opt)
-                Peopla (opt)
-                DataTable (opt)
-                DataPoints (opt)
-                " }
-            end
-        end
-
 Document
     A single plain text file that contains Ontologise content.
     This can contain more than one source.
@@ -78,10 +51,15 @@ Shortcut
     Autogeneration markers are defined in a settings file (see below).
 
 
+----------------------------------------------------------------------
+Example
+----------------------------------------------------------------------
 
 See a minimal example below:
 
-.. #[RECORD_TYPE]
+.. code-block:: md
+
+    #[RECORD_TYPE]
     ##AT:	PLACE
     ##ATX:	1800_TEXT_TEXT:00
     ##DATE:	1800-01-01
@@ -109,3 +87,121 @@ See a minimal example below:
     N1	N2	N3	N4
     [/]
     ###\tEND
+
+----------------------------------------------------------------------
+Markdown formats
+----------------------------------------------------------------------
+
+See below for explanation of markdown formats:
+
+*Basic case*
+
+.. code-block::
+
+    ###	[PERS_ID]
+    ###		AT
+    ###			@[at]
+
+
+*Together*
+
+.. code-block::
+
+    ###	[PERS_ID]
+    ###	w/[PERS_ID]
+    ###		MARRIED
+    ###			:[val]
+
+
+*Relations*
+
+.. code-block::
+
+    ###	[PERS_ID]
+    ###	w/[PERS_ID]
+    ###		MARRIED
+    ###			:[val]
+    ###	>	*REL*
+    ###	>	[PERS_ID]
+
+
+*Adjunct info*
+
+.. code-block::
+
+    ###	[PERS_ID]
+    ###	w/[PERS_ID]
+    ###	(	OF
+    ###	(		@[val]
+    ###		MARRIED
+    ###			:[val]
+
+
+See below for further information about elements used in Ontologise.
+
+.. list-table:: 
+   :widths: 25 50
+   :header-rows: 1
+
+   * - Context parameters
+     - Meaning
+   * - ##DATE:	val
+     - date (val is of format YYYY-MM-DD)
+   * - ##AT:	val
+     - place
+   * - @00:00
+     - time
+
+.. list-table:: 
+   :widths: 25 50
+   :header-rows: 1
+
+   * - Tag symbol
+     - Meaning
+   * - @
+     - place
+   * - :
+     - date
+   * - \<
+     - before
+   * - \>
+     - after
+
+
+.. list-table:: 
+   :widths: 25 50
+   :header-rows: 1
+
+   * - Trailing modifier
+     - Meaning
+   * - \*
+     - use context parameters as defaults
+   * - ~
+     - possibly
+
+.. list-table:: 
+   :widths: 25 50
+   :header-rows: 1
+
+   * - Identifiers
+     - Meaning
+   * - \(n\) 
+     - file level identifer
+   * - {n} 
+     - global identifier
+
+
+.. list-table:: 
+   :widths: 25 50
+   :header-rows: 1
+
+   * - Grouping markup
+     - Meaning
+   * - w/
+     - together
+   * - vs 
+     - actors/reactors (not yet implemented)
+
+
+
+
