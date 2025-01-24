@@ -170,6 +170,25 @@ class Peopla:
 
         self.attributes[attribute_text] = inheritance
 
+    def update_attribute(self, attribute_text, d):
+
+        # self.attributes[attribute_text]["secondary_peopla"] = secondary_peopla
+
+        logger.info(
+            f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
+        )
+
+        existing_attributes = self.attributes[attribute_text]
+        updated_attributes = { **existing_attributes, **d }
+
+        logger.debug(
+            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+            f"This is what needs to be added: {log_pretty(d)}"
+            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        )
+
+        self.attributes[attribute_text] = updated_attributes
+
     def print_peopla(self):  # pragma: no cover
         logger.info(f"I found this {self.type} PEOPLA called {self.name}")
         logger.info(f"It has the following attributes:\n{log_pretty(self.attributes)}")
@@ -487,7 +506,38 @@ class Document:
     def scan_for_peopla_attributes(self, line):
         logger.debug(f"Looking for peopla attributes in {line}")
 
-        if re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
+        if re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
+            logger.debug("Found an attribute of an attribute")
+            logger.debug(f"This will be in relation to {self.current_attribute}")
+
+            m = re.search(r"^###\t(\()?\t([^\*]+)(\*?)$", line)
+            secondary_flag = False if m.group(1) is None else True
+            if secondary_flag:
+                logger.debug(f"This information is relevant to the secondary Peopla")
+            else:
+                logger.debug(f"This information is relevant to the primary Peopla")
+
+            ### Work out which Peopla we should update with the information -
+            ### the primary or the secondary Peopla
+            peopla_to_update = (
+                (self.peoplas_secondary[-1])
+                if secondary_flag
+                else (self.peoplas_primary[-1])
+            )
+
+            line_content = re.sub(r"^###[\s\(]+", "", line )
+
+            info = extract_attribute_information( line_content )
+
+            logger.debug(
+                f"Identified '{self.current_attribute}' / '{info}' / '{peopla_to_update.name}'"
+            )
+
+            ### Add this information to the attribute dictionary
+            peopla_to_update.update_attribute( self.current_attribute, info )
+
+
+        elif re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
             logger.debug("Found a peopla attribute")
 
             m = re.search(r"^###\t(\()?\t([^\*]+)(\*?)$", line)
@@ -501,6 +551,8 @@ class Document:
             logger.debug(
                 f"Identified '{attribute_text}' / '{inheritance_flag}' / '{secondary_flag}'"
             )
+
+            self.current_attribute = attribute_text
 
             inheritance_hash = {}
             if inheritance_flag == "*":
@@ -624,6 +676,42 @@ class Document:
         Returning the value for a specific flag in a document header
         """
         return self.header[flag]
+
+def extract_attribute_information(l):
+    """
+    Parse details from an attribute line.
+    Examples of attribute lines:
+    - @[SCO, REN, LWH, Johnshill] (belongs to, e.g., OF)
+    - :[1762-06] (belongs to, e.g., BORN)
+    - :[1810-11->1818] (belongs to, e.g., EDUCATED)
+    - :[1819-12->] (belongs to, e.g., HEALTH)
+    - :[1820->]~ (belongs to, e.g., RESIDED)
+    - CONDITION[Typhus fever] (belongs to, e.g., HEALTH)
+    - ROLE[Clerk] (belongs to, e.g., OCC)
+    - DUR[1 yr] (belongs to, e.g., OCC)
+    """
+
+    m = re.search(r"^(.*)\[(.*)\](~)?$", l)
+    key = translate_attribute(m.group(1))
+    approx_flag = False if m.group(3) is None else True
+    value = f"approx. {m.group(2)}" if approx_flag else m.group(2)
+
+    return({key: value})
+
+### This is what we could do with Python 3.10
+# def translate(x):
+#     match x:
+#         case ':':
+#             return "DATE"
+#         case '@':
+#             return "AT"
+#         case _:
+#             return x
+def translate_attribute(x):
+    return {
+        ':': "DATE",
+        '@': "AT",
+    }.get(x, x)
 
 
 def extract_peopla_details(l):

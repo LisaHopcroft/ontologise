@@ -14,11 +14,124 @@ DATA_DIR = BASE_DIR / "integration" / "content" / "input"
 SETTINGS_DIR = BASE_DIR / "integration" / "content" / "settings"
 EXPECTED_DIR = BASE_DIR / "integration" / "content" / "expected"
 
+
 # -----------------------------------------------------------------
-# Integration test cases: peopla content
+# Integration test cases: peopla content, attributes of attributes
 # -----------------------------------------------------------------
 # -
 
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name,attribute,attribute_dictionary",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "peopla_content_D",
+            "settings_basic.yaml",
+            "A, B",
+            "C",
+            {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"},
+        ),
+    ],
+)
+def test_primary_peopla_attributes_of_attributes(
+    test_name, settings_file, peopla_name, attribute, attribute_dictionary
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for p in test_doc.peoplas_primary:
+        ### Print for information
+        p.print_peopla()
+        ### Collect global IDs
+        if p.name == peopla_name:
+            assert p.attributes[attribute] == attribute_dictionary
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,secondary_peopla_name,attribute,attribute_dictionary,primary_peopla_name",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the secondary peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    # (3) name of the primary peopla of interest (who should not have the same attributes)
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "secondary_peopla_content_B",
+            "settings_basic.yaml",
+            "D, E",
+            "F",
+            {
+                "AT": "J",
+                "DATE": "I",
+                "G": "H",
+            },
+            "A, B",
+        ),
+    ],
+)
+def test_secondary_peopla_attributes_of_attributes(
+    test_name, settings_file, secondary_peopla_name, attribute, attribute_dictionary, primary_peopla_name
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    ### The given attribute should only exist for the secondary Peopla
+    for p in test_doc.peoplas_primary:
+        ### Print for information
+        p.print_peopla()
+        ### Collect global IDs
+        if p.name == primary_peopla_name:
+            assert attribute not in p.attributes
+    
+    for p in test_doc.peoplas_secondary:
+        ### Print for information
+        p.print_peopla()
+        ### Collect global IDs
+        if p.name == secondary_peopla_name:
+            assert p.attributes[attribute] == attribute_dictionary
+
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content, checking Peopla numbers
+# -----------------------------------------------------------------
+# -
 
 @pytest.mark.parametrize(
     "test_name,settings_file,expected_num_peoplas,expected_global_ids",
