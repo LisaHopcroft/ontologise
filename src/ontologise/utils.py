@@ -13,7 +13,6 @@ DEFAULT_SETTINGS = "settings.yaml"
 data_point_separator = "\\t"
 
 
-
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
 # Bold text: https://stackoverflow.com/questions/50460222/bold-formatting-in-python-console
@@ -245,7 +244,9 @@ class Document:
                 self.scan_for_header_lines(line)
                 self.scan_for_peopla_lines(line)
 
-                self.reset(line)
+                ### It is possible for there to be blank lines inside a peopla
+                if not self.peopla_live:
+                    self.reset(line)
 
         ### flatten the datapoints into a table here
         self.data_points_df = self.generate_table_from_datapoints()
@@ -481,6 +482,14 @@ class Document:
 
             (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
             self.peopla_live = True
+        elif re.match(r"^###\tw/.*$", line):
+            logger.debug("Found a peopla relationship")
+
+            peopla_content = re.sub(r"^###\s+", "", line)
+
+            logger.debug(f"Parsed out this content: {peopla_content}")
+
+            peopla_content_parsed = self.extract_peopla_details(peopla_content)
 
     def scan_for_peopla_lines(self, line):
         """
@@ -489,14 +498,19 @@ class Document:
         will be created and added to the list of PEOPLA that are
         attached to the Document.
         """
-        if re.match(r"^###\t@?\[.*\](\{.*\})?$", line):
-            m = re.search(r"^###\t(\@?)\[(.*?)\](\{.*\})?$", line)
+        if re.match(r"^###\t@?\[.*\](\(.*\))?(\{.*\})?$", line):
+            m = re.search(r"^###\t(\@?)\[(.*?)\](\(.*\))?(\{.*\})?$", line)
             place_flag = m.group(1)
             content = m.group(2)
-            global_id = None
+            local_id = None
             if m.group(3):
-                global_id = re.sub("[\{\}]", "", m.group(3))
-            logger.debug(f"Identified '{place_flag}' / '{content}' / '{global_id}'")
+                local_id = re.sub("[\(\)]", "", m.group(3))
+            global_id = None
+            if m.group(4):
+                global_id = re.sub("[\{\}]", "", m.group(4))
+            logger.debug(
+                f"Identified '{place_flag}' / '{content}' / '{local_id}'/ '{global_id}'"
+            )
             self.peoplas.append(Peopla(content, place_flag == "@", global_id))
             self.peopla_live = True
 
@@ -548,3 +562,45 @@ class Document:
         Returning the value for a specific flag in a document header
         """
         return self.header[flag]
+
+
+def extract_peopla_details(l):
+    """
+    Parse details from a peopla line.
+    Examples of peopla lines:
+    - [ADAM, Jean](5){80071ca9-d47a-4cb6-b283-f96ce7ad1618}
+    - w/[CRAWFURD, Andrew](x){5cf88045-6337-428c-ab5b-8ea9b1a50103}
+    - [M'TURK, Michael]
+    - [M'TURK, Michael]*
+    - @[SCO, REN, LWH, Johnshill]
+    """
+
+    m = re.search(r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$", l)
+
+    place_flag = False if m.group(1) is None else True
+    with_flag = False if m.group(2) is None else True
+    content = m.group(3)
+    local_id = None if m.group(4) is None else re.sub("[\(\)]", "", m.group(4))
+    global_id = None if m.group(5) is None else re.sub("[\{\}]", "", m.group(5))
+    inheritance_flag = False if m.group(6) is None else True
+
+    logger.debug(
+        f"New method for extracting peopla details:\n"
+        + f" - is place flag present? '{place_flag}'\n"
+        + f" - is a with flag present? '{with_flag}'\n"
+        + f" - content is? '{content}'\n"
+        + f" - local_id provided? '{local_id}'\n"
+        + f" - global_id provided? '{global_id}'\n"
+        + f" - inheritance flag provided? '{inheritance_flag}'"
+    )
+
+    peopla_info_dictionary = {
+        "place_flag": place_flag,
+        "with_flag": with_flag,
+        "content": content,
+        "local_id": local_id,
+        "global_id": global_id,
+        "inheritance_flag": inheritance_flag,
+    }
+
+    return peopla_info_dictionary
