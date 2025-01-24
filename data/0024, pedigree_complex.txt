@@ -1,0 +1,46 @@
+#[PEDIGREE]
+#{UNIV:	File}
+##AUTH:	CRAWFURD, Andrew
+##DATE:	.
+##PP:	20
+--------------------------------------------------------------------------------
+
+###	[ADAM, Jean](5)
+###	w/[CRAWFURD, Andrew](x)
+###	>	*SON*
+###	>	[CRAWFURD, William](6)
+###	>	*SON*
+###	>	[CRAWFURD, Andrew](6)
+###	>	vs[M'KINLAY, John]{4f3210e4-9a04-4a04-a30a-cacdf177008a}
+###	>		EDUCATED
+###	>			@[SCO, REN, LWH, Lochwinnoch]
+
+...
+
+###	>	[CRAWFURD, Andrew](6)
+
+...
+
+###	>	*DAUG*
+###	>	[CRAWFURD, Barbara]{dad5c5cd-d92d-4ba4-a8fe-23ea24871bea}
+###	>		DIED
+###	>			:[1825-10-20]
+###	>			@[SCO, REN, LWH, Johnshill]
+###	>	w/[LOGAN, James]{6b624adf-41fa-4eb8-bc1c-857823da9072}
+###	>	(	OF
+###	>	(		@[SCO, REN, LWH, Lochwinnoch]
+###	>		MARRIED
+
+...
+
+###	>	>	*SON*
+###	>	>	[LOGAN, John]
+###	>	>		DIED
+###	>	>			AGED[14]
+
+...
+
+###	>	>	*SON*
+###	>	>	[LOGAN, Andrew]
+###	>	>		DIED
+###	>	>			AGED[12]~

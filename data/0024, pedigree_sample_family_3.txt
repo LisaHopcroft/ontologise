@@ -1,0 +1,11 @@
+#[PEDIGREE]
+#{UNIV:	File}
+##AUTH:	CRAWFURD, Andrew
+##DATE:	.
+##PP:	20
+--------------------------------------------------------------------------------
+
+###	[ADAM, Jean](5)
+###	w/[CRAWFURD, Andrew](x)
+###	>	*SON*
+###	>	[CRAWFURD, William](6)

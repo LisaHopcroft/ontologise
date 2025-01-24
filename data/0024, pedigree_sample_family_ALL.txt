@@ -1,0 +1,28 @@
+#[PEDIGREE]
+#{UNIV:	File}
+##AUTH:	CRAWFURD, Andrew
+##DATE:	.
+##PP:	20
+--------------------------------------------------------------------------------
+
+###	[CRAWFURD, Andrew](x)
+###	w/[KIRKWOOD, Janet](x){99940970-a7e5-4fc9-9a71-6a82bbcf7b52}
+###	(>	*FATHER*
+###	(>	[KIRKWOOD, Robert]
+###	(>		OF
+###	(>			@[SCO, REN, LWH, Bridgend]
+###		MARRIED
+
+###	[CRAWFURD, Andrew](x)
+###	w/[BARCLAY, Margaret]{385c9bf6-df87-4253-b587-bc827ca1b2db}
+###	(>	*FATHER*
+###	(>	[BARCLAY, Alexander]
+###	(>		OCC
+###	(>			ROLE[Fewar]
+###	(>			@[SCO, REN, LWH, Kirkton]
+###		MARRIED
+
+###	[ADAM, Jean](5)
+###	w/[CRAWFURD, Andrew](x)
+###	>	*SON*
+###	>	[CRAWFURD, William](6)

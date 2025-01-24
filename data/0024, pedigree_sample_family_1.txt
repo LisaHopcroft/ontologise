@@ -1,0 +1,14 @@
+#[PEDIGREE]
+#{UNIV:	File}
+##AUTH:	CRAWFURD, Andrew
+##DATE:	.
+##PP:	20
+--------------------------------------------------------------------------------
+
+###	[CRAWFURD, Andrew](x)
+###	w/[KIRKWOOD, Janet](x){99940970-a7e5-4fc9-9a71-6a82bbcf7b52}
+###	(>	*FATHER*
+###	(>	[KIRKWOOD, Robert]
+###	(>		OF
+###	(>			@[SCO, REN, LWH, Bridgend]
+###		MARRIED
