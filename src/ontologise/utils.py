@@ -140,12 +140,23 @@ class Peopla:
         self.type = "place" if place_flag else "person"
         self.name = input
         self.attributes = {}
+        self.relationships = {}
         self.global_id = global_id
         self.local_id = local_id
 
         logger.info(
             f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.local_id}) ({self.global_id})"
         )
+
+    def add_relationship(self, relationship_text, relationship_target):
+
+        logger.info(
+            f"Adding relationship to PEOPLA object {self.name}: ({relationship_text})"
+        )
+        
+        # ...
+
+        self.attributes[relationship_text] = relationship_target
 
     def add_attribute(self, attribute_text, inheritance, secondary_peopla=None):
 
@@ -505,9 +516,21 @@ class Document:
         return datapoint_table.reset_index().drop(columns=["index"])
 
     def scan_for_peopla_attributes(self, line):
+
         logger.debug(f"Looking for peopla attributes in {line}")
 
-        if re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
+        # if re.match(r"^###\t(\(>)?\t\*([^\*]*)\*$", line):
+        #     logger.debug("Found a relationship that belongs to the current secondary Peopla")
+        # elif re.match(r"^###\t(>)?\t\*([^\*]*)\*$", line):
+        #     logger.debug("Found a relationship that belongs to BOTH the primary and secondary Peopla")
+        if re.match(r"^###\t([\(>]{0,2})\t([.*])$", line):
+            m = re.search(r"^###\t([\(>]{0,2})\t\t([.*])$", line)
+            scope_flag = False if m.group(1) is None else True
+            text_to_parse = m.group(2)
+            logger.debug( f"This is the scope flag: '{scope_flag}'" )
+            logger.debug(f"This is the text to parse: '{text_to_parse}'")
+
+        elif re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
             logger.debug("Found an attribute of an attribute")
             logger.debug(f"This will be in relation to {self.current_attribute}")
 
