@@ -523,14 +523,14 @@ class Document:
         #     logger.debug("Found a relationship that belongs to the current secondary Peopla")
         # elif re.match(r"^###\t(>)?\t\*([^\*]*)\*$", line):
         #     logger.debug("Found a relationship that belongs to BOTH the primary and secondary Peopla")
-        if re.match(r"^###\t([\(>]{0,2})\t([.*])$", line):
-            m = re.search(r"^###\t([\(>]{0,2})\t\t([.*])$", line)
-            scope_flag = False if m.group(1) is None else True
-            text_to_parse = m.group(2)
-            logger.debug( f"This is the scope flag: '{scope_flag}'" )
-            logger.debug(f"This is the text to parse: '{text_to_parse}'")
+        # if re.match(r"^###\t(\()?\>\t(.*)$", line):
+        #     m = re.search(r"^###\t(\()?\>\t(.*)$", line)
+        #     scope_flag = "both" if m.group(1) is None else "secondary"
+        #     text_to_parse = m.group(2)
+        #     logger.debug( f"This is the scope flag: '{scope_flag}'" )
+        #     logger.debug(f"This is the text to parse: '{text_to_parse}'")
 
-        elif re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
+        if re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
             logger.debug("Found an attribute of an attribute")
             logger.debug(f"This will be in relation to {self.current_attribute}")
 
