@@ -55,12 +55,14 @@ def test_translate_attribute(s_in, s_out_expected):
     # - ROLE[Clerk] (belongs to, e.g., OCC)
     # - DUR[1 yr] (belongs to, e.g., OCC)
     [
-        # TEST: Basic
+        # TEST: @ symbol
         ("@[P]", {"AT": "P"}),
-        # TEST: Basic with local ID
-        (":[YYYY-MM]", { "DATE": "YYYY-MM"} ),
-        # TEST: 
-        ("A[B]", { "A": "B"} ),
+        # TEST: : date
+        (":[YYYY-MM]", {"DATE": "YYYY-MM"}),
+        # TEST: approximate : date
+        (":[YYYY-MM]~", {"DATE": "approx. YYYY-MM"}),
+        # TEST: all other attributes
+        ("A[B]", {"A": "B"}),
     ],
 )
 def test_extract_attribute_information(s, s_dict_expected):
