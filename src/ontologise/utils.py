@@ -174,7 +174,7 @@ class Peopla:
                 f"This information involves another Peopla: {secondary_peopla.name}"
             )
             logger.debug(f"Adding this to the inheritance object")
-            inheritance["secondary"] = secondary_peopla
+            inheritance["with"] = secondary_peopla
         else:
             logger.debug(f"No other Peopla is involved")
 
