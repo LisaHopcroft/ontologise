@@ -6,7 +6,7 @@ import sys
 
 sys.path.append("src/ontologise")
 
-from utils import Document
+from utils import Document, Peopla
 
 
 BASE_DIR = Path(__file__).parents[1]
@@ -64,6 +64,72 @@ def test_peopla_content(
 
     assert len(test_doc.peoplas_primary) == expected_num_peoplas
     assert observed_global_ids == expected_global_ids
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: one to one primary and secondary peoplas
+# -----------------------------------------------------------------
+# Note that these tests ONLY cover one to one relationships between
+# primary and secondary Peoplas. That is, if there is more than one
+# secondary Peopla for a primary Peopla then this test will fail.
+# -
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_primary_peoplas_names,expected_secondary_peoplas_names,relationship_key",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) the expected names of the primary peoplas
+    # (4) the expected names of the secondary peoplas
+    # (5) the attribute that defines the relationship between the two
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 primary peopla and 1 secondary peopla, related by J
+        ("secondary_peopla_content_A", "settings_basic.yaml", ["A, B"], ["D, E"], "J"),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 primary peopla and 1 secondary peopla (with additional attributes), related by J
+        ("secondary_peopla_content_B", "settings_basic.yaml", ["A, B"], ["D, E"], "J"),
+    ],
+)
+def test_secondary_peopla_content(
+    test_name,
+    settings_file,
+    expected_primary_peoplas_names,
+    expected_secondary_peoplas_names,
+    relationship_key,
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for (i, this_peopla) in enumerate(test_doc.peoplas_primary):
+        this_peopla.print_peopla()
+        assert this_peopla.name == expected_primary_peoplas_names[i]
+        assert relationship_key in this_peopla.attributes
+        assert type(this_peopla.attributes[relationship_key]["secondary"]) is Peopla
+        assert (
+            this_peopla.attributes[relationship_key]["secondary"].name == 
+            expected_secondary_peoplas_names[i]
+        )
+
+    for (i, this_peopla) in enumerate(test_doc.peoplas_secondary):
+        this_peopla.print_peopla()
+        assert this_peopla.name == expected_secondary_peoplas_names[i]
+
+    assert len(test_doc.peoplas_primary) == len(expected_primary_peoplas_names)
+    assert len(test_doc.peoplas_secondary) == len(expected_secondary_peoplas_names)
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
