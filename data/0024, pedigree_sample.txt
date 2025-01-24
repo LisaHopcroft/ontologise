@@ -1,0 +1,22 @@
+#[PEDIGREE]
+#{UNIV:	File}
+##AUTH:	CRAWFURD, Andrew
+##DATE:	.
+##PP:	20
+--------------------------------------------------------------------------------
+
+
+###	[ADAM, Jean](5){80071ca9-d47a-4cb6-b283-f96ce7ad1618}
+###		OF
+###			@[SCO, REN, LWH, Johnshill]
+###		BORN
+###			:[1762-06]
+
+###	w/[CRAWFURD, Andrew](x){5cf88045-6337-428c-ab5b-8ea9b1a50103}
+###	(	OCC
+###	(		ROLE[Mason]
+###	(		@[SCO, Falkirk]
+###		MARRIED
+
+
+[END]
