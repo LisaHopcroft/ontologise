@@ -289,8 +289,8 @@ def test_default_peopla_parse(document_with_two_peopla):
     with one attribute. One of the attributes includes inheritance
     of document properties.
     """
-    for i in range(0, len(document_with_two_peopla.peoplas)):
-        p = document_with_two_peopla.peoplas[i]
+    for i in range(0, len(document_with_two_peopla.peoplas_primary)):
+        p = document_with_two_peopla.peoplas_primary[i]
         assert p.name == document_with_two_peopla_defaults["NAME"][i]
         assert p.type == document_with_two_peopla_defaults["TYPE"][i]
 
@@ -314,8 +314,8 @@ def test_two_attribute_peopla_parse(document_with_two_peopla_attributes):
     the document that contains 1 peopla with two attributes. One of
     the attributes includes inheritance of document properties.
     """
-    for i in range(0, len(document_with_two_peopla_attributes.peoplas)):
-        p = document_with_two_peopla_attributes.peoplas[i]
+    for i in range(0, len(document_with_two_peopla_attributes.peoplas_primary)):
+        p = document_with_two_peopla_attributes.peoplas_primary[i]
         assert p.name == document_with_two_peopla_attributes_defaults["NAME"][i]
         assert p.type == document_with_two_peopla_attributes_defaults["TYPE"][i]
 

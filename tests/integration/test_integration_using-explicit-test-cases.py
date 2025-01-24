@@ -2,6 +2,10 @@ import pytest
 from pathlib import Path
 import pandas as pd
 from pandas import testing
+import sys
+
+sys.path.append("src/ontologise")
+
 from utils import Document
 
 
@@ -52,13 +56,13 @@ def test_peopla_content(
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
     observed_global_ids = []
-    for p in test_doc.peoplas:
+    for p in test_doc.peoplas_primary:
         ### Print for information
         p.print_peopla()
         ### Collect global IDs
         observed_global_ids = observed_global_ids + [p.global_id]
 
-    assert len(test_doc.peoplas) == expected_num_peoplas
+    assert len(test_doc.peoplas_primary) == expected_num_peoplas
     assert observed_global_ids == expected_global_ids
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")

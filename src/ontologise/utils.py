@@ -188,7 +188,11 @@ class Document:
 
         # Saving the Peopla objects
         self.peopla_live = False
-        self.peoplas = []
+        self.peoplas_primary = []
+
+        # Saving the Peopla objects that are derived from relationships
+        self.peopla_relationship_live = False
+        self.peoplas_secondary = []
 
         # Saving the data tables
         self.data_table_live = False
@@ -467,21 +471,29 @@ class Document:
     def scan_for_peopla_attributes(self, line):
         logger.debug(f"Looking for peopla attributes in {line}")
 
-        if re.match(r"^###\t\t[^\*]+\*?$", line):
+        if re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
             logger.debug("Found a peopla attribute")
 
-            m = re.search(r"^###\t\t([^\*]+)(\*?)$", line)
-            attribute_text = m.group(1).rstrip()
-            inheritance_flag = m.group(2).rstrip()
-            logger.debug(f"Identified '{attribute_text}' / '{inheritance_flag}'")
-
+            m = re.search(r"^###\t(\()?\t([^\*]+)(\*?)$", line)
+            secondary_flag = False if m.group(1) is None else True
+            attribute_text = m.group(2).rstrip()
+            inheritance_flag = m.group(3).rstrip()
+            if secondary_flag:
+                logger.debug(f"This information is relevant to the secondary Peopla")
+            else:
+                logger.debug(f"This information is relevant to the primary Peopla")
+            logger.debug(f"Identified '{attribute_text}' / '{inheritance_flag}' / '{secondary_flag}'")
+            
             inheritance_hash = {}
             if inheritance_flag == "*":
                 inheritance_hash = self.header
                 inheritance_hash.pop("TITLE")
 
-            (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
+            peopla_to_update = (self.peoplas_secondary[-1]) if secondary_flag else (self.peoplas_primary[-1])
+
+            peopla_to_update.add_attribute(attribute_text, inheritance_hash)
             self.peopla_live = True
+
         elif re.match(r"^###\tw/.*$", line):
             logger.debug("Found a peopla relationship")
 
@@ -489,7 +501,17 @@ class Document:
 
             logger.debug(f"Parsed out this content: {peopla_content}")
 
-            peopla_content_parsed = self.extract_peopla_details(peopla_content)
+            peopla_content_parsed = extract_peopla_details(peopla_content)
+
+            self.peoplas_secondary.append(
+                Peopla(
+                    peopla_content_parsed["content"],
+                    peopla_content_parsed["place_flag"],
+                    peopla_content_parsed["global_id"]
+                )
+            )
+
+            self.peopla_relationship_live = True
 
     def scan_for_peopla_lines(self, line):
         """
@@ -511,7 +533,7 @@ class Document:
             logger.debug(
                 f"Identified '{place_flag}' / '{content}' / '{local_id}'/ '{global_id}'"
             )
-            self.peoplas.append(Peopla(content, place_flag == "@", global_id))
+            self.peoplas_primary.append(Peopla(content, place_flag == "@", global_id))
             self.peopla_live = True
 
     def scan_for_header_lines(self, line):
@@ -548,7 +570,7 @@ class Document:
         print(f"Document parsed = {self.file}")
         self.print_header_information()
 
-        for p in self.peoplas:
+        for p in self.peoplas_primary:
             p.print_peopla()
 
         print(self.shortcuts)
