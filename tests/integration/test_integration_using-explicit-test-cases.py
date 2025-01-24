@@ -9,7 +9,6 @@ sys.path.append("src/ontologise")
 from utils import Document, Peopla
 
 
-
 BASE_DIR = Path(__file__).parents[1]
 DATA_DIR = BASE_DIR / "integration" / "content" / "input"
 SETTINGS_DIR = BASE_DIR / "integration" / "content" / "settings"
