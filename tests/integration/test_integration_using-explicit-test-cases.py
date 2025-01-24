@@ -231,10 +231,10 @@ def test_secondary_peopla_content(
         this_peopla.print_peopla()
         assert this_peopla.name == expected_primary_peoplas_names[i]
         assert action_group_key in this_peopla.attributes
-        assert type(this_peopla.attributes[action_group_key]["secondary"]) is Peopla
+        assert type(this_peopla.attributes[action_group_key]["with"]) is Peopla
         assert (
-            this_peopla.attributes[action_group_key]["secondary"].name == 
-            expected_secondary_peoplas_names[i]
+            this_peopla.attributes[action_group_key]["with"].name
+            == expected_secondary_peoplas_names[i]
         )
 
     for (i, this_peopla) in enumerate(test_doc.peoplas_secondary):
