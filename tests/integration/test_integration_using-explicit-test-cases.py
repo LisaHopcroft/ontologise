@@ -169,13 +169,13 @@ def test_peopla_content(
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
     observed_global_ids = []
-    for p in test_doc.peoplas_primary:
+    for p in test_doc.all_peoplas:
         ### Print for information
         p.print_peopla()
         ### Collect global IDs
         observed_global_ids = observed_global_ids + [p.global_id]
 
-    assert len(test_doc.peoplas_primary) == expected_num_peoplas
+    assert len(test_doc.all_peoplas) == expected_num_peoplas
     assert observed_global_ids == expected_global_ids
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -201,10 +201,18 @@ def test_peopla_content(
     [
         # TEST: Are the peoplas extracted correctly
         # Context: 1 primary peopla and 1 secondary peopla, related by J
-        ("secondary_peopla_content_A", "settings_basic.yaml", ["A, B"], ["D, E"], "J"),
+        (
+            "secondary_peopla_content_A",
+            "settings_basic.yaml",
+            ["A, B"],
+            ["D, E"],
+            "J",
+        ),
         # TEST: Are the peoplas extracted correctly
         # Context: 1 primary peopla and 1 secondary peopla (with additional attributes), related by J
-        ("secondary_peopla_content_B", "settings_basic.yaml", ["A, B"], ["D, E"], "J"),
+        (
+            "secondary_peopla_content_B", "settings_basic.yaml", ["A, B"], ["D, E"], "J",
+        ),
     ],
 )
 def test_secondary_peopla_content(

@@ -13,7 +13,6 @@
 ###			@[SCO, REN, LWH, Johnshill]
 ###			:[1779]
 
-###	[ADAM, Jean](5)
 ###	w/[CRAWFURD, Andrew](x){5cf88045-6337-428c-ab5b-8ea9b1a50103}
 ###	(	OCC
 ###	(		ROLE[Mason]

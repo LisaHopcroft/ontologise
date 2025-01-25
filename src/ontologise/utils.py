@@ -470,7 +470,7 @@ class Document:
 
         logger.debug( status_update )
 
-        input()
+        # input()
 
     def reset(self, line):
         logger.debug(f"Considering reset with: '{line}'")
@@ -718,14 +718,13 @@ class Document:
                 ### group to have this attribute. So:
                 ### 1. Find the action group
                 ### 2. Add the attributes
-                logger.debug("asdf")
+                logger.critical("This has not been implemented yet")
 
             elif action_scope == "target":
-                ### This is only relevant for the target peoplas
+                ### This is only relevant for the LAST target peoplas
                 ### We need to add an attribute to a peopla
 
-                for tp in self.current_target_peoplas:
-                    tp.update_attribute( self.current_action, info )
+                self.current_target_peoplas[-1].update_attribute( self.current_action, info )
 
         elif re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
             logger.debug("Found a peopla attribute")
@@ -791,6 +790,7 @@ class Document:
                 #     if secondary_flag
                 #     else (self.peoplas_primary[-1])
                 # )
+                logger.critical("This has not been implemented yet")
 
                 for tp in self.current_target_peoplas:
                     logger.debug( f"Adding [{action_details['action_text']}] attribute to {tp.name}")
