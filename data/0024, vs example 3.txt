@@ -1,0 +1,21 @@
+#[PEDIGREE]
+#{UNIV:	File}
+##AUTH:	CRAWFURD, Andrew
+##DATE:	.
+##PP:	20
+--------------------------------------------------------------------------------
+
+###	[ADAM, Jean](5)
+###	vs[M'DOWALL, William]{9b477094-b78f-43b0-b36a-c2d17ccd4a07}
+###	(	OF
+###	(		@[SCO, REN, LWH, Castle Semple]
+###		CHARTER
+###			@[SCO, REN, LWH, Johnshill]
+###			:[1779]
+
+###	[ADAM, Jean](5)
+###	w/[CRAWFURD, Andrew](x){5cf88045-6337-428c-ab5b-8ea9b1a50103}
+###	(	OCC
+###	(		ROLE[Mason]
+###	(		@[SCO, Falkirk]
+###		MARRIED

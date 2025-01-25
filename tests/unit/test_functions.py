@@ -18,6 +18,7 @@ from utils import (
     extract_action_scope,
     remove_all_leading_action_markup,
     extract_action_details,
+    is_action_group_directed,
 )
 
 
@@ -26,6 +27,23 @@ from utils import (
 #         ":": "DATE",
 #         "@": "AT",
 #     }.get(x, x)
+
+
+@pytest.mark.parametrize(
+    "s_in, s_out_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the scope as expected
+    [
+        # TEST: Basic
+        ("###	vs[A]", True),
+        ("###	w/[A]", False),
+        ("###	a[A]", None),
+    ],
+)
+def test_is_action_group_directed(s_in, s_out_expected):
+    s_out_observed = is_action_group_directed(s_in)
+    assert s_out_observed == s_out_expected
 
 
 @pytest.mark.parametrize(

@@ -766,7 +766,7 @@ class Document:
                 self.all_action_groups = self.all_action_groups + [ ag ]
 
             elif action_scope == "target":
-                ### This is only relevant for the target peoplas
+                ### This is only relevant for the LAST target peoplas
                 ### We need to add an attribute to a peopla
 
                 self.current_action = action_details['action_text']
@@ -819,13 +819,14 @@ class Document:
         #     self.peopla_action_group_live = True
         #     self.peopla_action_group_directed = False
 
-        elif re.match(r"^###\tvs.*$", line):
-            logger.debug("Found a directed ActionGroup")
+        elif re.match(r"^###\t(vs|w/).*$", line):
+            logger.debug("Found an ActionGroup")
 
             # peopla_content = remove_all_leading_markup(line)
             # logger.debug(f"Parsed out this content: {peopla_content}")
 
             peopla_content_parsed = extract_peopla_details(line)
+            direction_flag = is_action_group_directed(line)
 
             target_peopla = Peopla(
                     peopla_content_parsed["content"],
@@ -840,7 +841,7 @@ class Document:
 
             ### Open an action group
             self.peopla_action_group_live = True
-            self.peopla_action_group_directed = True
+            self.peopla_action_group_directed = direction_flag
 
     def scan_for_peopla_lines(self, line):
         """
@@ -879,6 +880,7 @@ class Document:
             self.all_peoplas = self.all_peoplas + [source_peopla]
 
             self.current_source_peopla = source_peopla
+            self.current_target_peoplas = []
 
             #########################################################
 
@@ -1082,3 +1084,11 @@ def extract_action_details(l0):
     }
 
     return action_info_dictionary
+
+def is_action_group_directed(l0):
+    if re.match(r"^###\tvs\[.*$", l0):
+        return True
+    elif re.match(r"^###\tw\/\[.*$", l0):
+        return False
+    else:
+        return None
