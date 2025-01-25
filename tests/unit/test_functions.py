@@ -94,8 +94,8 @@ def test_extract_action_scope(s_in, s_out_expected):
     # - ROLE[Clerk] (belongs to, e.g., OCC)
     # - DUR[1 yr] (belongs to, e.g., OCC)
     [
-        # TEST: 
-        ("A" , {"action_text": "A", "inheritance_flag": False}),
+        # TEST:
+        ("A", {"action_text": "A", "inheritance_flag": False}),
         ("A*", {"action_text": "A", "inheritance_flag": True}),
     ],
 )
@@ -150,9 +150,9 @@ def test_remove_all_leading_peopla_markup(s_in, s_out_expected):
     # (2) the expected tag/symbol out (as to be used in a dictionary)
     [
         # TEST: Basic
-        ( ":", "DATE"  ),
-        ( "@", "AT" ),
-        ( "X", "X"  ),
+        (":", "DATE"),
+        ("@", "AT"),
+        ("X", "X"),
     ],
 )
 def test_translate_attribute(s_in, s_out_expected):

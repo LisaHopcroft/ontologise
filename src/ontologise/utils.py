@@ -130,18 +130,16 @@ class DataPoint:
     def add_global_id(self, id):
         self.global_id = id
 
+
 class ActionGroup:
     """
     A ActionGroup involves two or more Peoplas
     """
 
-    def __init__(self,
-                 type,
-                 directed=False,
-                 source_peopla=[],
-                 target_peoplas=[],
-                 attributes={} ):
-        
+    def __init__(
+        self, type, directed=False, source_peopla=[], target_peoplas=[], attributes={}
+    ):
+
         self.type = type
         self.directed = directed
         self.source_peopla = source_peopla
@@ -154,9 +152,11 @@ class ActionGroup:
 
         # logger.info( description_text["info"] )
         # logger.debug( description_text["debug"] )
-    
-    def print_description( self ):
-        s_info = f"{'directed' if self.directed else 'undirected'}{self.type} ActionGroup,"
+
+    def print_description(self):
+        s_info = (
+            f"{'directed' if self.directed else 'undirected'}{self.type} ActionGroup,"
+        )
         s_info = s_info + f"involving the following source Peoplas"
 
         s_debug = ""
@@ -167,8 +167,8 @@ class ActionGroup:
 
         for n, peopla in enumerate(self.target_peoplas):
             s_debug = s_debug + f"{n}. {peopla}"
-        
-        return( { "info": s_info, "debug": s_debug } )
+
+        return {"info": s_info, "debug": s_debug}
 
 
 class Peopla:
@@ -200,12 +200,10 @@ class Peopla:
     #     logger.info(
     #         f"Adding a {peorel} {peorel.type} relationship to PEOPLA object {self.name}"
     #     )
-        
+
     #     logger.debug(
     #         f"- {peorel.type} actor relationship to PEOPLA object {self.name}"
     #     )
-        
-        
 
     def add_attribute(self, attribute_text, inheritance, secondary_peopla=None):
 
@@ -240,7 +238,7 @@ class Peopla:
         existing_attributes = {}
         if attribute_text in self.attributes:
             existing_attributes = self.attributes[attribute_text]
-        updated_attributes = { **existing_attributes, **d }
+        updated_attributes = {**existing_attributes, **d}
 
         logger.debug(
             f"This is what exists at the moment:{log_pretty(existing_attributes)}"
@@ -300,7 +298,7 @@ class Document:
         self.all_peoplas = []
         self.action_groups = []
         self.all_action_groups = []
-        self.current_source_peopla  = None
+        self.current_source_peopla = None
         self.current_target_peoplas = []
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
@@ -369,46 +367,50 @@ class Document:
         ### flatten the datapoints into a table here
         self.data_points_df = self.generate_table_from_datapoints()
 
-    def print_current_status(self,n,l):
+    def print_current_status(self, n, l):
 
-        status_update = "=================================================================\n"
+        status_update = (
+            "=================================================================\n"
+        )
 
         ### Headers -------------------------------------------------
 
         if len(self.header) > 0:
             status_update = (
-                status_update
-                + f"There are currently {len(self.header)} header items\n"
+                status_update + f"There are currently {len(self.header)} header items\n"
             )
 
             for i, p in enumerate(self.header):
                 status_update = status_update + f"Header item ({i}) {p}\n"
 
         status_update = status_update + f"Just read line number [{n}]\n"
-        status_update = status_update + f"The content was [{l}]\n" 
+        status_update = status_update + f"The content was [{l}]\n"
 
         status_update = status_update + "------------------------------------\n"
 
-        status_update = status_update + f"There are {len(self.all_peoplas)} Peoplas recorded overall\n"
+        status_update = (
+            status_update
+            + f"There are {len(self.all_peoplas)} Peoplas recorded overall\n"
+        )
 
-        for ii, pp in enumerate( self.all_peoplas ):
-            status_update = (
-                status_update + f"---> Peopla #({ii}) {pp.name}\n"
-            )
+        for ii, pp in enumerate(self.all_peoplas):
+            status_update = status_update + f"---> Peopla #({ii}) {pp.name}\n"
 
-        status_update = status_update + "------------------------------------\n" 
+        status_update = status_update + "------------------------------------\n"
 
         if self.current_source_peopla != None:
-            status_update = status_update + f"The current source Peopla is {self.current_source_peopla.name}\n"
-
-            for k, v in self.current_source_peopla.attributes.items():
-                status_update = status_update + f"--> Current source peopla attribute ({k}) {v}\n"
-
-        else:
             status_update = (
                 status_update
-                + f"There is no current source Peopla\n"
+                + f"The current source Peopla is {self.current_source_peopla.name}\n"
             )
+
+            for k, v in self.current_source_peopla.attributes.items():
+                status_update = (
+                    status_update + f"--> Current source peopla attribute ({k}) {v}\n"
+                )
+
+        else:
+            status_update = status_update + f"There is no current source Peopla\n"
 
         status_update = status_update + "------------------------------------\n"
 
@@ -422,16 +424,16 @@ class Document:
                 status_update = status_update + f"({i}) {p.name}\n"
 
                 for j, q in enumerate(p.attributes):
-                    status_update = status_update + f"--> Current target peopla attribute ({i}) {q}\n"
+                    status_update = (
+                        status_update
+                        + f"--> Current target peopla attribute ({i}) {q}\n"
+                    )
 
                     for k, v in (p.attributes)[q].items():
                         status_update = status_update + f"------> ({k}) {v}\n"
 
         else:
-            status_update = (
-                status_update
-                + f"There is no current target Peopla\n"
-            )
+            status_update = status_update + f"There is no current target Peopla\n"
 
         status_update = status_update + "------------------------------------\n"
 
@@ -446,13 +448,22 @@ class Document:
             for i, p in enumerate(self.all_action_groups):
                 status_update = status_update + f"({i}) {p.type}\n"
                 status_update = status_update + f"    directed? {p.directed}\n"
-                status_update = status_update + f"    source peopla? {p.source_peopla.name}\n"
-                status_update = status_update + f"    target peoplas? {len(p.target_peoplas)}\n"
+                status_update = (
+                    status_update + f"    source peopla? {p.source_peopla.name}\n"
+                )
+                status_update = (
+                    status_update + f"    target peoplas? {len(p.target_peoplas)}\n"
+                )
 
                 for j, q in enumerate(p.target_peoplas):
-                    status_update = status_update + f"------> target peopla in action group ({i}) {q.name}\n"
+                    status_update = (
+                        status_update
+                        + f"------> target peopla in action group ({i}) {q.name}\n"
+                    )
 
-                status_update = status_update + f"    attributes? length = {len(p.attributes)}\n"
+                status_update = (
+                    status_update + f"    attributes? length = {len(p.attributes)}\n"
+                )
 
                 for k, v in (p.attributes).items():
                     status_update = status_update + f"------> ({k}) {v}\n"
@@ -461,14 +472,22 @@ class Document:
 
         status_update = status_update + "------------------------------------\n"
 
-        relevant_live_indicators = ["shortcut_live","peopla_live","peopla_action_group_live","data_table_live"]
+        relevant_live_indicators = [
+            "shortcut_live",
+            "peopla_live",
+            "peopla_action_group_live",
+            "data_table_live",
+        ]
 
         for r in relevant_live_indicators:
-            status_update = status_update +  f"The [{r}] flag is {getattr(self,r)}\n"
+            status_update = status_update + f"The [{r}] flag is {getattr(self,r)}\n"
 
-        status_update = status_update + "================================================================="
+        status_update = (
+            status_update
+            + "================================================================="
+        )
 
-        logger.debug( status_update )
+        logger.debug(status_update)
 
         # input()
 
@@ -702,14 +721,16 @@ class Document:
 
         if re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
             logger.debug("Found an attribute of an action")
-            logger.debug(f"This will be in relation to the {self.current_action} action")
+            logger.debug(
+                f"This will be in relation to the {self.current_action} action"
+            )
 
-            action_scope   = extract_action_scope( line )
+            action_scope = extract_action_scope(line)
 
             line_content = re.sub(r"^###[\s\(]+", "", line)
             info = extract_attribute_information(line_content)
             logger.debug(
-                f"Identified '{self.current_action}' / '{info}' " #/ '{peopla_to_update.name}'"
+                f"Identified '{self.current_action}' / '{info}' "  # / '{peopla_to_update.name}'"
             )
 
             if action_scope == "both":
@@ -724,7 +745,9 @@ class Document:
                 ### This is only relevant for the LAST target peoplas
                 ### We need to add an attribute to a peopla
 
-                self.current_target_peoplas[-1].update_attribute( self.current_action, info )
+                self.current_target_peoplas[-1].update_attribute(
+                    self.current_action, info
+                )
 
         elif re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
             logger.debug("Found a peopla attribute")
@@ -733,16 +756,16 @@ class Document:
             # secondary_flag = False if m.group(1) is None else True
             # attribute_text = m.group(2).rstrip()
             # inheritance_flag = m.group(3).rstrip()
-            action_scope   = extract_action_scope( line )
-            action_details = extract_action_details( line )
+            action_scope = extract_action_scope(line)
+            action_details = extract_action_details(line)
 
-            logger.debug( f"The action scope is {action_scope}")
+            logger.debug(f"The action scope is {action_scope}")
             logger.debug(
                 f"Identified '{action_details['action_text']}' / '{action_details['inheritance_flag']}'"
             )
 
             inheritance_hash = {}
-            if action_details['inheritance_flag']:
+            if action_details["inheritance_flag"]:
                 inheritance_hash = self.header
                 inheritance_hash.pop("TITLE")
 
@@ -751,24 +774,24 @@ class Document:
                 ### We need to make a action_group
 
                 ag = ActionGroup(
-                    action_details['action_text'],
+                    action_details["action_text"],
                     directed=self.peopla_action_group_directed,
                     source_peopla=self.current_source_peopla,
                     target_peoplas=self.current_target_peoplas,
-                    attributes=inheritance_hash
+                    attributes=inheritance_hash,
                 )
 
                 o = ag.print_description()
-                logger.info( o["info"] )
-                logger.debug( o["debug"] )
+                logger.info(o["info"])
+                logger.debug(o["debug"])
 
-                self.all_action_groups = self.all_action_groups + [ ag ]
+                self.all_action_groups = self.all_action_groups + [ag]
 
             elif action_scope == "target":
                 ### This is only relevant for the LAST target peoplas
                 ### We need to add an attribute to a peopla
 
-                self.current_action = action_details['action_text']
+                self.current_action = action_details["action_text"]
 
                 ### If this information is relevant for the primary Peopla
                 ### AND we have a action_group currently live (i.e., a secondary
@@ -793,7 +816,9 @@ class Document:
                 logger.critical("This has not been implemented yet")
 
                 for tp in self.current_target_peoplas:
-                    logger.debug( f"Adding [{action_details['action_text']}] attribute to {tp.name}")
+                    logger.debug(
+                        f"Adding [{action_details['action_text']}] attribute to {tp.name}"
+                    )
 
             self.peopla_live = True
 
@@ -829,15 +854,15 @@ class Document:
             direction_flag = is_action_group_directed(line)
 
             target_peopla = Peopla(
-                    peopla_content_parsed["content"],
-                    peopla_content_parsed["place_flag"],
-                    peopla_content_parsed["local_id"],
-                    peopla_content_parsed["global_id"],
-                )
+                peopla_content_parsed["content"],
+                peopla_content_parsed["place_flag"],
+                peopla_content_parsed["local_id"],
+                peopla_content_parsed["global_id"],
+            )
 
-            self.all_peoplas = self.all_peoplas + [ target_peopla ]
+            self.all_peoplas = self.all_peoplas + [target_peopla]
 
-            self.current_target_peoplas = self.current_target_peoplas + [ target_peopla ]
+            self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
             ### Open an action group
             self.peopla_action_group_live = True
@@ -944,6 +969,7 @@ class Document:
         """
         return self.header[flag]
 
+
 def extract_attribute_information(l):
     """
     Parse details from an attribute line.
@@ -963,7 +989,8 @@ def extract_attribute_information(l):
     approx_flag = False if m.group(3) is None else True
     value = f"approx. {m.group(2)}" if approx_flag else m.group(2)
 
-    return({key: value})
+    return {key: value}
+
 
 ### This is what we could do with Python 3.10
 # def translate(x):
@@ -975,10 +1002,8 @@ def extract_attribute_information(l):
 #         case _:
 #             return x
 def translate_attribute(x):
-    return {
-        ':': "DATE",
-        '@': "AT",
-    }.get(x, x)
+    return {":": "DATE", "@": "AT",}.get(x, x)
+
 
 def remove_all_leading_peopla_markup(l):
     """
@@ -1037,6 +1062,7 @@ def extract_peopla_details(l0):
 
     return peopla_info_dictionary
 
+
 def extract_action_scope(l0):
     """
     Extract details of the scope of an action
@@ -1054,7 +1080,7 @@ def extract_action_scope(l0):
     else:
         scope = None
 
-    return( scope )
+    return scope
 
 
 def extract_action_details(l0):
@@ -1084,6 +1110,7 @@ def extract_action_details(l0):
     }
 
     return action_info_dictionary
+
 
 def is_action_group_directed(l0):
     if re.match(r"^###\tvs\[.*$", l0):

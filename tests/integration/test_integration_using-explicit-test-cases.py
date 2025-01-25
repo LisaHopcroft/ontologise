@@ -84,17 +84,18 @@ def test_primary_peopla_attributes_of_attributes(
             "settings_basic.yaml",
             "D, E",
             "F",
-            {
-                "AT": "J",
-                "DATE": "I",
-                "G": "H",
-            },
+            {"AT": "J", "DATE": "I", "G": "H",},
             "A, B",
         ),
     ],
 )
 def test_secondary_peopla_attributes_of_attributes(
-    test_name, settings_file, secondary_peopla_name, attribute, attribute_dictionary, primary_peopla_name
+    test_name,
+    settings_file,
+    secondary_peopla_name,
+    attribute,
+    attribute_dictionary,
+    primary_peopla_name,
 ):
 
     content_f = DATA_DIR / f"{test_name}.txt"
@@ -116,14 +117,13 @@ def test_secondary_peopla_attributes_of_attributes(
         ### Collect global IDs
         if p.name == primary_peopla_name:
             assert attribute not in p.attributes
-    
+
     for p in test_doc.peoplas_secondary:
         ### Print for information
         p.print_peopla()
         ### Collect global IDs
         if p.name == secondary_peopla_name:
             assert p.attributes[attribute] == attribute_dictionary
-
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
@@ -132,6 +132,7 @@ def test_secondary_peopla_attributes_of_attributes(
 # Integration test cases: peopla content, checking Peopla numbers
 # -----------------------------------------------------------------
 # -
+
 
 @pytest.mark.parametrize(
     "test_name,settings_file,expected_num_peoplas,expected_global_ids",
@@ -201,18 +202,10 @@ def test_peopla_content(
     [
         # TEST: Are the peoplas extracted correctly
         # Context: 1 primary peopla and 1 secondary peopla, related by J
-        (
-            "secondary_peopla_content_A",
-            "settings_basic.yaml",
-            ["A, B"],
-            ["D, E"],
-            "J",
-        ),
+        ("secondary_peopla_content_A", "settings_basic.yaml", ["A, B"], ["D, E"], "J",),
         # TEST: Are the peoplas extracted correctly
         # Context: 1 primary peopla and 1 secondary peopla (with additional attributes), related by J
-        (
-            "secondary_peopla_content_B", "settings_basic.yaml", ["A, B"], ["D, E"], "J",
-        ),
+        ("secondary_peopla_content_B", "settings_basic.yaml", ["A, B"], ["D, E"], "J",),
     ],
 )
 def test_secondary_peopla_content(
