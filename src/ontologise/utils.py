@@ -387,6 +387,15 @@ class Document:
         status_update = status_update + f"Just read line number [{n}]\n"
         status_update = status_update + f"The content was [{l}]\n" 
 
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + f"There are {len(self.all_peoplas)} Peoplas recorded overall\n"
+
+        for ii, pp in enumerate( self.all_peoplas ):
+            status_update = (
+                status_update + f"---> Peopla #({ii}) {pp.name}\n"
+            )
+
         status_update = status_update + "------------------------------------\n" 
 
         if self.current_source_peopla != None:
@@ -440,10 +449,8 @@ class Document:
                 status_update = status_update + f"    source peopla? {p.source_peopla.name}\n"
                 status_update = status_update + f"    target peoplas? {len(p.target_peoplas)}\n"
 
-
                 for j, q in enumerate(p.target_peoplas):
                     status_update = status_update + f"------> target peopla in action group ({i}) {q.name}\n"
-
 
                 status_update = status_update + f"    attributes? length = {len(p.attributes)}\n"
 
@@ -786,7 +793,7 @@ class Document:
                 # )
 
                 for tp in self.current_target_peoplas:
-                    logger.debug( f"DDDDDDD adding [{action_details['action_text']}] attribute to {tp.name}")
+                    logger.debug( f"Adding [{action_details['action_text']}] attribute to {tp.name}")
 
             self.peopla_live = True
 
@@ -812,7 +819,7 @@ class Document:
         #     self.peopla_action_group_live = True
         #     self.peopla_action_group_directed = False
 
-        elif re.match(r"^###\t(vs.*$", line):
+        elif re.match(r"^###\tvs.*$", line):
             logger.debug("Found a directed ActionGroup")
 
             # peopla_content = remove_all_leading_markup(line)
@@ -826,6 +833,8 @@ class Document:
                     peopla_content_parsed["local_id"],
                     peopla_content_parsed["global_id"],
                 )
+
+            self.all_peoplas = self.all_peoplas + [ target_peopla ]
 
             self.current_target_peoplas = self.current_target_peoplas + [ target_peopla ]
 
@@ -866,6 +875,8 @@ class Document:
                 peopla_content_parsed["local_id"],
                 peopla_content_parsed["global_id"],
             )
+
+            self.all_peoplas = self.all_peoplas + [source_peopla]
 
             self.current_source_peopla = source_peopla
 
