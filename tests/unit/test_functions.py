@@ -14,14 +14,115 @@ from utils import (
     extract_peopla_details,
     translate_attribute,
     extract_attribute_information,
+    remove_all_leading_peopla_markup,
+    extract_action_scope,
+    remove_all_leading_action_markup,
+    extract_action_details,
 )
 
 
-def translate_attribute(x):
-    return {
-        ":": "DATE",
-        "@": "AT",
-    }.get(x, x)
+# def translate_attribute(x):
+#     return {
+#         ":": "DATE",
+#         "@": "AT",
+#     }.get(x, x)
+
+
+@pytest.mark.parametrize(
+    "s_in, s_out_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the scope as expected
+    [
+        # TEST: Basic
+        ("###		A", "both"),
+        ("###	(	A", "target"),
+        ("###	((	A", None),
+    ],
+)
+def test_extract_action_details(s_in, s_out_expected):
+    s_out_observed = extract_action_scope(s_in)
+    assert s_out_observed == s_out_expected
+
+
+@pytest.mark.parametrize(
+    "s_in, s_out_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the scope as expected
+    [
+        # TEST: Basic
+        ("###		A", "both"),
+        ("###	(	A", "target"),
+        ("###	((	A", None),
+    ],
+)
+def test_extract_action_scope(s_in, s_out_expected):
+    s_out_observed = extract_action_scope(s_in)
+    assert s_out_observed == s_out_expected
+
+
+@pytest.mark.parametrize(
+    "s,s_dict_expected",
+    # parameters are:
+    # (1) the attribute string (with leading ### and white space removed)
+    # (2) the dictionary created from that string
+    # - @[SCO, REN, LWH, Johnshill] (belongs to, e.g., OF)
+    # - :[1762-06] (belongs to, e.g., BORN)
+    # - :[1810-11->1818] (belongs to, e.g., EDUCATED)
+    # - :[1819-12->] (belongs to, e.g., HEALTH)
+    # - :[1820->]~ (belongs to, e.g., RESIDED)
+    # - CONDITION[Typhus fever] (belongs to, e.g., HEALTH)
+    # - ROLE[Clerk] (belongs to, e.g., OCC)
+    # - DUR[1 yr] (belongs to, e.g., OCC)
+    [
+        # TEST: 
+        ("A" , {"action_text": "A", "inheritance_flag": False}),
+        ("A*", {"action_text": "A", "inheritance_flag": True}),
+    ],
+)
+def test_extract_action_details(s, s_dict_expected):
+    s_dict_observed = extract_action_details(s)
+    assert s_dict_observed == s_dict_expected
+
+
+@pytest.mark.parametrize(
+    "s_in, s_out_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    [
+        # TEST: Basic
+        ("###	(	X", "X"),
+        ("###		Y", "Y"),
+    ],
+)
+def test_remove_all_leading_action_markup(s_in, s_out_expected):
+    s_out_observed = remove_all_leading_action_markup(s_in)
+    assert s_out_observed == s_out_expected
+
+
+@pytest.mark.parametrize(
+    "s_in, s_out_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    [
+        # TEST: Basic
+        ("###	[A, B]", "[A, B]"),
+        ("###	[A, B](n){i-0}", "[A, B](n){i-0}"),
+        ("###	[M'A, B]", "[M'A, B]"),
+        ("###	vs[A, B]", "[A, B]"),
+        ("###	w/[A, B]", "[A, B]"),
+        ("###	(>	[A, B]", "[A, B]"),
+        ("###	>	[A, B]", "[A, B]"),
+        ("###	>	>	[A, B]", "[A, B]"),
+        ("###	@[C, D]", "@[C, D]"),
+    ],
+)
+def test_remove_all_leading_peopla_markup(s_in, s_out_expected):
+    s_out_observed = remove_all_leading_peopla_markup(s_in)
+    assert s_out_observed == s_out_expected
 
 
 @pytest.mark.parametrize(
@@ -78,7 +179,7 @@ def test_extract_attribute_information(s, s_dict_expected):
     [
         # TEST: Basic
         (
-            "[Surname, First]",
+            "###	[Surname, First]",
             {
                 "place_flag": False,
                 "with_flag": False,
@@ -90,7 +191,7 @@ def test_extract_attribute_information(s, s_dict_expected):
         ),
         # TEST: Basic with local ID
         (
-            "[Surname, First](local-id)",
+            "###	[Surname, First](local-id)",
             {
                 "place_flag": False,
                 "with_flag": False,
@@ -102,7 +203,7 @@ def test_extract_attribute_information(s, s_dict_expected):
         ),
         # TEST: Basic with global ID
         (
-            "[Surname, First]{global-id}",
+            "###	[Surname, First]{global-id}",
             {
                 "place_flag": False,
                 "with_flag": False,
@@ -114,7 +215,7 @@ def test_extract_attribute_information(s, s_dict_expected):
         ),
         # TEST: Basic with inheritance
         (
-            "[Surname, First]*",
+            "###	[Surname, First]*",
             {
                 "place_flag": False,
                 "with_flag": False,
@@ -126,7 +227,7 @@ def test_extract_attribute_information(s, s_dict_expected):
         ),
         # TEST: Basic with local and global IDs
         (
-            "[Surname, First](local-id){global-id}",
+            "###	[Surname, First](local-id){global-id}",
             {
                 "place_flag": False,
                 "with_flag": False,
@@ -136,21 +237,9 @@ def test_extract_attribute_information(s, s_dict_expected):
                 "inheritance_flag": False,
             },
         ),
-        # TEST: includes w/ attribute
-        (
-            "w/[Surname, First](local-id){global-id}",
-            {
-                "place_flag": False,
-                "with_flag": True,
-                "content": "Surname, First",
-                "local_id": "local-id",
-                "global_id": "global-id",
-                "inheritance_flag": False,
-            },
-        ),
         # TEST: includes @ flag
         (
-            "@[Place, A](local-id){global-id}",
+            "###	@[Place, A](local-id){global-id}",
             {
                 "place_flag": True,
                 "with_flag": False,
