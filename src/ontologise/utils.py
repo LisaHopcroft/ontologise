@@ -796,9 +796,7 @@ class Document:
                 ### 1. Find the Peopla
                 ### 2. Add the attributes
 
-                self.current_source_peopla.update_attribute(
-                    self.current_action, info
-                )
+                self.current_source_peopla.update_attribute(self.current_action, info)
 
         elif re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
             logger.debug("Found a peopla attribute")
@@ -875,13 +873,15 @@ class Document:
                             f"Adding [{action_details['action_text']}] attribute to {tp.name}"
                         )
 
-                        tp.update_attribute( self.current_action, inheritance_hash )
+                        tp.update_attribute(self.current_action, inheritance_hash)
 
             ### What we have found here is an action of a Peopla
             ### (the current Source peopla)
             else:
-                self.current_action = action_details['action_text']
-                self.current_source_peopla.new_add_action(action_details['action_text'], inheritance_hash )
+                self.current_action = action_details["action_text"]
+                self.current_source_peopla.new_add_action(
+                    action_details["action_text"], inheritance_hash
+                )
 
             # Maybe this shouldn't be removed????
             # self.peopla_live = True
@@ -924,7 +924,7 @@ class Document:
                 peopla_content_parsed["global_id"],
             )
 
-            target_peopla = self.record_peopla( target_peopla_tmp )
+            target_peopla = self.record_peopla(target_peopla_tmp)
 
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
@@ -932,15 +932,14 @@ class Document:
             self.peopla_action_group_live = True
             self.peopla_action_group_directed = direction_flag
 
-    def record_peopla( self, p ):
+    def record_peopla(self, p):
 
         peopla_ref = p
         already_recorded = False
 
         for this_p in self.all_peoplas:
             if this_p.name == p.name and (
-                this_p.local_id == p.local_id or
-                this_p.global_id == p.global_id
+                this_p.local_id == p.local_id or this_p.global_id == p.global_id
             ):
                 already_recorded = True
                 peopla_ref = this_p
@@ -952,7 +951,7 @@ class Document:
         else:
             logger.debug(f"We have already seen this peopla ({p.name})")
 
-        return( peopla_ref )
+        return peopla_ref
 
     def scan_for_peopla_lines(self, line):
         """

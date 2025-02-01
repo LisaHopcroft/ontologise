@@ -149,17 +149,11 @@ def test_peopla_attributes_of_attributes(
             "settings_basic.yaml",
             "A, B",
             {
-                "C, D": {
-                    "type": "P",
-                    "directed": True
-                },
-                "E, F": {
-                    "type": "Q",
-                    "directed": False
-                },            
-            }
+                "C, D": {"type": "P", "directed": True},
+                "E, F": {"type": "Q", "directed": False},
+            },
         ),
-    ]
+    ],
 )
 def test_action_group_content_simple(
     test_name, settings_file, source_peopla, expected_action_group_info
@@ -190,7 +184,7 @@ def test_action_group_content_simple(
             observed_dictionary[target_peopla_name]["type"] = observed_ag.type
             observed_dictionary[target_peopla_name]["directed"] = observed_ag.directed
 
-    assert len(test_doc.all_action_groups) == len( expected_action_group_info )
+    assert len(test_doc.all_action_groups) == len(expected_action_group_info)
     assert observed_dictionary == expected_action_group_info
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -212,13 +206,9 @@ def test_action_group_content_simple(
             "A, B",
             ["N"],
             "P",
-            {
-                "AT": ["PLACE"],
-                "ATX": ["1800_TEXT_TEXT:00"],
-                "DATE": ["1800-01-01"]
-            }
+            {"AT": ["PLACE"], "ATX": ["1800_TEXT_TEXT:00"], "DATE": ["1800-01-01"]},
         ),
-    ]
+    ],
 )
 def test_action_group_content_with_inheritance(
     test_name,
@@ -247,7 +237,7 @@ def test_action_group_content_with_inheritance(
 
     for observed_peopla in test_doc.all_peoplas:
         if observed_peopla.name == source_peopla:
-            observed_peopla_actions = list( observed_peopla.attributes.keys() )
+            observed_peopla_actions = list(observed_peopla.attributes.keys())
 
     for observed_ag in test_doc.all_action_groups:
         ### Print for information
@@ -279,9 +269,14 @@ def test_action_group_content_with_inheritance(
         (
             "peopla_content_E3",
             "settings_basic.yaml",
-            {"C, D" : {"action": "X", "attributes": {"AT": "P, Q"}}},
+            {"C, D": {"action": "X", "attributes": {"AT": "P, Q"}}},
             [
-                {"source": "A, B", "target": "C, D", "action": "Y", "attributes": {"AT": "R, S"}},
+                {
+                    "source": "A, B",
+                    "target": "C, D",
+                    "action": "Y",
+                    "attributes": {"AT": "R, S"},
+                },
             ],
         ),
     ],
@@ -314,12 +309,14 @@ def test_complex_action_group_content(
     observed_action_group_info = []
 
     for ag in test_doc.all_action_groups:
-        observed_action_group_info = observed_action_group_info + [ { 
-        "source" : ag.source_peopla.name,
-        "target" : ag.target_peoplas[0].name,
-        "action" : ag.type,
-        "attributes" : ag.attributes[ag.type],
-        } ]
+        observed_action_group_info = observed_action_group_info + [
+            {
+                "source": ag.source_peopla.name,
+                "target": ag.target_peoplas[0].name,
+                "action": ag.type,
+                "attributes": ag.attributes[ag.type],
+            }
+        ]
 
     assert observed_peopla_info == expected_peopla_info
     assert observed_action_group_info == expected_action_group_info
@@ -331,6 +328,7 @@ def test_complex_action_group_content(
 # Integration test cases: peopla content, checking Peopla numbers
 # -----------------------------------------------------------------
 # -
+
 
 @pytest.mark.parametrize(
     "test_name,settings_file,expected_num_peoplas,expected_global_ids",
@@ -398,17 +396,17 @@ def test_peopla_content(
             "peopla_content_F7",
             "settings_basic.yaml",
             0,
-            marks=pytest.mark.xfail(reason="Bug (see issue #57)")),
+            marks=pytest.mark.xfail(reason="Bug (see issue #57)"),
+        ),
         pytest.param(
             "peopla_content_F8",
             "settings_basic.yaml",
             0,
-            marks=pytest.mark.xfail(reason="Bug (see issue #57)")),
+            marks=pytest.mark.xfail(reason="Bug (see issue #57)"),
+        ),
     ],
 )
-def test_repeated_peoplas(
-    test_name, settings_file, expected_num_peoplas
-):
+def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):
 
     content_f = DATA_DIR / f"{test_name}.txt"
     settings_f = SETTINGS_DIR / settings_file
