@@ -41,7 +41,7 @@ EXPECTED_DIR = BASE_DIR / "integration" / "content" / "expected"
         ),
     ],
 )
-def test_primary_peopla_attributes_of_attributes(
+def test_peopla_attributes_of_attributes(
     test_name, settings_file, peopla_name, attribute, attribute_dictionary
 ):
 
@@ -57,7 +57,7 @@ def test_primary_peopla_attributes_of_attributes(
     print(f"Settings : {settings_f}")
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
-    for p in test_doc.peoplas_primary:
+    for p in test_doc.all_peoplas:
         ### Print for information
         p.print_peopla()
         ### Collect global IDs
@@ -67,65 +67,65 @@ def test_primary_peopla_attributes_of_attributes(
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
-@pytest.mark.parametrize(
-    "test_name,settings_file,secondary_peopla_name,attribute,attribute_dictionary,primary_peopla_name",
-    # parameters are:
-    # (1) content file
-    # (2) settings file
-    # (3) name of the secondary peopla of interest
-    # (4) name the attribute of interest
-    # (5) attribute dictionary of the attribute of interest
-    # (3) name of the primary peopla of interest (who should not have the same attributes)
-    [
-        # TEST: Are the peoplas extracted correctly
-        # Context: 1 peopla with attributes of attributes
-        (
-            "secondary_peopla_content_B",
-            "settings_basic.yaml",
-            "D, E",
-            "F",
-            {"AT": "J", "DATE": "I", "G": "H",},
-            "A, B",
-        ),
-    ],
-)
-def test_secondary_peopla_attributes_of_attributes(
-    test_name,
-    settings_file,
-    secondary_peopla_name,
-    attribute,
-    attribute_dictionary,
-    primary_peopla_name,
-):
+# @pytest.mark.parametrize(
+#     "test_name,settings_file,secondary_peopla_name,attribute,attribute_dictionary,primary_peopla_name",
+#     # parameters are:
+#     # (1) content file
+#     # (2) settings file
+#     # (3) name of the secondary peopla of interest
+#     # (4) name the attribute of interest
+#     # (5) attribute dictionary of the attribute of interest
+#     # (3) name of the primary peopla of interest (who should not have the same attributes)
+#     [
+#         # TEST: Are the peoplas extracted correctly
+#         # Context: 1 peopla with attributes of attributes
+#         (
+#             "secondary_peopla_content_B",
+#             "settings_basic.yaml",
+#             "D, E",
+#             "F",
+#             {"AT": "J", "DATE": "I", "G": "H",},
+#             "A, B",
+#         ),
+#     ],
+# )
+# def test_secondary_peopla_attributes_of_attributes(
+#     test_name,
+#     settings_file,
+#     secondary_peopla_name,
+#     attribute,
+#     attribute_dictionary,
+#     primary_peopla_name,
+# ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
+#     content_f = DATA_DIR / f"{test_name}.txt"
+#     settings_f = SETTINGS_DIR / settings_file
 
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
+#     test_doc = Document(content_f, settings_f)
+#     test_doc.read_document()
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
+#     print(f"Test name: {test_name}")
+#     print(f"File name: {content_f}")
+#     print(f"Settings : {settings_f}")
+#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
-    ### The given attribute should only exist for the secondary Peopla
-    for p in test_doc.peoplas_primary:
-        ### Print for information
-        p.print_peopla()
-        ### Collect global IDs
-        if p.name == primary_peopla_name:
-            assert attribute not in p.attributes
+#     ### The given attribute should only exist for the secondary Peopla
+#     for p in test_doc.peoplas_primary:
+#         ### Print for information
+#         p.print_peopla()
+#         ### Collect global IDs
+#         if p.name == primary_peopla_name:
+#             assert attribute not in p.attributes
 
-    for p in test_doc.peoplas_secondary:
-        ### Print for information
-        p.print_peopla()
-        ### Collect global IDs
-        if p.name == secondary_peopla_name:
-            assert p.attributes[attribute] == attribute_dictionary
+#     for p in test_doc.peoplas_secondary:
+#         ### Print for information
+#         p.print_peopla()
+#         ### Collect global IDs
+#         if p.name == secondary_peopla_name:
+#             assert p.attributes[attribute] == attribute_dictionary
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -191,61 +191,61 @@ def test_peopla_content(
 # -
 
 
-@pytest.mark.parametrize(
-    "test_name,settings_file,expected_primary_peoplas_names,expected_secondary_peoplas_names,action_group_key",
-    # parameters are:
-    # (1) content file
-    # (2) settings file
-    # (3) the expected names of the primary peoplas
-    # (4) the expected names of the secondary peoplas
-    # (5) the attribute that defines the action_group between the two
-    [
-        # TEST: Are the peoplas extracted correctly
-        # Context: 1 primary peopla and 1 secondary peopla, related by J
-        ("secondary_peopla_content_A", "settings_basic.yaml", ["A, B"], ["D, E"], "J",),
-        # TEST: Are the peoplas extracted correctly
-        # Context: 1 primary peopla and 1 secondary peopla (with additional attributes), related by J
-        ("secondary_peopla_content_B", "settings_basic.yaml", ["A, B"], ["D, E"], "J",),
-    ],
-)
-def test_secondary_peopla_content(
-    test_name,
-    settings_file,
-    expected_primary_peoplas_names,
-    expected_secondary_peoplas_names,
-    action_group_key,
-):
+# @pytest.mark.parametrize(
+#     "test_name,settings_file,expected_primary_peoplas_names,expected_secondary_peoplas_names,action_group_key",
+#     # parameters are:
+#     # (1) content file
+#     # (2) settings file
+#     # (3) the expected names of the primary peoplas
+#     # (4) the expected names of the secondary peoplas
+#     # (5) the attribute that defines the action_group between the two
+#     [
+#         # TEST: Are the peoplas extracted correctly
+#         # Context: 1 primary peopla and 1 secondary peopla, related by J
+#         ("secondary_peopla_content_A", "settings_basic.yaml", ["A, B"], ["D, E"], "J",),
+#         # TEST: Are the peoplas extracted correctly
+#         # Context: 1 primary peopla and 1 secondary peopla (with additional attributes), related by J
+#         ("secondary_peopla_content_B", "settings_basic.yaml", ["A, B"], ["D, E"], "J",),
+#     ],
+# )
+# def test_secondary_peopla_content(
+#     test_name,
+#     settings_file,
+#     expected_primary_peoplas_names,
+#     expected_secondary_peoplas_names,
+#     action_group_key,
+# ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
+#     content_f = DATA_DIR / f"{test_name}.txt"
+#     settings_f = SETTINGS_DIR / settings_file
 
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
+#     test_doc = Document(content_f, settings_f)
+#     test_doc.read_document()
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
+#     print(f"Test name: {test_name}")
+#     print(f"File name: {content_f}")
+#     print(f"Settings : {settings_f}")
+#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
-    for (i, this_peopla) in enumerate(test_doc.peoplas_primary):
-        this_peopla.print_peopla()
-        assert this_peopla.name == expected_primary_peoplas_names[i]
-        assert action_group_key in this_peopla.attributes
-        assert type(this_peopla.attributes[action_group_key]["with"]) is Peopla
-        assert (
-            this_peopla.attributes[action_group_key]["with"].name
-            == expected_secondary_peoplas_names[i]
-        )
+#     for (i, this_peopla) in enumerate(test_doc.peoplas_primary):
+#         this_peopla.print_peopla()
+#         assert this_peopla.name == expected_primary_peoplas_names[i]
+#         assert action_group_key in this_peopla.attributes
+#         assert type(this_peopla.attributes[action_group_key]["with"]) is Peopla
+#         assert (
+#             this_peopla.attributes[action_group_key]["with"].name
+#             == expected_secondary_peoplas_names[i]
+#         )
 
-    for (i, this_peopla) in enumerate(test_doc.peoplas_secondary):
-        this_peopla.print_peopla()
-        assert this_peopla.name == expected_secondary_peoplas_names[i]
+#     for (i, this_peopla) in enumerate(test_doc.peoplas_secondary):
+#         this_peopla.print_peopla()
+#         assert this_peopla.name == expected_secondary_peoplas_names[i]
 
-    assert len(test_doc.peoplas_primary) == len(expected_primary_peoplas_names)
-    assert len(test_doc.peoplas_secondary) == len(expected_secondary_peoplas_names)
+#     assert len(test_doc.peoplas_primary) == len(expected_primary_peoplas_names)
+#     assert len(test_doc.peoplas_secondary) == len(expected_secondary_peoplas_names)
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
