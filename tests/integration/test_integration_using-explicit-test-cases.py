@@ -135,6 +135,205 @@ def test_peopla_attributes_of_attributes(
 
 
 @pytest.mark.parametrize(
+    "test_name,settings_file,source_peopla,expected_action_group_info",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) number of peoplas
+    # (4) global IDs of those peoplas
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla, no global ID
+        (
+            "peopla_content_E1",
+            "settings_basic.yaml",
+            "A, B",
+            {
+                "C, D": {
+                    "type": "P",
+                    "directed": True
+                },
+                "E, F": {
+                    "type": "Q",
+                    "directed": False
+                },            
+            }
+        ),
+    ]
+)
+def test_action_group_content_simple(
+    test_name, settings_file, source_peopla, expected_action_group_info
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    observed_dictionary = {}
+
+    for observed_ag in test_doc.all_action_groups:
+        ### Print for information
+        observed_ag.print_description()
+
+        if observed_ag.source_peopla.name == source_peopla:
+            target_peopla_name = observed_ag.target_peoplas[-1].name
+
+            observed_dictionary[target_peopla_name] = {}
+            observed_dictionary[target_peopla_name]["type"] = observed_ag.type
+            observed_dictionary[target_peopla_name]["directed"] = observed_ag.directed
+
+    assert len(test_doc.all_action_groups) == len( expected_action_group_info )
+    assert observed_dictionary == expected_action_group_info
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,source_peopla,expected_peopla_actions,expected_action_group_actions,expected_inherited_attributes",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) number of peoplas
+    # (4) global IDs of those peoplas
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla, no global ID
+        (
+            "peopla_content_E2",
+            "settings_basic.yaml",
+            "A, B",
+            ["N"],
+            "P",
+            {
+                "AT": ["PLACE"],
+                "ATX": ["1800_TEXT_TEXT:00"],
+                "DATE": ["1800-01-01"]
+            }
+        ),
+    ]
+)
+def test_action_group_content_with_inheritance(
+    test_name,
+    settings_file,
+    source_peopla,
+    expected_peopla_actions,
+    expected_action_group_actions,
+    expected_inherited_attributes,
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    observed_peopla_actions = None
+    observed_action_group_actions = {}
+    observed_inherited_attributes = {}
+
+    for observed_peopla in test_doc.all_peoplas:
+        if observed_peopla.name == source_peopla:
+            observed_peopla_actions = list( observed_peopla.attributes.keys() )
+
+    for observed_ag in test_doc.all_action_groups:
+        ### Print for information
+        observed_ag.print_description()
+
+        if observed_ag.source_peopla.name == source_peopla:
+            observed_action_group_actions = observed_ag.type
+            observed_inherited_attributes = dict(observed_ag.attributes)
+
+    assert observed_peopla_actions.sort() == expected_peopla_actions.sort()
+    assert observed_action_group_actions == expected_action_group_actions
+    assert observed_inherited_attributes == expected_inherited_attributes
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_peopla_info,expected_action_group_info",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) number of peoplas
+    # (4) global IDs of those peoplas
+    [
+        # TEST:
+        # - C, D Peopla has X action with @[P, Q] attributes
+        # - AG1 - [A, B]/[C,D], Action Y with attributes @[R, S]
+        # - AG2 - [A, B]/[E,F], Action Z with no attributes
+        (
+            "peopla_content_E3",
+            "settings_basic.yaml",
+            {"C, D" : {"action": "X", "attributes": {"AT": "P, Q"}}},
+            [
+                {"source": "A, B", "target": "C, D", "action": "Y", "attributes": {"AT": "R, S"}},
+            ],
+        ),
+    ],
+)
+def test_complex_action_group_content(
+    test_name, settings_file, expected_peopla_info, expected_action_group_info
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    observed_peopla_info = {}
+
+    for op in test_doc.all_peoplas:
+        if op.name in list(expected_peopla_info.keys()):
+            observed_peopla_info[op.name] = {}
+            for opa in op.attributes.keys():
+                observed_peopla_info[op.name]["action"] = opa
+                observed_peopla_info[op.name]["attributes"] = op.attributes[opa]
+
+    observed_action_group_info = []
+
+    for ag in test_doc.all_action_groups:
+        observed_action_group_info = observed_action_group_info + [ { 
+        "source" : ag.source_peopla.name,
+        "target" : ag.target_peoplas[0].name,
+        "action" : ag.type,
+        "attributes" : ag.attributes[ag.type],
+        } ]
+
+    assert observed_peopla_info == expected_peopla_info
+    assert observed_action_group_info == expected_action_group_info
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content, checking Peopla numbers
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
     "test_name,settings_file,expected_num_peoplas,expected_global_ids",
     # parameters are:
     # (1) content file

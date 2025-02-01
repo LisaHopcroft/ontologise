@@ -170,6 +170,25 @@ class ActionGroup:
 
         return {"info": s_info, "debug": s_debug}
 
+    def update_attribute(self, attribute_text, d):
+
+        logger.info(
+            f"Adding attribute to ACTION GROUP object {self.type}: ({attribute_text})"
+        )
+
+        existing_attributes = {}
+        if attribute_text in self.attributes:
+            existing_attributes = self.attributes[attribute_text]
+        updated_attributes = {**existing_attributes, **d}
+
+        logger.debug(
+            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+            f"This is what needs to be added: {log_pretty(d)}"
+            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        )
+
+        self.attributes[attribute_text] = updated_attributes
+
 
 class Peopla:
     """
@@ -745,14 +764,19 @@ class Document:
             )
 
             if self.peopla_action_group_live:
-                
+
                 if action_scope == "both":
                     ### This is an attribute for an action that occurs between
                     ### members of an action group. We need to update the action
                     ### group to have this attribute. So:
                     ### 1. Find the action group
                     ### 2. Add the attributes
-                    logger.critical("This has not been implemented yet")
+
+                    ###logger.critical("This has not been implemented yet")
+
+                    self.all_action_groups[-1].update_attribute(
+                        self.current_action, info
+                    )
 
                 elif action_scope == "target":
                     ### This is only relevant for the LAST target peoplas
@@ -781,6 +805,8 @@ class Document:
             action_scope = extract_action_scope(line)
             action_details = extract_action_details(line)
 
+            self.current_action = action_details["action_text"]
+
             logger.debug(f"The action scope is {action_scope}")
             logger.debug(
                 f"Identified '{action_details['action_text']}' / '{action_details['inheritance_flag']}'"
@@ -791,7 +817,7 @@ class Document:
                 inheritance_hash = self.header
                 inheritance_hash.pop("TITLE")
 
-            ### What we have foundhere is an action of an action group
+            ### What we have found here is an action of an action group
             if self.peopla_action_group_live:
                 if action_scope == "both":
                     ### This is a description of an action between an action group
