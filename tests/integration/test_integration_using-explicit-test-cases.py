@@ -332,7 +332,6 @@ def test_complex_action_group_content(
 # -----------------------------------------------------------------
 # -
 
-
 @pytest.mark.parametrize(
     "test_name,settings_file,expected_num_peoplas,expected_global_ids",
     # parameters are:
@@ -377,6 +376,58 @@ def test_peopla_content(
 
     assert len(test_doc.all_peoplas) == expected_num_peoplas
     assert observed_global_ids == expected_global_ids
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_num_peoplas",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) number of peoplas
+    # (4) global IDs of those peoplas
+    [
+        ("peopla_content_F1", "settings_basic.yaml", 1),
+        ("peopla_content_F2", "settings_basic.yaml", 2),
+        ("peopla_content_F3", "settings_basic.yaml", 1),
+        ("peopla_content_F4", "settings_basic.yaml", 2),
+        ("peopla_content_F5", "settings_basic.yaml", 2),
+        ("peopla_content_F6", "settings_basic.yaml", 3),
+        pytest.param(
+            "peopla_content_F7",
+            "settings_basic.yaml",
+            0,
+            marks=pytest.mark.xfail(reason="Bug (see issue #57)")),
+        pytest.param(
+            "peopla_content_F8",
+            "settings_basic.yaml",
+            0,
+            marks=pytest.mark.xfail(reason="Bug (see issue #57)")),
+    ],
+)
+def test_repeated_peoplas(
+    test_name, settings_file, expected_num_peoplas
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for p in test_doc.all_peoplas:
+        ### Print for information
+        p.print_peopla()
+        ### Collect global IDs
+
+    assert len(test_doc.all_peoplas) == expected_num_peoplas
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 

@@ -785,11 +785,10 @@ class Document:
                     self.current_target_peoplas[-1].update_attribute(
                         self.current_action, info
                     )
-                    
+
                     logger.debug(
                         f"Adding [{self.current_action}] attribute to {self.current_target_peoplas[-1].name}"
                     )
-
 
             else:
                 ### This is an attribute for an action that belongs to a Peopla
@@ -918,20 +917,42 @@ class Document:
             peopla_content_parsed = extract_peopla_details(line)
             direction_flag = is_action_group_directed(line)
 
-            target_peopla = Peopla(
+            target_peopla_tmp = Peopla(
                 peopla_content_parsed["content"],
                 peopla_content_parsed["place_flag"],
                 peopla_content_parsed["local_id"],
                 peopla_content_parsed["global_id"],
             )
 
-            self.all_peoplas = self.all_peoplas + [target_peopla]
+            target_peopla = self.record_peopla( target_peopla_tmp )
 
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
             ### Open an action group
             self.peopla_action_group_live = True
             self.peopla_action_group_directed = direction_flag
+
+    def record_peopla( self, p ):
+
+        peopla_ref = p
+        already_recorded = False
+
+        for this_p in self.all_peoplas:
+            if this_p.name == p.name and (
+                this_p.local_id == p.local_id or
+                this_p.global_id == p.global_id
+            ):
+                already_recorded = True
+                peopla_ref = this_p
+                break
+
+        if not already_recorded:
+            logger.debug(f"This is a new Peopla that should be recorded ({p.name})")
+            self.all_peoplas = self.all_peoplas + [peopla_ref]
+        else:
+            logger.debug(f"We have already seen this peopla ({p.name})")
+
+        return( peopla_ref )
 
     def scan_for_peopla_lines(self, line):
         """
@@ -960,14 +981,14 @@ class Document:
             # logger.debug(f"Parsed out this content: {peopla_content}")
             peopla_content_parsed = extract_peopla_details(line)
 
-            source_peopla = Peopla(
+            source_peopla_tmp = Peopla(
                 peopla_content_parsed["content"],
                 peopla_content_parsed["place_flag"],
                 peopla_content_parsed["local_id"],
                 peopla_content_parsed["global_id"],
             )
 
-            self.all_peoplas = self.all_peoplas + [source_peopla]
+            source_peopla = self.record_peopla(source_peopla_tmp)
 
             self.current_source_peopla = source_peopla
             self.current_target_peoplas = []
