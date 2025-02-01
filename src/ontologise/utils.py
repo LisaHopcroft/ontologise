@@ -205,29 +205,40 @@ class Peopla:
     #         f"- {peorel.type} actor relationship to PEOPLA object {self.name}"
     #     )
 
-    def add_attribute(self, attribute_text, inheritance, secondary_peopla=None):
+    def new_add_action(self, action_text, inheritance):
 
         # self.attributes[attribute_text]["secondary_peopla"] = secondary_peopla
 
         logger.info(
-            f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
+            f"NEW Adding attribute to PEOPLA object {self.name}: ({action_text})"
         )
-
-        if secondary_peopla:
-            logger.info(
-                f"NB. attribute includes reference to secondary PEOPLA object {secondary_peopla.name}"
-            )
-            logger.debug(
-                f"This information involves another Peopla: {secondary_peopla.name}"
-            )
-            logger.debug(f"Adding this to the inheritance object")
-            inheritance["with"] = secondary_peopla
-        else:
-            logger.debug(f"No other Peopla is involved")
-
         logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
 
-        self.attributes[attribute_text] = inheritance
+        self.attributes[action_text] = inheritance
+
+    # def add_attribute(self, attribute_text, inheritance, secondary_peopla=None):
+
+    #     # self.attributes[attribute_text]["secondary_peopla"] = secondary_peopla
+
+    #     logger.info(
+    #         f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
+    #     )
+
+    #     if secondary_peopla:
+    #         logger.info(
+    #             f"NB. attribute includes reference to secondary PEOPLA object {secondary_peopla.name}"
+    #         )
+    #         logger.debug(
+    #             f"This information involves another Peopla: {secondary_peopla.name}"
+    #         )
+    #         logger.debug(f"Adding this to the inheritance object")
+    #         inheritance["with"] = secondary_peopla
+    #     else:
+    #         logger.debug(f"No other Peopla is involved")
+
+    #     logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
+
+    #     self.attributes[attribute_text] = inheritance
 
     def update_attribute(self, attribute_text, d):
 
@@ -296,7 +307,6 @@ class Document:
         #############################################################
         self.peopla_live = False
         self.all_peoplas = []
-        self.action_groups = []
         self.all_action_groups = []
         self.current_action = None
         self.current_source_peopla = None
@@ -734,19 +744,30 @@ class Document:
                 f"Identified '{self.current_action}' / '{info}' "  # / '{peopla_to_update.name}'"
             )
 
-            if action_scope == "both":
-                ### This is an attribute for an action that occurs between
-                ### members of an action group. We need to update the action
-                ### group to have this attribute. So:
-                ### 1. Find the action group
+            if self.peopla_action_group_live:
+                
+                if action_scope == "both":
+                    ### This is an attribute for an action that occurs between
+                    ### members of an action group. We need to update the action
+                    ### group to have this attribute. So:
+                    ### 1. Find the action group
+                    ### 2. Add the attributes
+                    logger.critical("This has not been implemented yet")
+
+                elif action_scope == "target":
+                    ### This is only relevant for the LAST target peoplas
+                    ### We need to add an attribute to a peopla
+
+                    self.current_target_peoplas[-1].update_attribute(
+                        self.current_action, info
+                    )
+            else:
+                ### This is an attribute for an action that belongs to a Peopla
+                ### that is not part of an action group. So:
+                ### 1. Find the Peopla
                 ### 2. Add the attributes
-                logger.critical("This has not been implemented yet")
 
-            elif action_scope == "target":
-                ### This is only relevant for the LAST target peoplas
-                ### We need to add an attribute to a peopla
-
-                self.current_target_peoplas[-1].update_attribute(
+                self.current_source_peopla.update_attribute(
                     self.current_action, info
                 )
 
@@ -770,58 +791,66 @@ class Document:
                 inheritance_hash = self.header
                 inheritance_hash.pop("TITLE")
 
-            if action_scope == "both":
-                ### This is a description of an action between an action group
-                ### We need to make a action_group
+            ### What we have foundhere is an action of an action group
+            if self.peopla_action_group_live:
+                if action_scope == "both":
+                    ### This is a description of an action between an action group
+                    ### We need to make a action_group
 
-                ag = ActionGroup(
-                    action_details["action_text"],
-                    directed=self.peopla_action_group_directed,
-                    source_peopla=self.current_source_peopla,
-                    target_peoplas=self.current_target_peoplas,
-                    attributes=inheritance_hash,
-                )
-
-                o = ag.print_description()
-                logger.info(o["info"])
-                logger.debug(o["debug"])
-
-                self.all_action_groups = self.all_action_groups + [ag]
-
-            elif action_scope == "target":
-                ### This is only relevant for the LAST target peoplas
-                ### We need to add an attribute to a peopla
-
-                self.current_action = action_details["action_text"]
-
-                ### If this information is relevant for the primary Peopla
-                ### AND we have a action_group currently live (i.e., a secondary
-                ### Peopla that is part of this action_group) then that secondary
-                ### Peopla should be recorded as part of the action_group
-                # secondary_peopla_object = None
-                # if not secondary_flag and self.peopla_action_group_live:
-                #     logger.debug(
-                #         f"This is information that defines a action_group between two Peoplas"
-                #     )
-                #     logger.debug(f"1. primary  : {self.peoplas_primary[-1].name}")
-                #     logger.debug(f"2. secondary: {self.peoplas_secondary[-1].name}")
-                #     secondary_peopla_object = self.peoplas_secondary[-1]
-
-                ### Work out which Peopla we should update with the information -
-                ### the primary or the secondary Peopla
-                # peopla_to_update = (
-                #     (self.peoplas_secondary[-1])
-                #     if secondary_flag
-                #     else (self.peoplas_primary[-1])
-                # )
-                logger.critical("This has not been implemented yet")
-
-                for tp in self.current_target_peoplas:
-                    logger.debug(
-                        f"Adding [{action_details['action_text']}] attribute to {tp.name}"
+                    ag = ActionGroup(
+                        action_details["action_text"],
+                        directed=self.peopla_action_group_directed,
+                        source_peopla=self.current_source_peopla,
+                        target_peoplas=self.current_target_peoplas,
+                        attributes=inheritance_hash,
                     )
 
-            self.peopla_live = True
+                    o = ag.print_description()
+                    logger.info(o["info"])
+                    logger.debug(o["debug"])
+
+                    self.all_action_groups = self.all_action_groups + [ag]
+
+                elif action_scope == "target":
+                    ### This is only relevant for the LAST target peoplas
+                    ### We need to add an attribute to a peopla
+
+                    self.current_action = action_details["action_text"]
+
+                    ### If this information is relevant for the primary Peopla
+                    ### AND we have a action_group currently live (i.e., a secondary
+                    ### Peopla that is part of this action_group) then that secondary
+                    ### Peopla should be recorded as part of the action_group
+                    # secondary_peopla_object = None
+                    # if not secondary_flag and self.peopla_action_group_live:
+                    #     logger.debug(
+                    #         f"This is information that defines a action_group between two Peoplas"
+                    #     )
+                    #     logger.debug(f"1. primary  : {self.peoplas_primary[-1].name}")
+                    #     logger.debug(f"2. secondary: {self.peoplas_secondary[-1].name}")
+                    #     secondary_peopla_object = self.peoplas_secondary[-1]
+
+                    ### Work out which Peopla we should update with the information -
+                    ### the primary or the secondary Peopla
+                    # peopla_to_update = (
+                    #     (self.peoplas_secondary[-1])
+                    #     if secondary_flag
+                    #     else (self.peoplas_primary[-1])
+                    # )
+                    logger.critical("This has not been implemented yet")
+
+                    for tp in self.current_target_peoplas:
+                        logger.debug(
+                            f"Adding [{action_details['action_text']}] attribute to {tp.name}"
+                        )
+            ### What we have found here is an action of a Peopla
+            ### (the current Source peopla)
+            else:
+                self.current_action = action_details['action_text']
+                self.current_source_peopla.new_add_action(action_details['action_text'], inheritance_hash )
+
+            # Maybe this shouldn't be removed????
+            # self.peopla_live = True
 
         # elif re.match(r"^###\tw/.*$", line):
         #     logger.debug("Found a peopla action_group")
