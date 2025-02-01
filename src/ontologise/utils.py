@@ -785,6 +785,12 @@ class Document:
                     self.current_target_peoplas[-1].update_attribute(
                         self.current_action, info
                     )
+                    
+                    logger.debug(
+                        f"Adding [{self.current_action}] attribute to {self.current_target_peoplas[-1].name}"
+                    )
+
+
             else:
                 ### This is an attribute for an action that belongs to a Peopla
                 ### that is not part of an action group. So:
@@ -863,12 +869,15 @@ class Document:
                     #     if secondary_flag
                     #     else (self.peoplas_primary[-1])
                     # )
-                    logger.critical("This has not been implemented yet")
+                    # logger.critical("This has not been implemented yet")
 
                     for tp in self.current_target_peoplas:
                         logger.debug(
                             f"Adding [{action_details['action_text']}] attribute to {tp.name}"
                         )
+
+                        tp.update_attribute( self.current_action, inheritance_hash )
+
             ### What we have found here is an action of a Peopla
             ### (the current Source peopla)
             else:
