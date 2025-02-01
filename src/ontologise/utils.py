@@ -298,6 +298,7 @@ class Document:
         self.all_peoplas = []
         self.action_groups = []
         self.all_action_groups = []
+        self.current_action = None
         self.current_source_peopla = None
         self.current_target_peoplas = []
         self.peopla_action_group_live = False
