@@ -87,7 +87,7 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Formatter</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="utils.CustomFormatter.FORMATS">
-<span class="sig-name descname"><span class="pre">FORMATS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{10:</span> <span class="pre">'\x1b[46m\x1b[1m</span> <span class="pre">[%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s]</span> <span class="pre">\x1b[0m</span> <span class="pre">%(message)s\x1b[0m',</span> <span class="pre">20:</span> <span class="pre">'\x1b[38;20m\x1b[1m</span> <span class="pre">[%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s]</span> <span class="pre">\x1b[0m</span> <span class="pre">%(message)s\x1b[0m',</span> <span class="pre">30:</span> <span class="pre">'\x1b[45m\x1b[1m</span> <span class="pre">[%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s]</span> <span class="pre">\x1b[0m</span> <span class="pre">%(message)s\x1b[0m',</span> <span class="pre">40:</span> <span class="pre">'\x1b[41m\x1b[1m</span> <span class="pre">[%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s]</span> <span class="pre">\x1b[0m</span> <span class="pre">%(message)s\x1b[0m',</span> <span class="pre">50:</span> <span class="pre">'\x1b[41m\x1b[1m</span> <span class="pre">[%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s]</span> <span class="pre">\x1b[0m</span> <span class="pre">%(message)s\x1b[0m'}</span></em><a class="headerlink" href="#utils.CustomFormatter.FORMATS" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">FORMATS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{10:</span> <span class="pre">'\x1b[46m\x1b[1m\U0001fab2</span> <span class="pre">[%(filename)s::%(funcName)s::%(lineno)d]\x1b[0m\n%(message)s\x1b[0m',</span> <span class="pre">20:</span> <span class="pre">'\x1b[38;20m\x1b[1m%(message)s\x1b[0m',</span> <span class="pre">30:</span> <span class="pre">'\x1b[45m\x1b[1m%(message)s\x1b[0m',</span> <span class="pre">40:</span> <span class="pre">'\x1b[41m\x1b[1m%(message)s\x1b[0m',</span> <span class="pre">50:</span> <span class="pre">'\x1b[41m\x1b[1m%(message)s\x1b[0m'}</span></em><a class="headerlink" href="#utils.CustomFormatter.FORMATS" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -98,6 +98,11 @@
 <dl class="py attribute">
 <dt class="sig sig-object py" id="utils.CustomFormatter.cyan">
 <span class="sig-name descname"><span class="pre">cyan</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[46m'</span></em><a class="headerlink" href="#utils.CustomFormatter.cyan" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="utils.CustomFormatter.debug_format">
+<span class="sig-name descname"><span class="pre">debug_format</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[1m\U0001fab2</span> <span class="pre">[%(filename)s::%(funcName)s::%(lineno)d]\x1b[0m\n%(message)s'</span></em><a class="headerlink" href="#utils.CustomFormatter.debug_format" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -120,6 +125,11 @@ it is formatted using formatException() and appended to the message.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="utils.CustomFormatter.info_format">
+<span class="sig-name descname"><span class="pre">info_format</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[1m%(message)s'</span></em><a class="headerlink" href="#utils.CustomFormatter.info_format" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="utils.CustomFormatter.magenta">
 <span class="sig-name descname"><span class="pre">magenta</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\x1b[45m'</span></em><a class="headerlink" href="#utils.CustomFormatter.magenta" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -135,6 +145,11 @@ it is formatted using formatException() and appended to the message.</p>
 <dt class="sig sig-object py" id="utils.DataPoint">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">DataPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#DataPoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.DataPoint" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.DataPoint.add_global_id">
+<span class="sig-name descname"><span class="pre">add_global_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#DataPoint.add_global_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.DataPoint.add_global_id" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -247,7 +262,7 @@ list of shortcuts that are attached to the Document.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="utils.Peopla">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">Peopla</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">place_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#Peopla"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.Peopla" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">Peopla</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">place_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#Peopla"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.Peopla" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A Peopla object</p>
 <dl class="py method">
@@ -265,6 +280,11 @@ list of shortcuts that are attached to the Document.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.flatten_dict">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">flatten_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nested_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#flatten_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.flatten_dict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.log_pretty">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">log_pretty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#log_pretty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.log_pretty" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">

@@ -1,0 +1,79 @@
+
+
+Dated: 2020-11-23
+======================================
+
+Basic case
+--------------------------------------
+
+###	[PERS_ID]
+###		AT
+###			@[at]
+
+
+Together
+--------------------------------------
+
+###	[PERS_ID]
+###	w/[PERS_ID]
+###		MARRIED
+###			:[val]
+
+
+Relations
+--------------------------------------
+
+###	[PERS_ID]
+###	w/[PERS_ID]
+###		MARRIED
+###			:[val]
+###	>	*REL*
+###	>	[PERS_ID]
+
+
+Adjunct info
+--------------------------------------
+
+###	[PERS_ID]
+###	w/[PERS_ID]
+###	(	OF
+###	(		@[val]
+###		MARRIED
+###			:[val]
+
+
+
+TAGS
+======================================
+
+@ = place
+: = date
+< = before
+> = after
+
+Trailing modifiers
+--------------------------------------
+
+\* = use context parameters as defaults
+~ = poss
+
+Local identifiers
+--------------------------------------
+
+(1)	= file-level
+{1}	= directory-level (TODO: look up index file)
+
+Groupings
+--------------------------------------
+
+w/ = together
+vs = actors/reactors (TODO)
+
+
+Context parameters
+======================================
+
+##DATE:	val		= date
+##AT:	val		= place
+
+@00:00			= time

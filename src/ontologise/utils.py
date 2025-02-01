@@ -131,28 +131,152 @@ class DataPoint:
         self.global_id = id
 
 
+class ActionGroup:
+    """
+    A ActionGroup involves two or more Peoplas
+    """
+
+    def __init__(
+        self, type, directed=False, source_peopla=[], target_peoplas=[], attributes={}
+    ):
+
+        self.type = type
+        self.directed = directed
+        self.source_peopla = source_peopla
+        self.target_peoplas = target_peoplas
+
+        ### Aggributes of the Relationship itself
+        self.attributes = attributes
+
+        # description_text = self.print_description()
+
+        # logger.info( description_text["info"] )
+        # logger.debug( description_text["debug"] )
+
+    def print_description(self):
+        s_info = (
+            f"{'directed' if self.directed else 'undirected'}{self.type} ActionGroup,"
+        )
+        s_info = s_info + f"involving the following source Peoplas"
+
+        s_debug = ""
+        for n, peopla in enumerate([self.source_peopla]):
+            s_debug = s_debug + f"{n}. {peopla}"
+
+        s_info = s_info + f"involving {len(self.target_peoplas)} target Peoplas"
+
+        for n, peopla in enumerate(self.target_peoplas):
+            s_debug = s_debug + f"{n}. {peopla}"
+
+        return {"info": s_info, "debug": s_debug}
+
+    def update_attribute(self, attribute_text, d):
+
+        logger.info(
+            f"Adding attribute to ACTION GROUP object {self.type}: ({attribute_text})"
+        )
+
+        existing_attributes = {}
+        if attribute_text in self.attributes:
+            existing_attributes = self.attributes[attribute_text]
+        updated_attributes = {**existing_attributes, **d}
+
+        logger.debug(
+            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+            f"This is what needs to be added: {log_pretty(d)}"
+            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        )
+
+        self.attributes[attribute_text] = updated_attributes
+
+
 class Peopla:
     """
     A Peopla object
     """
 
-    def __init__(self, input, place_flag=False, global_id=None):
+    def __init__(self, input, place_flag=False, local_id=None, global_id=None):
         self.type = "place" if place_flag else "person"
         self.name = input
+
+        ### Aggributes of the Peopla itself
         self.attributes = {}
+        ### Any ActionGroups that are relevant to this Peopla
+        self.action_groups = []
+
+        ### IDs for the Peoplas
         self.global_id = global_id
+        self.local_id = local_id
 
         logger.info(
-            f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.global_id})"
+            f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.local_id}) ({self.global_id})"
         )
 
-    def add_attribute(self, attribute_text, inheritance):
-        self.attributes[attribute_text] = inheritance
+    # def add_relationship(self, peorel):
+
+    #     self.peorels = self.peorels + peorel
+
+    #     logger.info(
+    #         f"Adding a {peorel} {peorel.type} relationship to PEOPLA object {self.name}"
+    #     )
+
+    #     logger.debug(
+    #         f"- {peorel.type} actor relationship to PEOPLA object {self.name}"
+    #     )
+
+    def new_add_action(self, action_text, inheritance):
+
+        # self.attributes[attribute_text]["secondary_peopla"] = secondary_peopla
+
+        logger.info(
+            f"NEW Adding attribute to PEOPLA object {self.name}: ({action_text})"
+        )
         logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
+
+        self.attributes[action_text] = inheritance
+
+    # def add_attribute(self, attribute_text, inheritance, secondary_peopla=None):
+
+    #     # self.attributes[attribute_text]["secondary_peopla"] = secondary_peopla
+
+    #     logger.info(
+    #         f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
+    #     )
+
+    #     if secondary_peopla:
+    #         logger.info(
+    #             f"NB. attribute includes reference to secondary PEOPLA object {secondary_peopla.name}"
+    #         )
+    #         logger.debug(
+    #             f"This information involves another Peopla: {secondary_peopla.name}"
+    #         )
+    #         logger.debug(f"Adding this to the inheritance object")
+    #         inheritance["with"] = secondary_peopla
+    #     else:
+    #         logger.debug(f"No other Peopla is involved")
+
+    #     logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
+
+    #     self.attributes[attribute_text] = inheritance
+
+    def update_attribute(self, attribute_text, d):
 
         logger.info(
             f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
         )
+
+        existing_attributes = {}
+        if attribute_text in self.attributes:
+            existing_attributes = self.attributes[attribute_text]
+        updated_attributes = {**existing_attributes, **d}
+
+        logger.debug(
+            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+            f"This is what needs to be added: {log_pretty(d)}"
+            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        )
+
+        self.attributes[attribute_text] = updated_attributes
 
     def print_peopla(self):  # pragma: no cover
         logger.info(f"I found this {self.type} PEOPLA called {self.name}")
@@ -186,9 +310,29 @@ class Document:
         self.shortcut_live = False
         self.shortcuts = []
 
-        # Saving the Peopla objects
+        #############################################################
+        ### OLD VERSION (being used for w/ relationships) ###########
+        #############################################################
+        # # Saving the Peopla objects
+        # self.peopla_live = False
+        # self.peoplas_primary = []
+        # # Saving the Peopla objects that are derived from action_groups
+        # self.peopla_action_group_live = False
+        # self.peoplas_secondary = []
+        #############################################################
+
+        #############################################################
+        ### NEW VERSION (being used for the vs action groups) #######
+        #############################################################
         self.peopla_live = False
-        self.peoplas = []
+        self.all_peoplas = []
+        self.all_action_groups = []
+        self.current_action = None
+        self.current_source_peopla = None
+        self.current_target_peoplas = []
+        self.peopla_action_group_live = False
+        self.peopla_action_group_directed = False
+        #############################################################
 
         # Saving the data tables
         self.data_table_live = False
@@ -244,10 +388,138 @@ class Document:
                 self.scan_for_header_lines(line)
                 self.scan_for_peopla_lines(line)
 
-                self.reset(line)
+                ### It is possible for there to be blank lines inside a peopla
+                if not self.peopla_live:
+                    self.reset(line)
+
+                self.print_current_status(line_num, line)
 
         ### flatten the datapoints into a table here
         self.data_points_df = self.generate_table_from_datapoints()
+
+    def print_current_status(self, n, l):
+
+        status_update = (
+            "=================================================================\n"
+        )
+
+        ### Headers -------------------------------------------------
+
+        if len(self.header) > 0:
+            status_update = (
+                status_update + f"There are currently {len(self.header)} header items\n"
+            )
+
+            for i, p in enumerate(self.header):
+                status_update = status_update + f"Header item ({i}) {p}\n"
+
+        status_update = status_update + f"Just read line number [{n}]\n"
+        status_update = status_update + f"The content was [{l}]\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = (
+            status_update
+            + f"There are {len(self.all_peoplas)} Peoplas recorded overall\n"
+        )
+
+        for ii, pp in enumerate(self.all_peoplas):
+            status_update = status_update + f"---> Peopla #({ii}) {pp.name}\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        if self.current_source_peopla != None:
+            status_update = (
+                status_update
+                + f"The current source Peopla is {self.current_source_peopla.name}\n"
+            )
+
+            for k, v in self.current_source_peopla.attributes.items():
+                status_update = (
+                    status_update + f"--> Current source peopla attribute ({k}) {v}\n"
+                )
+
+        else:
+            status_update = status_update + f"There is no current source Peopla\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        if len(self.current_target_peoplas) > 0:
+            status_update = (
+                status_update
+                + f"There are currently {len(self.current_target_peoplas)} target Peoplas\n"
+            )
+
+            for i, p in enumerate(self.current_target_peoplas):
+                status_update = status_update + f"({i}) {p.name}\n"
+
+                for j, q in enumerate(p.attributes):
+                    status_update = (
+                        status_update
+                        + f"--> Current target peopla attribute ({i}) {q}\n"
+                    )
+
+                    for k, v in (p.attributes)[q].items():
+                        status_update = status_update + f"------> ({k}) {v}\n"
+
+        else:
+            status_update = status_update + f"There is no current target Peopla\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        ### Action groups -------------------------------------------
+
+        if len(self.all_action_groups) > 0:
+            status_update = (
+                status_update
+                + f"There are currently {len(self.all_action_groups)} Action Groups\n"
+            )
+
+            for i, p in enumerate(self.all_action_groups):
+                status_update = status_update + f"({i}) {p.type}\n"
+                status_update = status_update + f"    directed? {p.directed}\n"
+                status_update = (
+                    status_update + f"    source peopla? {p.source_peopla.name}\n"
+                )
+                status_update = (
+                    status_update + f"    target peoplas? {len(p.target_peoplas)}\n"
+                )
+
+                for j, q in enumerate(p.target_peoplas):
+                    status_update = (
+                        status_update
+                        + f"------> target peopla in action group ({i}) {q.name}\n"
+                    )
+
+                status_update = (
+                    status_update + f"    attributes? length = {len(p.attributes)}\n"
+                )
+
+                for k, v in (p.attributes).items():
+                    status_update = status_update + f"------> ({k}) {v}\n"
+
+        ### Indicators ----------------------------------------------
+
+        status_update = status_update + "------------------------------------\n"
+
+        relevant_live_indicators = [
+            "shortcut_live",
+            "peopla_live",
+            "peopla_action_group_live",
+            "data_table_live",
+        ]
+
+        for r in relevant_live_indicators:
+            status_update = status_update + f"The [{r}] flag is {getattr(self,r)}\n"
+
+        status_update = (
+            status_update
+            + "================================================================="
+        )
+
+        logger.debug(status_update)
+
+        # input()
 
     def reset(self, line):
         logger.debug(f"Considering reset with: '{line}'")
@@ -463,23 +735,223 @@ class Document:
         return datapoint_table.reset_index().drop(columns=["index"])
 
     def scan_for_peopla_attributes(self, line):
+
         logger.debug(f"Looking for peopla attributes in {line}")
 
-        if re.match(r"^###\t\t[^\*]+\*?$", line):
+        # if re.match(r"^###\t(\(>)?\t\*([^\*]*)\*$", line):
+        #     logger.debug("Found a relationship that belongs to the current secondary Peopla")
+        # elif re.match(r"^###\t(>)?\t\*([^\*]*)\*$", line):
+        #     logger.debug("Found a relationship that belongs to BOTH the primary and secondary Peopla")
+        # if re.match(r"^###\t(\()?\>\t(.*)$", line):
+        #     m = re.search(r"^###\t(\()?\>\t(.*)$", line)
+        #     scope_flag = "both" if m.group(1) is None else "secondary"
+        #     text_to_parse = m.group(2)
+        #     logger.debug( f"This is the scope flag: '{scope_flag}'" )
+        #     logger.debug(f"This is the text to parse: '{text_to_parse}'")
+
+        if re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
+            logger.debug("Found an attribute of an action")
+            logger.debug(
+                f"This will be in relation to the {self.current_action} action"
+            )
+
+            action_scope = extract_action_scope(line)
+
+            line_content = re.sub(r"^###[\s\(]+", "", line)
+            info = extract_attribute_information(line_content)
+            logger.debug(
+                f"Identified '{self.current_action}' / '{info}' "  # / '{peopla_to_update.name}'"
+            )
+
+            if self.peopla_action_group_live:
+
+                if action_scope == "both":
+                    ### This is an attribute for an action that occurs between
+                    ### members of an action group. We need to update the action
+                    ### group to have this attribute. So:
+                    ### 1. Find the action group
+                    ### 2. Add the attributes
+
+                    ###logger.critical("This has not been implemented yet")
+
+                    self.all_action_groups[-1].update_attribute(
+                        self.current_action, info
+                    )
+
+                elif action_scope == "target":
+                    ### This is only relevant for the LAST target peoplas
+                    ### We need to add an attribute to a peopla
+
+                    self.current_target_peoplas[-1].update_attribute(
+                        self.current_action, info
+                    )
+
+                    logger.debug(
+                        f"Adding [{self.current_action}] attribute to {self.current_target_peoplas[-1].name}"
+                    )
+
+            else:
+                ### This is an attribute for an action that belongs to a Peopla
+                ### that is not part of an action group. So:
+                ### 1. Find the Peopla
+                ### 2. Add the attributes
+
+                self.current_source_peopla.update_attribute(self.current_action, info)
+
+        elif re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
             logger.debug("Found a peopla attribute")
 
-            m = re.search(r"^###\t\t([^\*]+)(\*?)$", line)
-            attribute_text = m.group(1).rstrip()
-            inheritance_flag = m.group(2).rstrip()
-            logger.debug(f"Identified '{attribute_text}' / '{inheritance_flag}'")
+            # m = re.search(r"^###\t(\()?\t([^\*]+)(\*?)$", line)
+            # secondary_flag = False if m.group(1) is None else True
+            # attribute_text = m.group(2).rstrip()
+            # inheritance_flag = m.group(3).rstrip()
+            action_scope = extract_action_scope(line)
+            action_details = extract_action_details(line)
+
+            self.current_action = action_details["action_text"]
+
+            logger.debug(f"The action scope is {action_scope}")
+            logger.debug(
+                f"Identified '{action_details['action_text']}' / '{action_details['inheritance_flag']}'"
+            )
 
             inheritance_hash = {}
-            if inheritance_flag == "*":
+            if action_details["inheritance_flag"]:
                 inheritance_hash = self.header
                 inheritance_hash.pop("TITLE")
 
-            (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)
-            self.peopla_live = True
+            ### What we have found here is an action of an action group
+            if self.peopla_action_group_live:
+                if action_scope == "both":
+                    ### This is a description of an action between an action group
+                    ### We need to make a action_group
+
+                    ag = ActionGroup(
+                        action_details["action_text"],
+                        directed=self.peopla_action_group_directed,
+                        source_peopla=self.current_source_peopla,
+                        target_peoplas=self.current_target_peoplas,
+                        attributes=inheritance_hash,
+                    )
+
+                    o = ag.print_description()
+                    logger.info(o["info"])
+                    logger.debug(o["debug"])
+
+                    self.all_action_groups = self.all_action_groups + [ag]
+
+                elif action_scope == "target":
+                    ### This is only relevant for the LAST target peoplas
+                    ### We need to add an attribute to a peopla
+
+                    self.current_action = action_details["action_text"]
+
+                    ### If this information is relevant for the primary Peopla
+                    ### AND we have a action_group currently live (i.e., a secondary
+                    ### Peopla that is part of this action_group) then that secondary
+                    ### Peopla should be recorded as part of the action_group
+                    # secondary_peopla_object = None
+                    # if not secondary_flag and self.peopla_action_group_live:
+                    #     logger.debug(
+                    #         f"This is information that defines a action_group between two Peoplas"
+                    #     )
+                    #     logger.debug(f"1. primary  : {self.peoplas_primary[-1].name}")
+                    #     logger.debug(f"2. secondary: {self.peoplas_secondary[-1].name}")
+                    #     secondary_peopla_object = self.peoplas_secondary[-1]
+
+                    ### Work out which Peopla we should update with the information -
+                    ### the primary or the secondary Peopla
+                    # peopla_to_update = (
+                    #     (self.peoplas_secondary[-1])
+                    #     if secondary_flag
+                    #     else (self.peoplas_primary[-1])
+                    # )
+                    # logger.critical("This has not been implemented yet")
+
+                    for tp in self.current_target_peoplas:
+                        logger.debug(
+                            f"Adding [{action_details['action_text']}] attribute to {tp.name}"
+                        )
+
+                        tp.update_attribute(self.current_action, inheritance_hash)
+
+            ### What we have found here is an action of a Peopla
+            ### (the current Source peopla)
+            else:
+                self.current_action = action_details["action_text"]
+                self.current_source_peopla.new_add_action(
+                    action_details["action_text"], inheritance_hash
+                )
+
+            # Maybe this shouldn't be removed????
+            # self.peopla_live = True
+
+        # elif re.match(r"^###\tw/.*$", line):
+        #     logger.debug("Found a peopla action_group")
+
+        #     peopla_content = re.sub(r"^###\s+", "", line)
+
+        #     logger.debug(f"Parsed out this content: {peopla_content}")
+
+        #     peopla_content_parsed = extract_peopla_details(peopla_content)
+
+        #     self.peoplas_secondary.append(
+        #         Peopla(
+        #             peopla_content_parsed["content"],
+        #             peopla_content_parsed["place_flag"],
+        #             peopla_content_parsed["local_id"],
+        #             peopla_content_parsed["global_id"],
+        #         )
+        #     )
+
+        #     ### Open an action group
+        #     self.peopla_action_group_live = True
+        #     self.peopla_action_group_directed = False
+
+        elif re.match(r"^###\t(vs|w/).*$", line):
+            logger.debug("Found an ActionGroup")
+
+            # peopla_content = remove_all_leading_markup(line)
+            # logger.debug(f"Parsed out this content: {peopla_content}")
+
+            peopla_content_parsed = extract_peopla_details(line)
+            direction_flag = is_action_group_directed(line)
+
+            target_peopla_tmp = Peopla(
+                peopla_content_parsed["content"],
+                peopla_content_parsed["place_flag"],
+                peopla_content_parsed["local_id"],
+                peopla_content_parsed["global_id"],
+            )
+
+            target_peopla = self.record_peopla(target_peopla_tmp)
+
+            self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
+
+            ### Open an action group
+            self.peopla_action_group_live = True
+            self.peopla_action_group_directed = direction_flag
+
+    def record_peopla(self, p):
+
+        peopla_ref = p
+        already_recorded = False
+
+        for this_p in self.all_peoplas:
+            if this_p.name == p.name and (
+                this_p.local_id == p.local_id or this_p.global_id == p.global_id
+            ):
+                already_recorded = True
+                peopla_ref = this_p
+                break
+
+        if not already_recorded:
+            logger.debug(f"This is a new Peopla that should be recorded ({p.name})")
+            self.all_peoplas = self.all_peoplas + [peopla_ref]
+        else:
+            logger.debug(f"We have already seen this peopla ({p.name})")
+
+        return peopla_ref
 
     def scan_for_peopla_lines(self, line):
         """
@@ -488,16 +960,42 @@ class Document:
         will be created and added to the list of PEOPLA that are
         attached to the Document.
         """
-        if re.match(r"^###\t@?\[.*\](\{.*\})?$", line):
-            m = re.search(r"^###\t(\@?)\[(.*?)\](\{.*\})?$", line)
-            place_flag = m.group(1)
-            content = m.group(2)
-            global_id = None
-            if m.group(3):
-                global_id = re.sub("[\{\}]", "", m.group(3))
-            logger.debug(f"Identified '{place_flag}' / '{content}' / '{global_id}'")
-            self.peoplas.append(Peopla(content, place_flag == "@", global_id))
+        if re.match(r"^###\t@?\[.*\](\(.*\))?(\{.*\})?$", line):
+            # m = re.search(r"^###\t(\@?)\[(.*?)\](\(.*\))?(\{.*\})?$", line)
+            # place_flag = m.group(1)
+            # content = m.group(2)
+            # local_id = None
+            # if m.group(3):
+            #     local_id = re.sub("[\(\)]", "", m.group(3))
+            # global_id = None
+            # if m.group(4):
+            #     global_id = re.sub("[\{\}]", "", m.group(4))
+            # logger.debug(
+            #     f"Identified '{place_flag}' / '{content}' / '{local_id}'/ '{global_id}'"
+            # )
+            # self.peoplas_primary.append(Peopla(content, place_flag == "@", local_id, global_id))
+
+            ### New version #########################################
+            # peopla_content = remove_all_leading_markup(line)
+            # logger.debug(f"Parsed out this content: {peopla_content}")
+            peopla_content_parsed = extract_peopla_details(line)
+
+            source_peopla_tmp = Peopla(
+                peopla_content_parsed["content"],
+                peopla_content_parsed["place_flag"],
+                peopla_content_parsed["local_id"],
+                peopla_content_parsed["global_id"],
+            )
+
+            source_peopla = self.record_peopla(source_peopla_tmp)
+
+            self.current_source_peopla = source_peopla
+            self.current_target_peoplas = []
+
+            #########################################################
+
             self.peopla_live = True
+            self.peopla_action_group_live = False
 
     def scan_for_header_lines(self, line):
         """
@@ -533,13 +1031,22 @@ class Document:
         print(f"Document parsed = {self.file}")
         self.print_header_information()
 
-        for p in self.peoplas:
-            p.print_peopla()
+        # print("---------------------\n")
+        # print(f"Primary Peoplas:")
+        # for p in self.peoplas_primary:
+        #     p.print_peopla()
 
+        # print("---------------------\n")
+        # print(f"Secondary Peoplas:")
+        # for p in self.peoplas_secondary:
+        #     p.print_peopla()
+
+        print("---------------------\n")
+        print("Shortcuts:")
         print(self.shortcuts)
 
+        print("---------------------\n")
         print(f"Found {len(self.data_points)} data points")
-
         print(self.data_points_df)
 
     def get_header_information(self, flag):
@@ -547,3 +1054,154 @@ class Document:
         Returning the value for a specific flag in a document header
         """
         return self.header[flag]
+
+
+def extract_attribute_information(l):
+    """
+    Parse details from an attribute line.
+    Examples of attribute lines:
+    - @[SCO, REN, LWH, Johnshill] (belongs to, e.g., OF)
+    - :[1762-06] (belongs to, e.g., BORN)
+    - :[1810-11->1818] (belongs to, e.g., EDUCATED)
+    - :[1819-12->] (belongs to, e.g., HEALTH)
+    - :[1820->]~ (belongs to, e.g., RESIDED)
+    - CONDITION[Typhus fever] (belongs to, e.g., HEALTH)
+    - ROLE[Clerk] (belongs to, e.g., OCC)
+    - DUR[1 yr] (belongs to, e.g., OCC)
+    """
+
+    m = re.search(r"^(.*)\[(.*)\](~)?$", l)
+    key = translate_attribute(m.group(1))
+    approx_flag = False if m.group(3) is None else True
+    value = f"approx. {m.group(2)}" if approx_flag else m.group(2)
+
+    return {key: value}
+
+
+### This is what we could do with Python 3.10
+# def translate(x):
+#     match x:
+#         case ':':
+#             return "DATE"
+#         case '@':
+#             return "AT"
+#         case _:
+#             return x
+def translate_attribute(x):
+    return {":": "DATE", "@": "AT",}.get(x, x)
+
+
+def remove_all_leading_peopla_markup(l):
+    """
+    Removes markup, but retains the @ for place peoplas
+    """
+    return re.sub(r"^###[^@]*(\@?)(\[)", r"\1\2", l)
+
+
+def remove_all_leading_action_markup(l):
+    """
+    Removes markup, but retains the @ for place peoplas
+    """
+    return re.sub(r"^###\t(\S*)\t", "", l)
+
+
+def extract_peopla_details(l0):
+    """
+    Parse details from a peopla line.
+    Examples of peopla lines:
+    - ###   [ADAM, Jean](5){80071ca9-d47a-4cb6-b283-f96ce7ad1618}
+    - ###   [CRAWFURD, Andrew](x){5cf88045-6337-428c-ab5b-8ea9b1a50103}
+    - ###   [M'TURK, Michael]
+    - ###   [M'TURK, Michael]*
+    - ###   @[SCO, REN, LWH, Johnshill]
+    """
+
+    l1 = remove_all_leading_peopla_markup(l0)
+
+    m = re.search(r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$", l1)
+
+    place_flag = False if m.group(1) is None else True
+    with_flag = False if m.group(2) is None else True
+    content = m.group(3)
+    local_id = None if m.group(4) is None else re.sub("[\(\)]", "", m.group(4))
+    global_id = None if m.group(5) is None else re.sub("[\{\}]", "", m.group(5))
+    inheritance_flag = False if m.group(6) is None else True
+
+    logger.debug(
+        f"New method for extracting peopla details:\n"
+        + f" - is place flag present? '{place_flag}'\n"
+        + f" - is a with flag present? '{with_flag}'\n"
+        + f" - content is? '{content}'\n"
+        + f" - local_id provided? '{local_id}'\n"
+        + f" - global_id provided? '{global_id}'\n"
+        + f" - inheritance flag provided? '{inheritance_flag}'"
+    )
+
+    peopla_info_dictionary = {
+        "place_flag": place_flag,
+        "with_flag": with_flag,
+        "content": content,
+        "local_id": local_id,
+        "global_id": global_id,
+        "inheritance_flag": inheritance_flag,
+    }
+
+    return peopla_info_dictionary
+
+
+def extract_action_scope(l0):
+    """
+    Extract details of the scope of an action
+    This 
+    """
+
+    m = re.search(r"^###\t(\S*)\t.*$", l0)
+
+    scope_indicator = m.group(1)
+
+    if scope_indicator == "":
+        scope = "both"
+    elif scope_indicator == "(":
+        scope = "target"
+    else:
+        scope = None
+
+    return scope
+
+
+def extract_action_details(l0):
+    """
+    Parse details from a action line.
+    Examples of action lines:
+    - ###	(	OF
+    - ###       PROPRIETOR*
+
+    """
+
+    l1 = remove_all_leading_action_markup(l0)
+
+    m = re.search(r"^([^\*]+)(\*)?$", l1)
+    action_text = m.group(1).rstrip()
+    inheritance_flag = False if m.group(2) is None else True
+
+    logger.debug(
+        f"New method for extracting action details:\n"
+        + f" - attribute_text is ? '{action_text}'\n"
+        + f" - inheritance flag provided? '{inheritance_flag}'"
+    )
+
+    action_info_dictionary = {
+        "action_text": action_text,
+        "inheritance_flag": inheritance_flag,
+    }
+
+    return action_info_dictionary
+
+
+def is_action_group_directed(l0):
+    if re.match(r"^###\tvs\[.*$", l0):
+        return True
+    elif re.match(r"^###\tw\/\[.*$", l0):
+        return False
+    else:
+        return None

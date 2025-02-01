@@ -17,6 +17,14 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+        <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+        <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+        <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
     <script src="../_static/js/theme.js"></script>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
@@ -46,6 +54,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../markdown.html">Dated: 2020-11-23</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../markdown.html#tags">TAGS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../markdown.html#context-parameters">Context parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">ontologise</a></li>
 </ul>
 
@@ -80,9 +91,15 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
 
+
+<span class="n">PROJECT_NAME</span> <span class="o">=</span> <span class="s2">&quot;Ontologise&quot;</span>
+<span class="n">DEFAULT_SETTINGS</span> <span class="o">=</span> <span class="s2">&quot;settings.yaml&quot;</span>
 
 <span class="n">data_point_separator</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">t&quot;</span>
+
+
 
 <span class="c1"># Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output</span>
 <span class="c1"># Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4</span>
@@ -94,11 +111,16 @@
     <span class="n">magenta</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\x1b</span><span class="s2">[45m&quot;</span>
     <span class="n">bold_red</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\x1b</span><span class="s2">[41m&quot;</span>
     <span class="n">reset</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\x1b</span><span class="s2">[0m&quot;</span>
-    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1m [</span><span class="si">%(name)s</span><span class="s2">][</span><span class="si">%(levelname)-5s</span><span class="s2">][</span><span class="si">%(funcName)s</span><span class="s2">][</span><span class="si">%(filename)s</span><span class="s2">] </span><span class="se">\033</span><span class="s2">[0m </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+    <span class="c1"># format = &quot;\033[1m [%(name)s][%(levelname)-5s][%(funcName)s][%(filename)s] \033[0m \n%(message)s&quot;</span>
+    <span class="n">debug_format</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1m🪲 [</span><span class="si">%(filename)s</span><span class="s2">::</span><span class="si">%(funcName)s</span><span class="s2">::</span><span class="si">%(lineno)d</span><span class="s2">]</span><span class="se">\033</span><span class="s2">[0m</span><span class="se">\n</span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">info_format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1m</span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+    <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1m</span><span class="si">%(message)s</span><span class="s2">&quot;</span>
 
     <span class="n">FORMATS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span> <span class="n">cyan</span> <span class="o">+</span> <span class="nb">format</span> <span class="o">+</span> <span class="n">reset</span><span class="p">,</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span> <span class="n">grey</span> <span class="o">+</span> <span class="nb">format</span> <span class="o">+</span> <span class="n">reset</span><span class="p">,</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span> <span class="n">cyan</span> <span class="o">+</span> <span class="n">debug_format</span> <span class="o">+</span> <span class="n">reset</span><span class="p">,</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span> <span class="n">grey</span> <span class="o">+</span> <span class="n">info_format</span> <span class="o">+</span> <span class="n">reset</span><span class="p">,</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span> <span class="n">magenta</span> <span class="o">+</span> <span class="nb">format</span> <span class="o">+</span> <span class="n">reset</span><span class="p">,</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span> <span class="n">bold_red</span> <span class="o">+</span> <span class="nb">format</span> <span class="o">+</span> <span class="n">reset</span><span class="p">,</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">:</span> <span class="n">bold_red</span> <span class="o">+</span> <span class="nb">format</span> <span class="o">+</span> <span class="n">reset</span><span class="p">,</span>
@@ -110,7 +132,7 @@
         <span class="k">return</span> <span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div></div>
 
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;Ontologise&quot;</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">PROJECT_NAME</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
 <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 
 <span class="n">ch</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
@@ -118,6 +140,15 @@
 <span class="n">ch</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">CustomFormatter</span><span class="p">())</span>
 
 <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+
+<span class="c1"># set up pretty printer</span>
+<span class="c1"># https://stackoverflow.com/questions/77991049/is-there-a-way-to-print-a-formatted-dictionary-to-a-python-log-file</span>
+<span class="n">pp</span> <span class="o">=</span> <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_dicts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="log_pretty"><a class="viewcode-back" href="../utils.html#utils.log_pretty">[docs]</a><span class="k">def</span> <span class="nf">log_pretty</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="n">pretty_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pretty_out</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span></div>
 
 
 <div class="viewcode-block" id="read_settings_file"><a class="viewcode-back" href="../utils.html#utils.read_settings_file">[docs]</a><span class="k">def</span> <span class="nf">read_settings_file</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
@@ -152,42 +183,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">column_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">shortcuts</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;==== Creating a table ====&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">column_num</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Column names: </span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attributes are: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;==========================&quot;</span><span class="p">)</span></div>
-
-        <span class="c1"># column_dictionary = {}</span>
-        <span class="c1"># for c in fields:</span>
-        <span class="c1">#     o = c.split(&quot;:&quot;)</span>
-        <span class="c1">#     if len(o) == 2 :</span>
-        <span class="c1">#         column_dictionary.update({o[0]:{o[1],&#39;&#39;}})</span>
-        <span class="c1">#     else:</span>
-        <span class="c1">#         column_dictionary.update({o:&#39;&#39;})</span>
-
-        <span class="c1"># self.column_dictionary = column_dictionary</span>
-        <span class="c1"># logger.debug(-------&quot; Column dictionary -------&quot;)</span>
-        <span class="c1"># logger.debug( column_dictionary )</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating a table&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">column_num</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - Column names: </span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - Attributes are: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DataPoint"><a class="viewcode-back" href="../utils.html#utils.DataPoint">[docs]</a><span class="k">class</span> <span class="nc">DataPoint</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;data point list provided [</span><span class="si">{</span><span class="nb">list</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;needs to fit into [</span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">column_num</span><span class="si">}</span><span class="s2">] slots&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Creating a datapoint&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - data point list provided [</span><span class="si">{</span><span class="nb">list</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - needs to fit into [</span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">column_num</span><span class="si">}</span><span class="s2">] slots&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">table</span><span class="o">.</span><span class="n">column_num</span><span class="p">:</span>
             <span class="nb">list</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">column_num</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
         <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">table</span><span class="o">.</span><span class="n">column_num</span><span class="p">:</span>
             <span class="nb">list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[:</span> <span class="n">table</span><span class="o">.</span><span class="n">column_num</span><span class="p">]</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;list doctored to [</span><span class="si">{</span><span class="nb">list</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - list doctored to [</span><span class="si">{</span><span class="nb">list</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span>
-
-        <span class="c1"># print(f&quot;Making a datapoint: shortcuts1: {table.attributes}&quot;)</span>
-        <span class="c1"># print(f&quot;Making a datapoint: final data1: {data}&quot;)</span>
 
         <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
@@ -196,23 +212,11 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Making a datapoint: shortcuts2: </span><span class="si">{</span><span class="n">table</span><span class="o">.</span><span class="n">attributes</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Making a datapoint: final data2: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_id</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="n">data</span></div>
-
-    <span class="c1"># def print_data_point( self ):</span>
-
-    <span class="c1">#     info_to_print = &quot;&quot;</span>
-    <span class="c1">#     for i, (k, v) in enumerate( self.cells.items() ):</span>
-    <span class="c1">#         initial_text = f&quot;{i:03} {k}&quot;</span>
-    <span class="c1">#         info_to_print = f&quot;{initial_text}&quot;</span>
-    <span class="c1">#         if isinstance(v, dict):</span>
-    <span class="c1">#             for (sk, sv) in v.items():</span>
-    <span class="c1">#                 info_to_print = f&quot;{info_to_print}\n{initial_text} {sk} {sv}\n&quot;</span>
-    <span class="c1">#         else:</span>
-    <span class="c1">#             info_to_print = f&quot;{info_to_print}\n{v}\n&quot;</span>
-    <span class="c1">#     print( info_to_print )</span>
+<div class="viewcode-block" id="DataPoint.add_global_id"><a class="viewcode-back" href="../utils.html#utils.DataPoint.add_global_id">[docs]</a>    <span class="k">def</span> <span class="nf">add_global_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_id</span> <span class="o">=</span> <span class="nb">id</span></div></div>
 
 
 <div class="viewcode-block" id="Peopla"><a class="viewcode-back" href="../utils.html#utils.Peopla">[docs]</a><span class="k">class</span> <span class="nc">Peopla</span><span class="p">:</span>
@@ -220,24 +224,29 @@
 <span class="sd">    A Peopla object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">place_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">place_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">global_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;place&quot;</span> <span class="k">if</span> <span class="n">place_flag</span> <span class="k">else</span> <span class="s2">&quot;person&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">input</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating PEOPLA object: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_id</span> <span class="o">=</span> <span class="n">global_id</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Creating a PEOPLA object: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">) (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="Peopla.add_attribute"><a class="viewcode-back" href="../utils.html#utils.Peopla.add_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">add_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_text</span><span class="p">,</span> <span class="n">inheritance</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">attribute_text</span><span class="p">]</span> <span class="o">=</span> <span class="n">inheritance</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;This is what is to be inherited:&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">inheritance</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This is what is to be inherited:</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">inheritance</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Adding attribute to PEOPLA object </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: (</span><span class="si">{</span><span class="n">attribute_text</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Peopla.print_peopla"><a class="viewcode-back" href="../utils.html#utils.Peopla.print_peopla">[docs]</a>    <span class="k">def</span> <span class="nf">print_peopla</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I found this </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> PEOPLA called </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;It has the following attributes:&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span></div></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I found this </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> PEOPLA called </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;It has the following attributes:</span><span class="se">\n</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;It has the following global ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="Document"><a class="viewcode-back" href="../utils.html#utils.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">:</span>
@@ -249,7 +258,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Defining a document object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading input file: &#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating a document object from:</span><span class="se">\n</span><span class="s2"> - </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="se">\n</span><span class="s2"> - </span><span class="si">{</span><span class="n">settings_file</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">file</span>
 
         <span class="c1"># Read settings file</span>
@@ -276,7 +287,11 @@
 
 <div class="viewcode-block" id="Document.add_settings_to_document"><a class="viewcode-back" href="../utils.html#utils.Document.add_settings_to_document">[docs]</a>    <span class="k">def</span> <span class="nf">add_settings_to_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
 
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading settings file [</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+
         <span class="n">settings</span> <span class="o">=</span> <span class="n">read_settings_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">settings</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">settings_file</span> <span class="o">=</span> <span class="n">file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">header_tags</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TITLE&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;header_tags&quot;</span><span class="p">]</span>
@@ -285,7 +300,10 @@
         <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shortcut_mappings&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">shortcut_mappings</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
                 <span class="n">pair</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">settings</span><span class="p">[</span><span class="s2">&quot;shortcut_mappings&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shortcut mappings provided:&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcut_mappings</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Document.read_document"><a class="viewcode-back" href="../utils.html#utils.Document.read_document">[docs]</a>    <span class="k">def</span> <span class="nf">read_document</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -295,6 +313,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
                 <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading line #</span><span class="si">{</span><span class="n">line_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shortcut_live</span><span class="p">:</span>
@@ -313,7 +332,6 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_header_lines</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_peopla_lines</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-                <span class="c1"># print( f&quot;ASDFASDF: {self.shortcuts}&quot;)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
         <span class="c1">### flatten the datapoints into a table here</span>
@@ -370,7 +388,7 @@
 
 <div class="viewcode-block" id="Document.scan_for_shortcut_definition"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_shortcut_definition">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_shortcut_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t[^\*\[\]\{\}]+\*?$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;FOUND a short cut definition&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found a short cut definition&quot;</span><span class="p">)</span>
 
             <span class="n">current_shortcut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">current_shortcut_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">current_shortcut</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
@@ -405,9 +423,6 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Setting self.shortcuts in scan_for_shortcut_definition to:&quot;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">)</span></div>
 
-            <span class="c1"># (self.peoplas[-1]).add_attribute(attribute_text, inheritance_hash)</span>
-            <span class="c1"># self.peopla_live = True</span>
-
 <div class="viewcode-block" id="Document.scan_for_data_table_header"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_data_table_header">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_data_table_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function that exmaines the current input file from file.</span>
@@ -440,7 +455,7 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">header_columns</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;with shortcut: </span><span class="si">{</span><span class="n">header_shortcuts</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shortcuts are: </span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="c1"># m = re.search(rf&quot;^###{re.escape(data_point_separator)}(.*)$&quot;, line)</span>
             <span class="c1"># header_content    = m.group(1)</span>
             <span class="c1"># header_columns = header_content.split(data_point_separator)</span>
@@ -458,20 +473,22 @@
 
             <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;All shortcut keys (</span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">header_shortcuts</span><span class="p">)</span><span class="si">}</span><span class="s2">) have been defined in the header&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;--&gt; All shortcut keys (</span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">header_shortcuts</span><span class="p">)</span><span class="si">}</span><span class="s2">) have been defined in the header&quot;</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">missing_definitions</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">header_shortcuts</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
                 <span class="p">]</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Some shortcut keys (</span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_definitions</span><span class="p">)</span><span class="si">}</span><span class="s2">) have been NOT been defined in the header&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;--&gt; Some shortcut keys (</span><span class="si">{</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_definitions</span><span class="p">)</span><span class="si">}</span><span class="s2">) have been NOT been defined in the header&quot;</span>
                 <span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">)</span>
 
             <span class="c1">### Extract only the shortcut information required for this table</span>
             <span class="n">relevant_header_shortcuts</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">header_shortcuts</span><span class="p">}</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;-------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Extracting only the shortcut information required for this table</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">relevant_header_shortcuts</span><span class="p">)</span>
 
             <span class="c1">### Combine the shortcut information into one dictionary (this is necessary where</span>
@@ -480,7 +497,7 @@
             <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">relevant_header_shortcuts</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="n">relevant_header_shortcuts_combined</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;-------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Combine the header shortcut information</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">relevant_header_shortcuts_combined</span><span class="p">)</span>
 
             <span class="c1">### Add the definition of this table to the document</span>
@@ -503,13 +520,13 @@
         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^!.*$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ignore (line starts with !)&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\{.*\}$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-            <span class="c1"># --- Functionality to be added ---</span>
-            <span class="c1"># This is a globcal identifier to be added to the</span>
-            <span class="c1"># immediately preceeding data point</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;FOUND a global identifer&quot;</span><span class="p">)</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\{(.*)\}$$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="n">global_id</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found a global identifer: </span><span class="si">{</span><span class="n">global_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">add_global_id</span><span class="p">(</span><span class="n">global_id</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">content_list</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">+&quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FOUND </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">content_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> data points for the table&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">content_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> data points for the table&quot;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;This is the current table attributes: </span><span class="si">{</span><span class="n">current_table</span><span class="o">.</span><span class="n">attributes</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
@@ -526,6 +543,9 @@
                 <span class="n">new_key</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
                 <span class="n">d_dict_flat</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
             <span class="n">d_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">d_dict_flat</span><span class="p">)</span>
+
+            <span class="n">d_df</span><span class="p">[</span><span class="s2">&quot;global_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">global_id</span>
+
             <span class="n">datapoint_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">datapoint_table</span><span class="p">,</span> <span class="n">d_df</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">datapoint_table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">])</span></div>
@@ -534,7 +554,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Looking for peopla attributes in </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\t[^\*]+\*?$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;FOUND a peopla attribute&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found a peopla attribute&quot;</span><span class="p">)</span>
 
             <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\t([^\*]+)(\*?)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="n">attribute_text</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
@@ -556,12 +576,15 @@
 <span class="sd">        will be created and added to the list of PEOPLA that are</span>
 <span class="sd">        attached to the Document.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t@?\[.*\]$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t(\@?)\[(.*?)\]$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t@?\[.*\](\{.*\})?$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t(\@?)\[(.*?)\](\{.*\})?$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="n">place_flag</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Identified &#39;</span><span class="si">{</span><span class="n">place_flag</span><span class="si">}</span><span class="s2">&#39; / &#39;</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">peoplas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Peopla</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">place_flag</span> <span class="o">==</span> <span class="s2">&quot;@&quot;</span><span class="p">))</span>
+            <span class="n">global_id</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">global_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[\{\}]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Identified &#39;</span><span class="si">{</span><span class="n">place_flag</span><span class="si">}</span><span class="s2">&#39; / &#39;</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&#39; / &#39;</span><span class="si">{</span><span class="n">global_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peoplas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Peopla</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">place_flag</span> <span class="o">==</span> <span class="s2">&quot;@&quot;</span><span class="p">,</span> <span class="n">global_id</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Document.scan_for_header_lines"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_header_lines">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_header_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>

@@ -1,0 +1,15 @@
+#[PEDIGREE]
+#{UNIV:	File}
+##AUTH:	CRAWFURD, Andrew
+##DATE:	.
+##PP:	20
+--------------------------------------------------------------------------------
+
+###	[CRAWFURD, Andrew](x)
+###	w/[BARCLAY, Margaret]{385c9bf6-df87-4253-b587-bc827ca1b2db}
+###	(>	*FATHER*
+###	(>	[BARCLAY, Alexander]
+###	(>		OCC
+###	(>			ROLE[Fewar]
+###	(>			@[SCO, REN, LWH, Kirkton]
+###		MARRIED
