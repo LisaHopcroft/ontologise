@@ -404,6 +404,7 @@ def test_peopla_content(
             0,
             marks=pytest.mark.xfail(reason="Bug (see issue #57)"),
         ),
+        ("peopla_content_F9", "settings_basic.yaml", 2),
     ],
 )
 def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):

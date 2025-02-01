@@ -995,6 +995,7 @@ class Document:
             #########################################################
 
             self.peopla_live = True
+            self.peopla_action_group_live = False
 
     def scan_for_header_lines(self, line):
         """
