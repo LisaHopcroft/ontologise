@@ -67,6 +67,51 @@ def test_peopla_attributes_of_attributes(
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name,action_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "peopla_content_D",
+            "settings_basic.yaml",
+            "A, B",
+            ["V", "W", "Z"],
+        ),
+    ],
+)
+def test_split_peopla_attributes(
+    test_name, settings_file, peopla_name, action_list
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for p in test_doc.all_peoplas:
+        ### Print for information
+        p.print_peopla()
+        ### Collect global IDs
+        if p.name == peopla_name:
+            assert list(p.attributes.keys()).sort() == action_list.sort()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
 # @pytest.mark.parametrize(
 #     "test_name,settings_file,secondary_peopla_name,attribute,attribute_dictionary,primary_peopla_name",
 #     # parameters are:
