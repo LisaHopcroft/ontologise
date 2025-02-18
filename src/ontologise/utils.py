@@ -190,17 +190,33 @@ class ActionGroup:
         # logger.info( description_text["info"] )
         # logger.debug( description_text["debug"] )
 
+    def __str__(self):
+        out_s = (
+            f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup\n"
+        )
+        out_s = out_s + f"...involving the following source Peoplas:\n"
+
+        for n, peopla in enumerate([self.source_peopla]):
+            out_s = out_s + f"   {n+1}. {peopla.name}\n"
+
+        out_s = out_s + f"...involving {len(self.target_peoplas)} target Peoplas:\n"
+
+        for n, peopla in enumerate(self.target_peoplas):
+            out_s = out_s + f"   {n+1}. {peopla.name}"
+
+        return out_s
+
     def print_description(self):
         s_info = (
-            f"{'directed' if self.directed else 'undirected'}{self.type} ActionGroup,"
+            f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         )
-        s_info = s_info + f"involving the following source Peoplas"
+        s_info = s_info + f" involving the following source Peoplas\n"
 
         s_debug = ""
         for n, peopla in enumerate([self.source_peopla]):
             s_debug = s_debug + f"{n}. {peopla}"
 
-        s_info = s_info + f"involving {len(self.target_peoplas)} target Peoplas"
+        s_info = s_info + f" involving {len(self.target_peoplas)} target Peoplas\n"
 
         for n, peopla in enumerate(self.target_peoplas):
             s_debug = s_debug + f"{n}. {peopla}"
@@ -265,10 +281,8 @@ class Peorel:
         return return_result
         # return self.__dict__ == other.__dict__
 
-    def print_peorel(self):  # pragma: no cover
-        logger.info(
-            f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
-        )
+    def __str__(self): # pragma: no cover
+        return f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
 
 
 class Peopla:
@@ -359,11 +373,20 @@ class Peopla:
 
         self.attributes[attribute_text] = updated_attributes
 
-    def print_peopla(self):  # pragma: no cover
-        logger.info(f"I found this {self.type} PEOPLA called {self.name}")
-        logger.info(f"It has the following attributes:\n{log_pretty(self.attributes)}")
+    def __str__(self):  # pragma: no cover
+        s_out = f"{self.type} PEOPLA called {self.name}\n"
+
         if self.global_id:
-            logger.info(f"It has the following global ID: {self.global_id}")
+            s_out = s_out + f"...with the global ID: {self.global_id}\n"
+        if self.local_id:
+            s_out = s_out + f"...with the local ID: {self.local_id}\n"
+
+        if len(self.attributes)==0:
+            s_out = s_out + f"...with no attributes\n"
+        else:
+            s_out = s_out + f"...and the following attributes:\n{log_pretty(self.attributes)}"
+
+        return( s_out )
 
 
 class Document:
@@ -1227,6 +1250,47 @@ class Document:
             for i, j in enumerate(value):
                 print(f"[{key:{self.header_length}} {i+1:02}]: {j}")
 
+    def __str__(self):  # pragma: no cover
+        """
+        Compiling a toString for a document
+        """
+        s_out = f"Document parsed = {self.file}\n"
+        for key, value in self.header.items():
+            for i, j in enumerate(value):
+                s_out = s_out + f"[{key:{self.header_length}} {i+1:02}]: {j}\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + "Shortcuts:\n"
+        for i, v in self.shortcuts:
+            s_out = s_out + f"[{i}: {v}]\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + "All Peoplas:\n"
+        for i, p in enumerate( self.all_peoplas ):
+            s_out = s_out + f"[{i}] " + str(p) + "\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + "All Peorels:\n"
+        for i, p in enumerate( self.all_peorels ):
+            s_out = s_out + f"[{i}] " + str(p) + "\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + "All ActionGroups:\n"
+        for i, p in enumerate( self.all_action_groups ):
+            s_out = s_out + f"[{i}] " + str(p) + "\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + f"Found {len(self.data_points)} data points\n"
+
+        s_out = s_out + str( self.data_points_df )
+
+        return( s_out )
+
     def print_summary(self):  # pragma: no cover
         """
         Printing a summary of a document
@@ -1235,18 +1299,23 @@ class Document:
         self.print_header_information()
 
         print("---------------------\n")
+        print("Shortcuts:")
+        print(self.shortcuts)
+
+        print("---------------------\n")
         print(f"All Peoplas:")
-        for p in self.all_peoplas:
-            p.print_peopla()
+        for i, p in enumerate( self.all_peoplas ):
+            logger.info( f"[{i}] " + str(p) )
 
         print("---------------------\n")
         print(f"All Peorels:")
-        for p in self.all_peorels:
-            p.print_peorel()
+        for i, p in enumerate( self.all_peorels ):
+            logger.info( f"[{i}] " + str(p) )
 
         print("---------------------\n")
-        print("Shortcuts:")
-        print(self.shortcuts)
+        print(f"All ActionGroups:")
+        for i, p in enumerate( self.all_action_groups ):
+            logger.info( f"[{i}] " + str(p) )
 
         print("---------------------\n")
         print(f"Found {len(self.data_points)} data points")

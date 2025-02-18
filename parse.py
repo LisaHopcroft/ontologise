@@ -115,4 +115,4 @@ d = Document(file_to_read, settings_file=settings_to_use)
 d.read_document()
 
 ### Print a summary of the results
-d.print_summary()
+print(d)
