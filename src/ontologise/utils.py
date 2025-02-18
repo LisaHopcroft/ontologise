@@ -177,6 +177,9 @@ class ActionGroup:
 
         # description_text = self.print_description()
 
+        ### Evidence reference (line number from original file)
+        self.evidence_reference = []
+
         # logger.info( description_text["info"] )
         # logger.debug( description_text["debug"] )
 
@@ -192,9 +195,17 @@ class ActionGroup:
         out_s = out_s + f"...involving {len(self.target_peoplas)} target Peoplas:\n"
 
         for n, peopla in enumerate(self.target_peoplas):
-            out_s = out_s + f"   {n+1}. {peopla.name}"
+            out_s = out_s + f"   {n+1}. {peopla.name}\n"
+
+        out_s = out_s + f"...{len(self.evidence_reference)} evidence lines are:\n"
+
+        for n, line_number in enumerate(self.evidence_reference):
+            out_s = out_s + f"   {n+1}. {line_number}"
 
         return out_s
+
+    def record_evidence( self, line_number ):
+        self.evidence_reference.append( line_number )
 
     def print_description(self):
         s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
@@ -275,7 +286,7 @@ class Peorel:
     def __str__(self):  # pragma: no cover
         evidence_string = ','.join(str(x) for x in self.evidence_reference)
 
-        s_out = f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
+        s_out = f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}\n"
         s_out = s_out + "Evidence: lines " + evidence_string + "\n"
 
         return ( s_out )
@@ -1043,6 +1054,7 @@ class Document:
                         target_peoplas=self.current_target_peoplas,
                         attributes=inheritance_hash,
                     )
+                    ag.record_evidence( self.current_line )
 
                     o = ag.print_description()
                     logger.info(o["info"])

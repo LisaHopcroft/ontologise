@@ -142,7 +142,7 @@ def test_peopla_evidence_recording(
 
 
 # -----------------------------------------------------------------
-# Integration test cases: peopla content evidence
+# Integration test cases: peorel content evidence
 # -----------------------------------------------------------------
 # -
 
@@ -225,6 +225,150 @@ def test_peorel_evidence_recording(
         if ( p.peopla_is.name == peopla_is_name and 
         p.peopla_to.name == peopla_to_name and
         p.relation_text == peopla_relation ):
+            assert p.evidence_reference == expected_evidence_list
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: peorel content evidence
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_source,peopla_target,action_text,expected_evidence_list",
+    # NB. These will only work where there is only one target peopla
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the source peopla
+    # (4) name of the target peopla
+    # (5) the action text
+    # (6) list of line numbers for evidence
+    [
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 1 ActionGroups with one line of evidence
+        (
+            "secondary_peopla_content_A",
+            "settings_basic.yaml",
+            "A, B",
+            "C, D",
+            "J",
+            [10],
+        ),
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 1 ActionGroups with one line of evidence
+        (
+            "secondary_peopla_content_B",
+            "settings_basic.yaml",
+            "A, B",
+            "C, D",
+            "J",
+            [14],
+        ),
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 2 ActionGroups with one line of evidence
+        (
+            "peopla_content_E1",
+            "settings_basic.yaml",
+            "A, B",
+            "C, D",
+            "P",
+            [9],
+        ),
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 2 ActionGroups with one line of evidence
+        (
+            "peopla_content_E1",
+            "settings_basic.yaml",
+            "A, B",
+            "E, F",
+            "Q",
+            [13],
+        ),
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 2 ActionGroups with one line of evidence
+        (
+            "peopla_content_E2",
+            "settings_basic.yaml",
+            "A, B",
+            "C, D",
+            "P",
+            [10],
+        ),
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 2 ActionGroups with one line of evidence
+        (
+            "peopla_content_E3",
+            "settings_basic.yaml",
+            "A, B",
+            "C, D",
+            "Y",
+            [11],
+        ),
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 2 ActionGroups with one line of evidence
+        (
+            "peopla_content_Ex",
+            "settings_basic.yaml",
+            "A, B",
+            "C, D",
+            "Y",
+            [11],
+        ),
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 2 ActionGroups with one line of evidence
+        (
+            "peopla_content_Ex",
+            "settings_basic.yaml",
+            "A, B",
+            "E, F",
+            "Z",
+            [16],
+        ),
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 2 ActionGroups with one line of evidence
+        (
+            "peopla_content_F9",
+            "settings_basic.yaml",
+            "A, B",
+            "C, D",
+            "Y",
+            [16],
+        ),
+    ],
+)
+def test_actiongroup_evidence_recording(
+    test_name,
+    settings_file,
+    peopla_source,
+    peopla_target,
+    action_text,
+    expected_evidence_list,
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for p in test_doc.all_action_groups:
+        ### Print for information
+        print(p)
+        ### Collect global IDs
+        if (
+            p.type == action_text
+            and p.source_peopla.name == peopla_source
+            and p.target_peoplas.pop().name == peopla_target
+        ):
             assert p.evidence_reference == expected_evidence_list
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
