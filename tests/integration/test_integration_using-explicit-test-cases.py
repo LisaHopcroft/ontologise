@@ -67,6 +67,80 @@ def test_peopla_attributes_of_attributes(
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
+# -----------------------------------------------------------------
+# Integration test cases: peopla content evidnece
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name,expected_evidence_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) list of line numbers for evidence
+    [
+        # TEST: Are the peoplas evidenced correctly
+        # Context: 1 peopla with one line of evidence
+        (
+            "peopla_content_D",
+            "settings_basic.yaml",
+            "A, B",
+            [7],
+        ),
+        # TEST: Are the peoplas evidenced correctly
+        # Context: 1 peopla with multiple lines of evidence
+        (
+            "peopla_content_E1",
+            "settings_basic.yaml",
+            "A, B",
+            [7, 11],
+        ),
+        # TEST: Are the peoplas evidenced correctly
+        # Context: 1 peopla with one line of evidence as a Peopla target
+        (
+            "peopla_content_E2",
+            "settings_basic.yaml",
+            "C, D",
+            [9],
+        ),
+        # TEST: Are the peoplas evidenced correctly
+        # Context: 1 peopla with multiple lines of evidence
+        (
+            "peopla_content_F9",
+            "settings_basic.yaml",
+            "A, B",
+            [7, 18],
+        ),
+    ],
+)
+def test_peopla_evidence_recording(
+    test_name, settings_file, peopla_name, expected_evidence_list
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for p in test_doc.all_peoplas:
+        ### Print for information
+        print(p)
+        ### Collect global IDs
+        if p.name == peopla_name:
+            assert p.evidence_reference == expected_evidence_list
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
 @pytest.mark.parametrize(
     "test_name,settings_file,peopla_name,action_list",
     # parameters are:
