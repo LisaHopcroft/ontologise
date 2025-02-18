@@ -38,7 +38,16 @@ data_table_linebreak_regex = r"^\[/\]$"
 data_table_id_regex = r"^###\t\{.*\}$"
 data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
 
-acceptable_relations = [ "DAUG", "SON", "FATHER", "MOTHER" ]
+generalise_relation = {
+    "DAUG": "CHILD",
+    "SON": "CHILD",
+    "MOTHER": "PARENT",
+    "FATHER": "PARENT",
+}
+
+origin_relations = ["MOTHER", "FATHER"]
+target_relations = ["DAUG", "SON"]
+acceptable_relations = origin_relations + target_relations
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
@@ -217,6 +226,45 @@ class ActionGroup:
         self.attributes[attribute_text] = updated_attributes
 
 
+class Peorel:
+    """
+    A Peorel object - relationship between two people
+    """
+
+    def __init__(
+        self, peopla_is, peopla_to, relation_text, relation_depth, details_hash=None
+    ):
+
+        self.relation_text = relation_text
+        self.relation_depth = relation_depth
+        self.peopla_is = peopla_is
+        self.peopla_to = peopla_to
+
+        ### Aggributes of the Peorel itself
+        self.attributes = details_hash
+
+        logger.info(
+            f"Creating a PEOREL object: {self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} (depth={self.relation_depth})"
+        )
+
+    ### What needs to match for two PEOREL objects to be considered the same?
+    def __eq__(self, other):
+        return_result = False
+
+        if (
+            self.relation_text == other.relation_text
+            and self.relation_depth == other.relation_depth
+            and self.peopla_is.name == other.peopla_is.name
+            and self.peopla_to.name == other.peopla_to.name
+            and self.peopla_is.global_id == other.peopla_is.global_id
+            and self.peopla_is.local_id == other.peopla_is.local_id
+        ):
+            return_result = True
+
+        return return_result
+        # return self.__dict__ == other.__dict__
+
+
 class Peopla:
     """
     A Peopla object
@@ -354,6 +402,7 @@ class Document:
         self.peopla_live = False
         self.all_peoplas = []
         self.all_action_groups = []
+        self.all_peorels = []
         self.current_action = None
         self.current_source_peopla = None
         self.current_target_peoplas = []
@@ -783,16 +832,25 @@ class Document:
             relation_details = extract_relation_details(line)
 
             logger.debug(
-                f"Identified that '{self.current_target_peoplas[-1].name}' is a '{relation_details['relation_text']}' to someone (depth={relation_details['relation_depth']})"  # / '{peopla_to_update.name}'"
+                f"Identified that a '{relation_details['relation_text']}' relationship is now live"
+            )
+            logger.debug(
+                f"Context will dictate which Peopla are involved in that Peorel"
             )
 
-            self.current_relation_text = relation_details['relation_text']
-            self.current_relation_depth = relation_details['relation_depth']
+            self.current_relation_text = relation_details["relation_text"]
+            self.current_relation_depth = relation_details["relation_depth"]
             self.relation_live = True
 
-        elif re.match(peopla_relation_target_regex, line) and self.relation_live:
+        elif (
+            re.match(peopla_relation_target_regex, line)
+            and self.relation_live
+            and not self.peopla_action_group_live
+        ):
 
-            logger.debug("Found the target of a relation action")
+            logger.debug(
+                "Found the target of a relation action (that only belongs to the source peopla)"
+            )
             logger.debug(
                 f"This will be in relation to the {self.current_relation_text} relation (depth={self.current_relation_depth})"
             )
@@ -801,6 +859,25 @@ class Document:
 
             # line_content = re.sub(r"^###[\s\(]+", "", line)
             peopla_content_parsed = extract_peopla_details(line)
+
+            ### Who is the target of the relation?
+            relation_peopla_is_tmp = Peopla(
+                peopla_content_parsed["content"],
+                peopla_content_parsed["place_flag"],
+                peopla_content_parsed["local_id"],
+                peopla_content_parsed["global_id"],
+            )
+
+            relation_peopla_is = self.record_peopla(relation_peopla_is_tmp)
+
+            peorel_tmp = Peorel(
+                relation_peopla_is,
+                self.current_source_peopla,
+                self.current_relation_text,
+                self.current_relation_depth,
+            )
+
+            _new_peorel = self.record_peorel(peorel_tmp)
 
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
@@ -1006,6 +1083,29 @@ class Document:
 
         return peopla_ref
 
+    def record_peorel(self, pr):
+
+        peorel_ref = pr
+        already_recorded = False
+
+        for this_peorel in self.all_peorels:
+            if this_peorel == pr:
+                already_recorded = True
+                peorel_ref = this_peorel
+                break
+
+        if not already_recorded:
+            logger.debug(
+                f"This is a new Peorel that should be recorded ({pr.peopla_is.name} is {pr.relation_text} to {pr.peopla_to.name})"
+            )
+            self.all_peorels = self.all_peorels + [peorel_ref]
+        else:
+            logger.debug(
+                f"We have already seen this peorel ({pr.peopla_is.name} is {pr.relation_text} to {pr.peopla_to.name})"
+            )
+
+        return peorel_ref
+
     def scan_for_peopla_lines(self, line):
         """
         Function that exmaines the current input file from file.
@@ -1158,11 +1258,13 @@ def remove_all_leading_action_markup(l):
     """
     return re.sub(r"^###\t(\S*)\t", "", l)
 
+
 def remove_all_leading_relation_markup(l):
     """
     Removes markup
     """
     return re.sub(r"^###\t", "", l)
+
 
 def extract_peopla_details(l0):
     """
@@ -1244,9 +1346,9 @@ def extract_relation_details(l0):
 
     l1 = remove_all_leading_relation_markup(l0)
 
-    relation_depth = len( re.findall(peopla_relation_depth_regex, l1) )
+    relation_depth = len(re.findall(peopla_relation_depth_regex, l1))
 
-    m = re.search(peopla_relation_string_regex,l1)
+    m = re.search(peopla_relation_string_regex, l1)
     relation_text = m.group(1)
 
     logger.debug(
@@ -1256,7 +1358,7 @@ def extract_relation_details(l0):
     )
 
     if not relation_text in acceptable_relations:
-        raise Exception( f'{relation_text} is not a recognised relation string' )
+        raise Exception(f"{relation_text} is not a recognised relation string")
 
     relationship_info_dictionary = {
         "relation_text": relation_text,

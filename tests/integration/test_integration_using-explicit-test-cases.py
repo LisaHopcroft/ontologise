@@ -6,7 +6,7 @@ import sys
 
 sys.path.append("src/ontologise")
 
-from utils import Document, Peopla
+from utils import Document, Peopla, Peorel
 
 
 BASE_DIR = Path(__file__).parents[1]
@@ -533,6 +533,67 @@ def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):
 #     assert len(test_doc.peoplas_secondary) == len(expected_secondary_peoplas_names)
 
 #     print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: relationships
+# -----------------------------------------------------------------
+# - Testing that
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_peorels",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) number of peoplas
+    # (4) global IDs of those peoplas
+    [
+        # TEST: Basic relation between one source Peopla and one relation
+        ("peorel_content_A1", "settings_basic.yaml",
+         [Peorel(Peopla("B"), Peopla("A"), "SON", 1)]),
+        # TEST: Basic relation between one source Peopla and one relation
+        # Context: checking that the same Peorel isn't recorded twice
+        ("peorel_content_A2", "settings_basic.yaml",
+         [Peorel(Peopla("B"), Peopla("A"), "SON", 1)]),
+    ],
+)
+def test_peorel_parsing(test_name,settings_file,expected_peorels):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    assert len(test_doc.all_peorels) == len(expected_peorels)
+
+    for this_expected_peorel in expected_peorels:
+        assert this_expected_peorel in test_doc.all_peorels
+    
+    # for observed_peorel in test_doc.all_peorel:
+    #     if observed_peopla.name == source_peopla:
+    #         observed_peopla_actions = list(observed_peopla.attributes.keys())
+
+    # for observed_ag in test_doc.all_action_groups:
+    #     ### Print for information
+    #     observed_ag.print_description()
+
+    #     if observed_ag.source_peopla.name == source_peopla:
+    #         observed_action_group_actions = observed_ag.type
+    #         observed_inherited_attributes = dict(observed_ag.attributes)
+
+    # assert observed_peopla_actions.sort() == expected_peopla_actions.sort()
+    # assert observed_action_group_actions == expected_action_group_actions
+    # assert observed_inherited_attributes == expected_inherited_attributes
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
