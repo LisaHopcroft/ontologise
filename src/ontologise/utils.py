@@ -22,6 +22,10 @@ shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
 peopla_line_regex = r"^###\t@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
 peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
+peopla_relation_line_regex = r"^###\t(\()?(>\t)+\*(.*)\*$"
+peopla_relation_depth_regex = r">\t"
+peopla_relation_string_regex = r"\*(.*)\*"
+
 action_regex = r"^([^\*]+)(\*)?$"
 action_attribute_regex = r"^###\t(\()?\t\t[^\*]+\*?$"
 action_group_regex = r"^###\t(vs|w/).*$"
@@ -32,6 +36,8 @@ data_table_header_regex = rf"^###{re.escape(data_point_separator)}.*$"
 data_table_linebreak_regex = r"^\[/\]$"
 data_table_id_regex = r"^###\t\{.*\}$"
 data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
+
+acceptable_relations = [ "DAUG", "SON", "FATHER", "MOTHER" ]
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
@@ -769,7 +775,17 @@ class Document:
         #     logger.debug( f"This is the scope flag: '{scope_flag}'" )
         #     logger.debug(f"This is the text to parse: '{text_to_parse}'")
 
-        if re.match(action_attribute_regex, line):
+        if re.match(peopla_relation_line_regex, line):
+            logger.debug("Found a peopla relationship")
+
+            relation_details = extract_relation_details(line)
+
+            logger.debug(
+                f"Identified that '{self.current_target_peoplas}' is a '{relation_details['relation_text']}' to someone (depth={relation_details['relation_depth']})"  # / '{peopla_to_update.name}'"
+            )
+
+
+        elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
             logger.debug(
                 f"This will be in relation to the {self.current_action} action"
@@ -1124,6 +1140,11 @@ def remove_all_leading_action_markup(l):
     """
     return re.sub(r"^###\t(\S*)\t", "", l)
 
+def remove_all_leading_relation_markup(l):
+    """
+    Removes markup
+    """
+    return re.sub(r"^###\t", "", l)
 
 def extract_peopla_details(l0):
     """
@@ -1187,6 +1208,44 @@ def extract_action_scope(l0):
         scope = None
 
     return scope
+
+
+def extract_relation_details(l0):
+    """
+    Parse details from a relation line.
+    Examples of action lines:
+    - ###	>	*SON*
+    - ###	>	>	*DAUG*
+    - ###	>	*FATHER*
+    Where the closed vocabulary is:
+    * SON
+    * DAUG
+    * FATHER
+    * MOTHER
+    """
+
+    l1 = remove_all_leading_relation_markup(l0)
+
+    relation_depth = len( re.findall(peopla_relation_depth_regex, l1) )
+
+    m = re.search(peopla_relation_string_regex,l1)
+    relation_text = m.group(1)
+
+    logger.debug(
+        f"Extracting relationship information:\n"
+        + f" - relationship depth ? '{relation_depth}'\n"
+        + f" - relationship text ? '{relation_text}'"
+    )
+
+    if not relation_text in acceptable_relations:
+        raise Exception( f'{relation_text} is not a recognised relation string' )
+
+    relationship_info_dictionary = {
+        "relation_text": relation_text,
+        "relation_depth": relation_depth,
+    }
+
+    return relationship_info_dictionary
 
 
 def extract_action_details(l0):
