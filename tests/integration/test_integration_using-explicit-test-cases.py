@@ -78,17 +78,10 @@ def test_peopla_attributes_of_attributes(
     [
         # TEST: Are the peoplas extracted correctly
         # Context: 1 peopla with attributes of attributes
-        (
-            "peopla_content_D",
-            "settings_basic.yaml",
-            "A, B",
-            ["V", "W", "Z"],
-        ),
+        ("peopla_content_D", "settings_basic.yaml", "A, B", ["V", "W", "Z"],),
     ],
 )
-def test_split_peopla_attributes(
-    test_name, settings_file, peopla_name, action_list
-):
+def test_split_peopla_attributes(test_name, settings_file, peopla_name, action_list):
 
     content_f = DATA_DIR / f"{test_name}.txt"
     settings_f = SETTINGS_DIR / settings_file
