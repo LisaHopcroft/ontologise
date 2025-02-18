@@ -482,11 +482,12 @@ class Document:
                 else:
                     self.scan_for_shortcut_lines(line)
 
-                if self.peopla_live:
-                    self.scan_for_peopla_attributes(line)
-                elif self.data_table_live:
+                if self.data_table_live:
                     self.scan_for_data_points(line)
                 else:
+                    if self.peopla_live:
+                        self.scan_for_peopla_attributes(line)
+                    
                     self.scan_for_data_table_header(line)
 
                 self.scan_for_header_lines(line)
@@ -497,6 +498,7 @@ class Document:
                     self.reset(line)
 
                 self.print_current_status(self.current_line, line)
+                # input()
 
         ### flatten the datapoints into a table here
         self.data_points_df = self.generate_table_from_datapoints()
@@ -792,7 +794,8 @@ class Document:
             self.data_tables.append(
                 DataTable(header_columns, relevant_header_shortcuts_combined)
             )
-
+            
+            self.peopla_live = False
             self.data_table_live = True
 
     def scan_for_data_points(self, line):
