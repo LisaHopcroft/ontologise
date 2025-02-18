@@ -245,8 +245,11 @@ class Peorel:
         self.peopla_is = peopla_is
         self.peopla_to = peopla_to
 
-        ### Aggributes of the Peorel itself
+        ### Attributes of the Peorel itself
         self.attributes = details_hash
+
+        ### Evidence reference (line number from original file)
+        self.evidence_reference = []
 
         logger.info(
             f"Creating a PEOREL object: {self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} (depth={self.relation_depth})"
@@ -270,10 +273,15 @@ class Peorel:
         # return self.__dict__ == other.__dict__
 
     def __str__(self):  # pragma: no cover
-        return (
-            f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
-        )
+        evidence_string = ','.join(str(x) for x in self.evidence_reference)
 
+        s_out = f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
+        s_out = s_out + "Evidence: lines " + evidence_string + "\n"
+
+        return ( s_out )
+
+    def record_evidence( self, line_number ):
+        self.evidence_reference.append( line_number )
 
 class Peopla:
     """
@@ -866,7 +874,7 @@ class Document:
 
             relation_peopla_is = self.record_peopla(relation_peopla_is_tmp)
             relation_peopla_is.record_evidence( self.current_line )
-            
+
             logger.debug(
                 f"Found the target of a relation action: '{relation_peopla_is.name}'"
             )
@@ -893,7 +901,9 @@ class Document:
                     self.current_relation_depth,
                 )
 
-                new_peorel.append( self.record_peorel(peorel_tmp) )
+                this_new_peorel = self.record_peorel(peorel_tmp)
+                this_new_peorel.record_evidence( self.current_line )
+                new_peorel.append( this_new_peorel )
 
             ### This is where we have a relation attached to an open ActionGroup
             ### It will be indicated with a ( as to whether the relation refers to
@@ -933,8 +943,10 @@ class Document:
                         self.current_relation_depth,
                     )
 
-                    new_peorel.append( self.record_peorel(peorel_tmp) )
-
+                    this_new_peorel = self.record_peorel(peorel_tmp)
+                    this_new_peorel.record_evidence( self.current_line )
+                    new_peorel.append( this_new_peorel )
+                    
             ### If we have a gendered relation, we can augment the Peopla with this
             ### Gender information. The evidence for this (i.e., the relevant Peorel
             ### objects should be recorded alongside this inference).

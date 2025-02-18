@@ -68,7 +68,7 @@ def test_peopla_attributes_of_attributes(
 
 
 # -----------------------------------------------------------------
-# Integration test cases: peopla content evidnece
+# Integration test cases: peopla content evidence
 # -----------------------------------------------------------------
 # -
 
@@ -136,6 +136,95 @@ def test_peopla_evidence_recording(
         print(p)
         ### Collect global IDs
         if p.name == peopla_name:
+            assert p.evidence_reference == expected_evidence_list
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content evidence
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_is_name,peopla_relation,peopla_to_name,expected_evidence_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) list of line numbers for evidence
+    [
+        # TEST: Are the peorels evidenced correctly
+        # Context: 1 peorel with one line of evidence
+        (
+            "peorel_content_A1",
+            "settings_basic.yaml",
+            "B",
+            "SON",
+            "A",
+            [6],
+        ),
+        # TEST: Are the peorels evidenced correctly
+        # Context: 1 peorel with two lines of evidence
+        (
+            "peorel_content_A2",
+            "settings_basic.yaml",
+            "B",
+            "SON",
+            "A",
+            [6, 10],
+        ),
+        # TEST: Are the peorels evidenced correctly
+        # Context: 1 peorel with one line of evidence
+        (
+            "peorel_content_B1",
+            "settings_basic.yaml",
+            "B",
+            "SON",
+            "A",
+            [7],
+        ),
+        # TEST: Are the peorels evidenced correctly
+        # Context: 1 peorel with one line of evidence
+        (
+            "peorel_content_B2",
+            "settings_basic.yaml",
+            "B",
+            "SON",
+            "A",
+            [7],
+        ),
+    ],
+)
+def test_peorel_evidence_recording(
+    test_name,
+    settings_file,
+    peopla_is_name,
+    peopla_relation,
+    peopla_to_name,
+    expected_evidence_list,
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for p in test_doc.all_peorels:
+        ### Print for information
+        print(p)
+        ### Collect global IDs
+        if ( p.peopla_is.name == peopla_is_name and 
+        p.peopla_to.name == peopla_to_name and
+        p.relation_text == peopla_relation ):
             assert p.evidence_reference == expected_evidence_list
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
