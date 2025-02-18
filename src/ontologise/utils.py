@@ -25,6 +25,7 @@ peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
 peopla_relation_line_regex = r"^###\t(\()?(>\t)+\*(.*)\*$"
 peopla_relation_depth_regex = r">\t"
 peopla_relation_string_regex = r"\*(.*)\*"
+peopla_relation_target_regex = r"^###\t(\()?(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
 
 action_regex = r"^([^\*]+)(\*)?$"
 action_attribute_regex = r"^###\t(\()?\t\t[^\*]+\*?$"
@@ -356,6 +357,7 @@ class Document:
         self.current_action = None
         self.current_source_peopla = None
         self.current_target_peoplas = []
+        self.relation_live = False
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
         #############################################################
@@ -781,9 +783,24 @@ class Document:
             relation_details = extract_relation_details(line)
 
             logger.debug(
-                f"Identified that '{self.current_target_peoplas}' is a '{relation_details['relation_text']}' to someone (depth={relation_details['relation_depth']})"  # / '{peopla_to_update.name}'"
+                f"Identified that '{self.current_target_peoplas[-1].name}' is a '{relation_details['relation_text']}' to someone (depth={relation_details['relation_depth']})"  # / '{peopla_to_update.name}'"
             )
 
+            self.current_relation_text = relation_details['relation_text']
+            self.current_relation_depth = relation_details['relation_depth']
+            self.relation_live = True
+
+        elif re.match(peopla_relation_target_regex, line) and self.relation_live:
+
+            logger.debug("Found the target of a relation action")
+            logger.debug(
+                f"This will be in relation to the {self.current_relation_text} relation (depth={self.current_relation_depth})"
+            )
+
+            # action_scope = extract_action_scope(line)
+
+            # line_content = re.sub(r"^###[\s\(]+", "", line)
+            peopla_content_parsed = extract_peopla_details(line)
 
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
@@ -1032,6 +1049,7 @@ class Document:
 
             self.peopla_live = True
             self.peopla_action_group_live = False
+            self.relation_live = False
 
     def scan_for_header_lines(self, line):
         """
