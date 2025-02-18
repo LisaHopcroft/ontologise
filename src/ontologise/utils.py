@@ -13,6 +13,26 @@ DEFAULT_SETTINGS = "settings.yaml"
 data_point_separator = "\\t"
 
 
+### Regexes to identify specific lines
+empty_line_regex = r"^\s+$"
+ignore_line_regex = r"^!.*$"
+header_line_regex = r"^##\w+:"
+shortcut_line_regex = r"^###\t\^\d+:$"
+shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
+peopla_line_regex = r"^###\t@?\[.*\](\(.*\))?(\{.*\})?$"
+peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
+peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
+action_regex = r"^([^\*]+)(\*)?$"
+action_attribute_regex = r"^###\t(\()?\t\t[^\*]+\*?$"
+action_group_regex = r"^###\t(vs|w/).*$"
+action_group_vs_regex = r"^###\tvs\[.*$"
+action_group_w_regex = r"^###\tw\/\[.*$"
+action_scope_regex = r"^###\t(\S*)\t.*$"
+data_table_header_regex = rf"^###{re.escape(data_point_separator)}.*$"
+data_table_linebreak_regex = r"^\[/\]$"
+data_table_id_regex = r"^###\t\{.*\}$"
+data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
+
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
 # Bold text: https://stackoverflow.com/questions/50460222/bold-formatting-in-python-console
@@ -524,7 +544,7 @@ class Document:
     def reset(self, line):
         logger.debug(f"Considering reset with: '{line}'")
 
-        if re.match(r"^\s+$", line):
+        if re.match(empty_line_regex, line):
             if self.peopla_live:
                 logger.debug("Resetting peopla")
             if self.data_table_live:
@@ -546,11 +566,11 @@ class Document:
     def scan_for_shortcut_lines(self, line):
         """
         Function that examines the current input file from file.
-        If it's format corresponds to a shortcut definition,
+        If its format corresponds to a shortcut definition,
         a new shortcut object will be created and added to the
         list of shortcuts that are attached to the Document.
         """
-        if re.match(r"^###\t\^\d+:$", line):
+        if re.match(shortcut_line_regex, line):
             logger.debug(f"Identified shortcut line: '{line}'")
 
             m = re.search(r"^###\t\^(\d+):$", line)
@@ -571,7 +591,7 @@ class Document:
         return h
 
     def scan_for_shortcut_definition(self, line):
-        if re.match(r"^###\t[^\*\[\]\{\}]+\*?$", line):
+        if re.match(shortcut_definition_regex, line):
             logger.debug("Found a short cut definition")
 
             current_shortcut = self.shortcuts[-1]
@@ -615,7 +635,7 @@ class Document:
         data tables that are attached to the Document.
         """
 
-        if re.match(rf"^###{re.escape(data_point_separator)}.*$", line):
+        if re.match(data_table_header_regex, line):
             ### Previous approach where only one caret was present:
             # m = re.search(
             #     rf"^###{re.escape(data_point_separator)}([^\^]*)(\^\d+)?$", line
@@ -696,14 +716,14 @@ class Document:
 
         current_table = self.data_tables[-1]
 
-        if re.match(rf"^###{re.escape(data_point_separator)}END$", line):
+        if re.match(data_table_end_regex, line):
             logger.debug("End of table")
             self.data_table_live = False
-        elif re.match(r"^\[/\]$", line):
+        elif re.match(data_table_linebreak_regex, line):
             logger.debug("Ignore (line break not relevant)")
-        elif re.match(r"^!.*$", line):
+        elif re.match(ignore_line_regex, line):
             logger.debug("Ignore (line starts with !)")
-        elif re.match(r"^###\t\{.*\}$", line):
+        elif re.match(data_table_id_regex, line):
             m = re.search(r"^###\t\{(.*)\}$$", line)
             global_id = m.group(1).rstrip()
             logger.debug(f"Found a global identifer: {global_id}")
@@ -749,7 +769,7 @@ class Document:
         #     logger.debug( f"This is the scope flag: '{scope_flag}'" )
         #     logger.debug(f"This is the text to parse: '{text_to_parse}'")
 
-        if re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
+        if re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
             logger.debug(
                 f"This will be in relation to the {self.current_action} action"
@@ -798,7 +818,7 @@ class Document:
 
                 self.current_source_peopla.update_attribute(self.current_action, info)
 
-        elif re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
+        elif re.match(peopla_attribute_regex, line):
             logger.debug("Found a peopla attribute")
 
             # m = re.search(r"^###\t(\()?\t([^\*]+)(\*?)$", line)
@@ -908,7 +928,7 @@ class Document:
         #     self.peopla_action_group_live = True
         #     self.peopla_action_group_directed = False
 
-        elif re.match(r"^###\t(vs|w/).*$", line):
+        elif re.match(action_group_regex, line):
             logger.debug("Found an ActionGroup")
 
             # peopla_content = remove_all_leading_markup(line)
@@ -960,7 +980,7 @@ class Document:
         will be created and added to the list of PEOPLA that are
         attached to the Document.
         """
-        if re.match(r"^###\t@?\[.*\](\(.*\))?(\{.*\})?$", line):
+        if re.match(peopla_line_regex, line):
             # m = re.search(r"^###\t(\@?)\[(.*?)\](\(.*\))?(\{.*\})?$", line)
             # place_flag = m.group(1)
             # content = m.group(2)
@@ -1009,7 +1029,7 @@ class Document:
             content = m.group(1)
             self.header["TITLE"].append(content)
             logger.info(f"Adding TITLE header attribute '{content}'")
-        elif re.match(r"^##\w+:", line):
+        elif re.match(header_line_regex, line):
             m = re.search(r"^##(.*?):\s+(.*?)$", line)
             flag = m.group(1)
             content = m.group(2)
@@ -1118,7 +1138,7 @@ def extract_peopla_details(l0):
 
     l1 = remove_all_leading_peopla_markup(l0)
 
-    m = re.search(r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$", l1)
+    m = re.search(peopla_regex, l1)
 
     place_flag = False if m.group(1) is None else True
     with_flag = False if m.group(2) is None else True
@@ -1155,7 +1175,7 @@ def extract_action_scope(l0):
     This 
     """
 
-    m = re.search(r"^###\t(\S*)\t.*$", l0)
+    m = re.search(action_scope_regex, l0)
 
     scope_indicator = m.group(1)
 
@@ -1180,7 +1200,7 @@ def extract_action_details(l0):
 
     l1 = remove_all_leading_action_markup(l0)
 
-    m = re.search(r"^([^\*]+)(\*)?$", l1)
+    m = re.search(action_regex, l1)
     action_text = m.group(1).rstrip()
     inheritance_flag = False if m.group(2) is None else True
 
@@ -1199,9 +1219,9 @@ def extract_action_details(l0):
 
 
 def is_action_group_directed(l0):
-    if re.match(r"^###\tvs\[.*$", l0):
+    if re.match(action_group_vs_regex, l0):
         return True
-    elif re.match(r"^###\tw\/\[.*$", l0):
+    elif re.match(action_group_w_regex, l0):
         return False
     else:
         return None
