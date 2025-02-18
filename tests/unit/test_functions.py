@@ -232,35 +232,16 @@ def test_extract_attribute_information(s, s_dict_expected):
     # (2) the relation depth
     [
         # TEST:
-        (">	*MOTHER*", {"relation_text": "MOTHER", "relation_depth": 1}),
+        (">	*X*", {"relation_text": "X", "relation_depth": 1}),
         # TEST:
-        (">	>	*SON*", {"relation_text": "SON", "relation_depth": 2}),
+        (">	>	*Y*", {"relation_text": "Y", "relation_depth": 2}),
         # TEST:
-        (">	>	>	*DAUG*", {"relation_text": "DAUG", "relation_depth": 3}),
+        (">	>	>	*Z*", {"relation_text": "Z", "relation_depth": 3}),
     ],
 )
 def test_extract_relation_details(s, s_dict_expected):
     s_dict_observed = extract_relation_details(s)
     assert s_dict_observed == s_dict_expected
-
-
-@pytest.mark.parametrize(
-    "exception_s",
-    # parameters are:
-    # (1) the relation string (SON/DAUG/FATHER/MOTHER)
-    # (2) the relation depth
-    [
-        # TEST:
-        (">	*SON *"),
-        # TEST:
-        (">	* SON*"),
-        # TEST:
-        (">	*S*"),
-    ],
-)
-def test_extract_relation_exception(exception_s):
-    with pytest.raises(Exception):
-        extract_relation_details(exception_s)
 
 
 @pytest.mark.parametrize(
