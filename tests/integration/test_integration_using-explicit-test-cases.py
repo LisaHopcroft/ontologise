@@ -6,7 +6,7 @@ import sys
 
 sys.path.append("src/ontologise")
 
-from utils import Document, Peopla
+from utils import Document, Peopla, Peorel
 
 
 BASE_DIR = Path(__file__).parents[1]
@@ -59,7 +59,7 @@ def test_peopla_attributes_of_attributes(
 
     for p in test_doc.all_peoplas:
         ### Print for information
-        p.print_peopla()
+        print( p )
         ### Collect global IDs
         if p.name == peopla_name:
             assert p.attributes[attribute] == attribute_dictionary
@@ -78,17 +78,10 @@ def test_peopla_attributes_of_attributes(
     [
         # TEST: Are the peoplas extracted correctly
         # Context: 1 peopla with attributes of attributes
-        (
-            "peopla_content_D",
-            "settings_basic.yaml",
-            "A, B",
-            ["V", "W", "Z"],
-        ),
+        ("peopla_content_D", "settings_basic.yaml", "A, B", ["V", "W", "Z"],),
     ],
 )
-def test_split_peopla_attributes(
-    test_name, settings_file, peopla_name, action_list
-):
+def test_split_peopla_attributes(test_name, settings_file, peopla_name, action_list):
 
     content_f = DATA_DIR / f"{test_name}.txt"
     settings_f = SETTINGS_DIR / settings_file
@@ -104,7 +97,7 @@ def test_split_peopla_attributes(
 
     for p in test_doc.all_peoplas:
         ### Print for information
-        p.print_peopla()
+        print( p )
         ### Collect global IDs
         if p.name == peopla_name:
             assert list(p.attributes.keys()).sort() == action_list.sort()
@@ -413,7 +406,7 @@ def test_peopla_content(
     observed_global_ids = []
     for p in test_doc.all_peoplas:
         ### Print for information
-        p.print_peopla()
+        print(p)
         ### Collect global IDs
         observed_global_ids = observed_global_ids + [p.global_id]
 
@@ -468,7 +461,7 @@ def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):
 
     for p in test_doc.all_peoplas:
         ### Print for information
-        p.print_peopla()
+        print(p)
         ### Collect global IDs
 
     assert len(test_doc.all_peoplas) == expected_num_peoplas
@@ -540,6 +533,134 @@ def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):
 #     assert len(test_doc.peoplas_secondary) == len(expected_secondary_peoplas_names)
 
 #     print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: relationships
+# -----------------------------------------------------------------
+# - Testing that
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_peorels",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) number of peoplas
+    # (4) global IDs of those peoplas
+    [
+        # TEST: Basic relation between one source Peopla and one relation
+        (
+            "peorel_content_A1",
+            "settings_basic.yaml",
+            [Peorel(Peopla("B"), Peopla("A"), "SON", 1)],
+        ),
+        # TEST: Basic relation between one source Peopla and one relation
+        # Context: checking that the same Peorel isn't recorded twice
+        (
+            "peorel_content_A2",
+            "settings_basic.yaml",
+            [Peorel(Peopla("B"), Peopla("A"), "SON", 1)],
+        ),
+    ],
+)
+def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    assert len(test_doc.all_peorels) == len(expected_peorels)
+
+    for this_expected_peorel in expected_peorels:
+        assert this_expected_peorel in test_doc.all_peorels
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_peorels",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) number of peoplas
+    # (4) global IDs of those peoplas
+    [
+        # TEST: Relation between source and target peoplas and a target relation
+        (
+            "peorel_content_B1",
+            "settings_basic.yaml",
+            [
+                Peorel(Peopla("C"), Peopla("A"), "SON", 1),
+                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
+            ],
+        ),
+        # TEST: Relation between source and target peoplas and a target relation
+        (
+            "peorel_content_B2",
+            "settings_basic.yaml",
+            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
+        ),
+        # TEST: Relation between source and target peoplas and a target relation
+        (
+            "peorel_content_B3",
+            "settings_basic.yaml",
+            [
+                Peorel(Peopla("C"), Peopla("A"), "SON", 1),
+                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
+            ],
+        ),
+        # TEST: Relation between source and target peoplas and a target relation
+        (
+            "peorel_content_B4",
+            "settings_basic.yaml",
+            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
+        ),
+        # TEST: Checking that relations are not duplicated
+        (
+            "peorel_content_B5",
+            "settings_basic.yaml",
+            [
+                Peorel(Peopla("C"), Peopla("A"), "SON", 1),
+                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
+            ],
+        ),
+        # TEST: Checking that relations are not duplicated
+        (
+            "peorel_content_B6",
+            "settings_basic.yaml",
+            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
+        ),
+    ],
+)
+def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    assert len(test_doc.all_peorels) == len(expected_peorels)
+
+    for this_expected_peorel in expected_peorels:
+        assert this_expected_peorel in test_doc.all_peorels
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------

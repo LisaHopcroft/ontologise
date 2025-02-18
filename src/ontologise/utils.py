@@ -13,6 +13,43 @@ DEFAULT_SETTINGS = "settings.yaml"
 data_point_separator = "\\t"
 
 
+### Regexes to identify specific lines
+empty_line_regex = r"^\s+$"
+ignore_line_regex = r"^!.*$"
+header_line_regex = r"^##\w+:"
+shortcut_line_regex = r"^###\t\^\d+:$"
+shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
+peopla_line_regex = r"^###\t@?\[.*\](\(.*\))?(\{.*\})?$"
+peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
+peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
+peopla_relation_line_regex = r"^###\t(\()?(>\t)+\*(.*)\*$"
+peopla_relation_depth_regex = r">\t"
+peopla_relation_string_regex = r"\*(.*)\*"
+peopla_relation_target_regex = r"^###\t(\()?(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
+peopla_relation_scope_regex = r"^###\t(\(?>).*$"
+
+action_regex = r"^([^\*]+)(\*)?$"
+action_attribute_regex = r"^###\t(\()?\t\t[^\*]+\*?$"
+action_group_regex = r"^###\t(vs|w/).*$"
+action_group_vs_regex = r"^###\tvs\[.*$"
+action_group_w_regex = r"^###\tw\/\[.*$"
+action_scope_regex = r"^###\t(\S*)\t.*$"
+data_table_header_regex = rf"^###{re.escape(data_point_separator)}.*$"
+data_table_linebreak_regex = r"^\[/\]$"
+data_table_id_regex = r"^###\t\{.*\}$"
+data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
+
+generalise_relation = {
+    "DAUG": "CHILD",
+    "SON": "CHILD",
+    "MOTHER": "PARENT",
+    "FATHER": "PARENT",
+}
+
+origin_relations = ["MOTHER", "FATHER"]
+target_relations = ["DAUG", "SON"]
+acceptable_relations = origin_relations + target_relations
+
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
 # Bold text: https://stackoverflow.com/questions/50460222/bold-formatting-in-python-console
@@ -153,17 +190,33 @@ class ActionGroup:
         # logger.info( description_text["info"] )
         # logger.debug( description_text["debug"] )
 
+    def __str__(self):
+        out_s = (
+            f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup\n"
+        )
+        out_s = out_s + f"...involving the following source Peoplas:\n"
+
+        for n, peopla in enumerate([self.source_peopla]):
+            out_s = out_s + f"   {n+1}. {peopla.name}\n"
+
+        out_s = out_s + f"...involving {len(self.target_peoplas)} target Peoplas:\n"
+
+        for n, peopla in enumerate(self.target_peoplas):
+            out_s = out_s + f"   {n+1}. {peopla.name}"
+
+        return out_s
+
     def print_description(self):
         s_info = (
-            f"{'directed' if self.directed else 'undirected'}{self.type} ActionGroup,"
+            f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         )
-        s_info = s_info + f"involving the following source Peoplas"
+        s_info = s_info + f" involving the following source Peoplas\n"
 
         s_debug = ""
         for n, peopla in enumerate([self.source_peopla]):
             s_debug = s_debug + f"{n}. {peopla}"
 
-        s_info = s_info + f"involving {len(self.target_peoplas)} target Peoplas"
+        s_info = s_info + f" involving {len(self.target_peoplas)} target Peoplas\n"
 
         for n, peopla in enumerate(self.target_peoplas):
             s_debug = s_debug + f"{n}. {peopla}"
@@ -188,6 +241,48 @@ class ActionGroup:
         )
 
         self.attributes[attribute_text] = updated_attributes
+
+
+class Peorel:
+    """
+    A Peorel object - relationship between two people
+    """
+
+    def __init__(
+        self, peopla_is, peopla_to, relation_text, relation_depth, details_hash=None
+    ):
+
+        self.relation_text = relation_text
+        self.relation_depth = relation_depth
+        self.peopla_is = peopla_is
+        self.peopla_to = peopla_to
+
+        ### Aggributes of the Peorel itself
+        self.attributes = details_hash
+
+        logger.info(
+            f"Creating a PEOREL object: {self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} (depth={self.relation_depth})"
+        )
+
+    ### What needs to match for two PEOREL objects to be considered the same?
+    def __eq__(self, other):
+        return_result = False
+
+        if (
+            self.relation_text == other.relation_text
+            and self.relation_depth == other.relation_depth
+            and self.peopla_is.name == other.peopla_is.name
+            and self.peopla_to.name == other.peopla_to.name
+            and self.peopla_is.global_id == other.peopla_is.global_id
+            and self.peopla_is.local_id == other.peopla_is.local_id
+        ):
+            return_result = True
+
+        return return_result
+        # return self.__dict__ == other.__dict__
+
+    def __str__(self): # pragma: no cover
+        return f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
 
 
 class Peopla:
@@ -278,11 +373,20 @@ class Peopla:
 
         self.attributes[attribute_text] = updated_attributes
 
-    def print_peopla(self):  # pragma: no cover
-        logger.info(f"I found this {self.type} PEOPLA called {self.name}")
-        logger.info(f"It has the following attributes:\n{log_pretty(self.attributes)}")
+    def __str__(self):  # pragma: no cover
+        s_out = f"{self.type} PEOPLA called {self.name}\n"
+
         if self.global_id:
-            logger.info(f"It has the following global ID: {self.global_id}")
+            s_out = s_out + f"...with the global ID: {self.global_id}\n"
+        if self.local_id:
+            s_out = s_out + f"...with the local ID: {self.local_id}\n"
+
+        if len(self.attributes)==0:
+            s_out = s_out + f"...with no attributes\n"
+        else:
+            s_out = s_out + f"...and the following attributes:\n{log_pretty(self.attributes)}"
+
+        return( s_out )
 
 
 class Document:
@@ -327,9 +431,11 @@ class Document:
         self.peopla_live = False
         self.all_peoplas = []
         self.all_action_groups = []
+        self.all_peorels = []
         self.current_action = None
         self.current_source_peopla = None
         self.current_target_peoplas = []
+        self.relation_live = False
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
         #############################################################
@@ -521,10 +627,10 @@ class Document:
 
         # input()
 
-    def reset(self, line):
+    def reset(self, line):  # pragma: no cover
         logger.debug(f"Considering reset with: '{line}'")
 
-        if re.match(r"^\s+$", line):
+        if re.match(empty_line_regex, line):
             if self.peopla_live:
                 logger.debug("Resetting peopla")
             if self.data_table_live:
@@ -546,11 +652,11 @@ class Document:
     def scan_for_shortcut_lines(self, line):
         """
         Function that examines the current input file from file.
-        If it's format corresponds to a shortcut definition,
+        If its format corresponds to a shortcut definition,
         a new shortcut object will be created and added to the
         list of shortcuts that are attached to the Document.
         """
-        if re.match(r"^###\t\^\d+:$", line):
+        if re.match(shortcut_line_regex, line):
             logger.debug(f"Identified shortcut line: '{line}'")
 
             m = re.search(r"^###\t\^(\d+):$", line)
@@ -571,7 +677,7 @@ class Document:
         return h
 
     def scan_for_shortcut_definition(self, line):
-        if re.match(r"^###\t[^\*\[\]\{\}]+\*?$", line):
+        if re.match(shortcut_definition_regex, line):
             logger.debug("Found a short cut definition")
 
             current_shortcut = self.shortcuts[-1]
@@ -615,7 +721,7 @@ class Document:
         data tables that are attached to the Document.
         """
 
-        if re.match(rf"^###{re.escape(data_point_separator)}.*$", line):
+        if re.match(data_table_header_regex, line):
             ### Previous approach where only one caret was present:
             # m = re.search(
             #     rf"^###{re.escape(data_point_separator)}([^\^]*)(\^\d+)?$", line
@@ -696,14 +802,14 @@ class Document:
 
         current_table = self.data_tables[-1]
 
-        if re.match(rf"^###{re.escape(data_point_separator)}END$", line):
+        if re.match(data_table_end_regex, line):
             logger.debug("End of table")
             self.data_table_live = False
-        elif re.match(r"^\[/\]$", line):
+        elif re.match(data_table_linebreak_regex, line):
             logger.debug("Ignore (line break not relevant)")
-        elif re.match(r"^!.*$", line):
+        elif re.match(ignore_line_regex, line):
             logger.debug("Ignore (line starts with !)")
-        elif re.match(r"^###\t\{.*\}$", line):
+        elif re.match(data_table_id_regex, line):
             m = re.search(r"^###\t\{(.*)\}$$", line)
             global_id = m.group(1).rstrip()
             logger.debug(f"Found a global identifer: {global_id}")
@@ -749,7 +855,103 @@ class Document:
         #     logger.debug( f"This is the scope flag: '{scope_flag}'" )
         #     logger.debug(f"This is the text to parse: '{text_to_parse}'")
 
-        if re.match(r"^###\t(\()?\t\t[^\*]+\*?$", line):
+        if re.match(peopla_relation_line_regex, line):
+            logger.debug("Found a peopla relationship")
+
+            relation_details = extract_relation_details(line)
+
+            logger.debug(
+                f"Identified that a '{relation_details['relation_text']}' relationship is now live"
+            )
+            logger.debug(
+                f"Context will dictate which Peopla are involved in that Peorel"
+            )
+
+            self.current_relation_text = relation_details["relation_text"]
+            self.current_relation_depth = relation_details["relation_depth"]
+            self.relation_live = True
+
+        elif re.match(peopla_relation_target_regex, line) and self.relation_live:
+            ### If we're in here, we've got a relation open
+            ### AND we have found what the target is of that relation
+
+            peopla_content_parsed = extract_peopla_details(line)
+
+            ### Who is the target of the relation?
+            relation_peopla_is_tmp = Peopla(
+                peopla_content_parsed["content"],
+                peopla_content_parsed["place_flag"],
+                peopla_content_parsed["local_id"],
+                peopla_content_parsed["global_id"],
+            )
+
+            relation_peopla_is = self.record_peopla(relation_peopla_is_tmp)
+
+            logger.debug(
+                f"Found the target of a relation action: '{relation_peopla_is.name}'"
+            )
+            logger.debug(
+                f"This will be in relation to the {self.current_relation_text} relation (depth={self.current_relation_depth})"
+            )
+            logger.debug(f"But need to work out who the 'to' Peopla is")
+
+            ### This is where we have a relation attached directly to a single Peopla
+            if not self.peopla_action_group_live:
+
+                logger.debug(
+                    f"The context tells us that the 'to' peopla for this peorel is the current source peopla: {self.current_source_peopla}"
+                )
+
+                peorel_tmp = Peorel(
+                    relation_peopla_is,
+                    self.current_source_peopla,
+                    self.current_relation_text,
+                    self.current_relation_depth,
+                )
+
+                _new_peorel = self.record_peorel(peorel_tmp)
+
+            ### This is where we have a relation attached to an open ActionGroup
+            ### It will be indicated with a ( as to whether the relation refers to
+            ### to the target Peopla(s) only or to the source AND target peoplas
+            else:
+
+                relation_scope = extract_relation_scope(line)
+
+                logger.debug(
+                    f"The context tells us that the 'to' peopla for this peorel is something to do with the target peopla"
+                )
+
+                logger.debug(f"The scope for this is: {relation_scope}")
+
+                to_peopla_list = self.current_target_peoplas
+
+                if relation_scope == "target":
+                    logger.debug(
+                        f"This information is only relevant for the target peopla"
+                    )
+                    logger.debug(f"No need to do anything more")
+                else:
+                    logger.debug(
+                        f"This information is relevant for the source and target peopla"
+                    )
+                    logger.debug(
+                        f"Ned to add the current source peopla to the 'to' list"
+                    )
+
+                    to_peopla_list.append(self.current_source_peopla)
+
+                for this_to_peopla in to_peopla_list:
+                    peorel_tmp = Peorel(
+                        relation_peopla_is,
+                        this_to_peopla,
+                        self.current_relation_text,
+                        self.current_relation_depth,
+                    )
+
+                    _new_peorel = self.record_peorel(peorel_tmp)
+
+        elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
             logger.debug(
                 f"This will be in relation to the {self.current_action} action"
@@ -798,7 +1000,7 @@ class Document:
 
                 self.current_source_peopla.update_attribute(self.current_action, info)
 
-        elif re.match(r"^###\t(\()?\t[^\*]+\*?$", line):
+        elif re.match(peopla_attribute_regex, line):
             logger.debug("Found a peopla attribute")
 
             # m = re.search(r"^###\t(\()?\t([^\*]+)(\*?)$", line)
@@ -908,7 +1110,7 @@ class Document:
         #     self.peopla_action_group_live = True
         #     self.peopla_action_group_directed = False
 
-        elif re.match(r"^###\t(vs|w/).*$", line):
+        elif re.match(action_group_regex, line):
             logger.debug("Found an ActionGroup")
 
             # peopla_content = remove_all_leading_markup(line)
@@ -953,6 +1155,29 @@ class Document:
 
         return peopla_ref
 
+    def record_peorel(self, pr):
+
+        peorel_ref = pr
+        already_recorded = False
+
+        for this_peorel in self.all_peorels:
+            if this_peorel == pr:
+                already_recorded = True
+                peorel_ref = this_peorel
+                break
+
+        if not already_recorded:
+            logger.debug(
+                f"This is a new Peorel that should be recorded ({pr.peopla_is.name} is {pr.relation_text} to {pr.peopla_to.name})"
+            )
+            self.all_peorels = self.all_peorels + [peorel_ref]
+        else:
+            logger.debug(
+                f"We have already seen this peorel ({pr.peopla_is.name} is {pr.relation_text} to {pr.peopla_to.name})"
+            )
+
+        return peorel_ref
+
     def scan_for_peopla_lines(self, line):
         """
         Function that exmaines the current input file from file.
@@ -960,7 +1185,7 @@ class Document:
         will be created and added to the list of PEOPLA that are
         attached to the Document.
         """
-        if re.match(r"^###\t@?\[.*\](\(.*\))?(\{.*\})?$", line):
+        if re.match(peopla_line_regex, line):
             # m = re.search(r"^###\t(\@?)\[(.*?)\](\(.*\))?(\{.*\})?$", line)
             # place_flag = m.group(1)
             # content = m.group(2)
@@ -996,6 +1221,7 @@ class Document:
 
             self.peopla_live = True
             self.peopla_action_group_live = False
+            self.relation_live = False
 
     def scan_for_header_lines(self, line):
         """
@@ -1009,7 +1235,7 @@ class Document:
             content = m.group(1)
             self.header["TITLE"].append(content)
             logger.info(f"Adding TITLE header attribute '{content}'")
-        elif re.match(r"^##\w+:", line):
+        elif re.match(header_line_regex, line):
             m = re.search(r"^##(.*?):\s+(.*?)$", line)
             flag = m.group(1)
             content = m.group(2)
@@ -1024,6 +1250,47 @@ class Document:
             for i, j in enumerate(value):
                 print(f"[{key:{self.header_length}} {i+1:02}]: {j}")
 
+    def __str__(self):  # pragma: no cover
+        """
+        Compiling a toString for a document
+        """
+        s_out = f"Document parsed = {self.file}\n"
+        for key, value in self.header.items():
+            for i, j in enumerate(value):
+                s_out = s_out + f"[{key:{self.header_length}} {i+1:02}]: {j}\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + "Shortcuts:\n"
+        for i, v in self.shortcuts:
+            s_out = s_out + f"[{i}: {v}]\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + "All Peoplas:\n"
+        for i, p in enumerate( self.all_peoplas ):
+            s_out = s_out + f"[{i}] " + str(p) + "\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + "All Peorels:\n"
+        for i, p in enumerate( self.all_peorels ):
+            s_out = s_out + f"[{i}] " + str(p) + "\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + "All ActionGroups:\n"
+        for i, p in enumerate( self.all_action_groups ):
+            s_out = s_out + f"[{i}] " + str(p) + "\n"
+
+        s_out = s_out + "\n"
+        s_out = s_out + "---------------------\n"
+        s_out = s_out + f"Found {len(self.data_points)} data points\n"
+
+        s_out = s_out + str( self.data_points_df )
+
+        return( s_out )
+
     def print_summary(self):  # pragma: no cover
         """
         Printing a summary of a document
@@ -1031,19 +1298,24 @@ class Document:
         print(f"Document parsed = {self.file}")
         self.print_header_information()
 
-        # print("---------------------\n")
-        # print(f"Primary Peoplas:")
-        # for p in self.peoplas_primary:
-        #     p.print_peopla()
-
-        # print("---------------------\n")
-        # print(f"Secondary Peoplas:")
-        # for p in self.peoplas_secondary:
-        #     p.print_peopla()
-
         print("---------------------\n")
         print("Shortcuts:")
         print(self.shortcuts)
+
+        print("---------------------\n")
+        print(f"All Peoplas:")
+        for i, p in enumerate( self.all_peoplas ):
+            logger.info( f"[{i}] " + str(p) )
+
+        print("---------------------\n")
+        print(f"All Peorels:")
+        for i, p in enumerate( self.all_peorels ):
+            logger.info( f"[{i}] " + str(p) )
+
+        print("---------------------\n")
+        print(f"All ActionGroups:")
+        for i, p in enumerate( self.all_action_groups ):
+            logger.info( f"[{i}] " + str(p) )
 
         print("---------------------\n")
         print(f"Found {len(self.data_points)} data points")
@@ -1105,6 +1377,13 @@ def remove_all_leading_action_markup(l):
     return re.sub(r"^###\t(\S*)\t", "", l)
 
 
+def remove_all_leading_relation_markup(l):
+    """
+    Removes markup
+    """
+    return re.sub(r"^###\t", "", l)
+
+
 def extract_peopla_details(l0):
     """
     Parse details from a peopla line.
@@ -1118,7 +1397,7 @@ def extract_peopla_details(l0):
 
     l1 = remove_all_leading_peopla_markup(l0)
 
-    m = re.search(r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$", l1)
+    m = re.search(peopla_regex, l1)
 
     place_flag = False if m.group(1) is None else True
     with_flag = False if m.group(2) is None else True
@@ -1149,13 +1428,34 @@ def extract_peopla_details(l0):
     return peopla_info_dictionary
 
 
+def extract_relation_scope(l0):
+    """
+    Extract details of the scope of an action
+    This
+    """
+
+    m = re.search(peopla_relation_scope_regex, l0)
+
+    scope = None
+
+    if m is not None:
+        scope_indicator = m.group(1)
+
+        if scope_indicator == ">":
+            scope = "both"
+        elif scope_indicator == "(>":
+            scope = "target"
+
+    return scope
+
+
 def extract_action_scope(l0):
     """
     Extract details of the scope of an action
     This 
     """
 
-    m = re.search(r"^###\t(\S*)\t.*$", l0)
+    m = re.search(action_scope_regex, l0)
 
     scope_indicator = m.group(1)
 
@@ -1169,6 +1469,44 @@ def extract_action_scope(l0):
     return scope
 
 
+def extract_relation_details(l0):
+    """
+    Parse details from a relation line.
+    Examples of action lines:
+    - ###	>	*SON*
+    - ###	>	>	*DAUG*
+    - ###	>	*FATHER*
+    Where the closed vocabulary is:
+    * SON
+    * DAUG
+    * FATHER
+    * MOTHER
+    """
+
+    l1 = remove_all_leading_relation_markup(l0)
+
+    relation_depth = len(re.findall(peopla_relation_depth_regex, l1))
+
+    m = re.search(peopla_relation_string_regex, l1)
+    relation_text = m.group(1)
+
+    logger.debug(
+        f"Extracting relationship information:\n"
+        + f" - relationship depth ? '{relation_depth}'\n"
+        + f" - relationship text ? '{relation_text}'"
+    )
+
+    if not relation_text in acceptable_relations:
+        raise Exception(f"{relation_text} is not a recognised relation string")
+
+    relationship_info_dictionary = {
+        "relation_text": relation_text,
+        "relation_depth": relation_depth,
+    }
+
+    return relationship_info_dictionary
+
+
 def extract_action_details(l0):
     """
     Parse details from a action line.
@@ -1180,7 +1518,7 @@ def extract_action_details(l0):
 
     l1 = remove_all_leading_action_markup(l0)
 
-    m = re.search(r"^([^\*]+)(\*)?$", l1)
+    m = re.search(action_regex, l1)
     action_text = m.group(1).rstrip()
     inheritance_flag = False if m.group(2) is None else True
 
@@ -1199,9 +1537,9 @@ def extract_action_details(l0):
 
 
 def is_action_group_directed(l0):
-    if re.match(r"^###\tvs\[.*$", l0):
+    if re.match(action_group_vs_regex, l0):
         return True
-    elif re.match(r"^###\tw\/\[.*$", l0):
+    elif re.match(action_group_w_regex, l0):
         return False
     else:
         return None

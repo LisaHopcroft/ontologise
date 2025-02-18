@@ -6,10 +6,9 @@
 --------------------------------------------------------------------------------
 
 ###	[CRAWFURD, Andrew](x)
-###	w/[BARCLAY, Margaret]{385c9bf6-df87-4253-b587-bc827ca1b2db}
+###	w/[KIRKWOOD, Janet](x){99940970-a7e5-4fc9-9a71-6a82bbcf7b52}
 ###	(>	*FATHER*
-###	(>	[BARCLAY, Alexander]
-###	(>		OCC
-###	(>			ROLE[Fewar]
-###	(>			@[SCO, REN, LWH, Kirkton]
+###	(>	[KIRKWOOD, Robert]
+###	(>		OF
+###	(>			@[SCO, REN, LWH, Bridgend]
 ###		MARRIED
