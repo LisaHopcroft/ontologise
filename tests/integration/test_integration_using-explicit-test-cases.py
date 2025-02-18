@@ -59,7 +59,7 @@ def test_peopla_attributes_of_attributes(
 
     for p in test_doc.all_peoplas:
         ### Print for information
-        p.print_peopla()
+        print( p )
         ### Collect global IDs
         if p.name == peopla_name:
             assert p.attributes[attribute] == attribute_dictionary
@@ -97,7 +97,7 @@ def test_split_peopla_attributes(test_name, settings_file, peopla_name, action_l
 
     for p in test_doc.all_peoplas:
         ### Print for information
-        p.print_peopla()
+        print( p )
         ### Collect global IDs
         if p.name == peopla_name:
             assert list(p.attributes.keys()).sort() == action_list.sort()
@@ -406,7 +406,7 @@ def test_peopla_content(
     observed_global_ids = []
     for p in test_doc.all_peoplas:
         ### Print for information
-        p.print_peopla()
+        print(p)
         ### Collect global IDs
         observed_global_ids = observed_global_ids + [p.global_id]
 
@@ -461,7 +461,7 @@ def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):
 
     for p in test_doc.all_peoplas:
         ### Print for information
-        p.print_peopla()
+        print(p)
         ### Collect global IDs
 
     assert len(test_doc.all_peoplas) == expected_num_peoplas
