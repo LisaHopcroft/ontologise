@@ -26,6 +26,7 @@ peopla_relation_line_regex = r"^###\t(\()?(>\t)+\*(.*)\*$"
 peopla_relation_depth_regex = r">\t"
 peopla_relation_string_regex = r"\*(.*)\*"
 peopla_relation_target_regex = r"^###\t(\()?(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
+peopla_relation_scope_regex = r"^###\t(\(?>).*$"
 
 action_regex = r"^([^\*]+)(\*)?$"
 action_attribute_regex = r"^###\t(\()?\t\t[^\*]+\*?$"
@@ -263,6 +264,11 @@ class Peorel:
 
         return return_result
         # return self.__dict__ == other.__dict__
+
+    def print_peorel(self):  # pragma: no cover
+        logger.info(
+            f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
+        )
 
 
 class Peopla:
@@ -598,7 +604,7 @@ class Document:
 
         # input()
 
-    def reset(self, line):
+    def reset(self, line):  # pragma: no cover
         logger.debug(f"Considering reset with: '{line}'")
 
         if re.match(empty_line_regex, line):
@@ -842,22 +848,10 @@ class Document:
             self.current_relation_depth = relation_details["relation_depth"]
             self.relation_live = True
 
-        elif (
-            re.match(peopla_relation_target_regex, line)
-            and self.relation_live
-            and not self.peopla_action_group_live
-        ):
+        elif re.match(peopla_relation_target_regex, line) and self.relation_live:
+            ### If we're in here, we've got a relation open
+            ### AND we have found what the target is of that relation
 
-            logger.debug(
-                "Found the target of a relation action (that only belongs to the source peopla)"
-            )
-            logger.debug(
-                f"This will be in relation to the {self.current_relation_text} relation (depth={self.current_relation_depth})"
-            )
-
-            # action_scope = extract_action_scope(line)
-
-            # line_content = re.sub(r"^###[\s\(]+", "", line)
             peopla_content_parsed = extract_peopla_details(line)
 
             ### Who is the target of the relation?
@@ -870,14 +864,69 @@ class Document:
 
             relation_peopla_is = self.record_peopla(relation_peopla_is_tmp)
 
-            peorel_tmp = Peorel(
-                relation_peopla_is,
-                self.current_source_peopla,
-                self.current_relation_text,
-                self.current_relation_depth,
+            logger.debug(
+                f"Found the target of a relation action: '{relation_peopla_is.name}'"
             )
+            logger.debug(
+                f"This will be in relation to the {self.current_relation_text} relation (depth={self.current_relation_depth})"
+            )
+            logger.debug(f"But need to work out who the 'to' Peopla is")
 
-            _new_peorel = self.record_peorel(peorel_tmp)
+            ### This is where we have a relation attached directly to a single Peopla
+            if not self.peopla_action_group_live:
+
+                logger.debug(
+                    f"The context tells us that the 'to' peopla for this peorel is the current source peopla: {self.current_source_peopla}"
+                )
+
+                peorel_tmp = Peorel(
+                    relation_peopla_is,
+                    self.current_source_peopla,
+                    self.current_relation_text,
+                    self.current_relation_depth,
+                )
+
+                _new_peorel = self.record_peorel(peorel_tmp)
+
+            ### This is where we have a relation attached to an open ActionGroup
+            ### It will be indicated with a ( as to whether the relation refers to
+            ### to the target Peopla(s) only or to the source AND target peoplas
+            else:
+
+                relation_scope = extract_relation_scope(line)
+
+                logger.debug(
+                    f"The context tells us that the 'to' peopla for this peorel is something to do with the target peopla"
+                )
+
+                logger.debug(f"The scope for this is: {relation_scope}")
+
+                to_peopla_list = self.current_target_peoplas
+
+                if relation_scope == "target":
+                    logger.debug(
+                        f"This information is only relevant for the target peopla"
+                    )
+                    logger.debug(f"No need to do anything more")
+                else:
+                    logger.debug(
+                        f"This information is relevant for the source and target peopla"
+                    )
+                    logger.debug(
+                        f"Ned to add the current source peopla to the 'to' list"
+                    )
+
+                    to_peopla_list.append(self.current_source_peopla)
+
+                for this_to_peopla in to_peopla_list:
+                    peorel_tmp = Peorel(
+                        relation_peopla_is,
+                        this_to_peopla,
+                        self.current_relation_text,
+                        self.current_relation_depth,
+                    )
+
+                    _new_peorel = self.record_peorel(peorel_tmp)
 
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
@@ -1185,15 +1234,15 @@ class Document:
         print(f"Document parsed = {self.file}")
         self.print_header_information()
 
-        # print("---------------------\n")
-        # print(f"Primary Peoplas:")
-        # for p in self.peoplas_primary:
-        #     p.print_peopla()
+        print("---------------------\n")
+        print(f"All Peoplas:")
+        for p in self.all_peoplas:
+            p.print_peopla()
 
-        # print("---------------------\n")
-        # print(f"Secondary Peoplas:")
-        # for p in self.peoplas_secondary:
-        #     p.print_peopla()
+        print("---------------------\n")
+        print(f"All Peorels:")
+        for p in self.all_peorels:
+            p.print_peorel()
 
         print("---------------------\n")
         print("Shortcuts:")
@@ -1308,6 +1357,27 @@ def extract_peopla_details(l0):
     }
 
     return peopla_info_dictionary
+
+
+def extract_relation_scope(l0):
+    """
+    Extract details of the scope of an action
+    This
+    """
+
+    m = re.search(peopla_relation_scope_regex, l0)
+
+    scope = None
+
+    if m is not None:
+        scope_indicator = m.group(1)
+
+        if scope_indicator == ">":
+            scope = "both"
+        elif scope_indicator == "(>":
+            scope = "target"
+
+    return scope
 
 
 def extract_action_scope(l0):

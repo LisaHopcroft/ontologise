@@ -16,6 +16,7 @@ from utils import (
     extract_attribute_information,
     remove_all_leading_relation_markup,
     extract_relation_details,
+    extract_relation_scope,
     remove_all_leading_peopla_markup,
     extract_action_scope,
     remove_all_leading_action_markup,
@@ -79,6 +80,23 @@ def test_extract_action_details(s_in, s_out_expected):
 )
 def test_extract_action_scope(s_in, s_out_expected):
     s_out_observed = extract_action_scope(s_in)
+    assert s_out_observed == s_out_expected
+
+
+@pytest.mark.parametrize(
+    "s_in, s_out_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the scope as expected
+    [
+        # TEST: Basic
+        ("###	>	", "both"),
+        ("###	(>	", "target"),
+        ("###	((	", None),
+    ],
+)
+def test_extract_relation_scope(s_in, s_out_expected):
+    s_out_observed = extract_relation_scope(s_in)
     assert s_out_observed == s_out_expected
 
 
@@ -219,7 +237,6 @@ def test_extract_attribute_information(s, s_dict_expected):
         (">	>	*SON*", {"relation_text": "SON", "relation_depth": 2}),
         # TEST:
         (">	>	>	*DAUG*", {"relation_text": "DAUG", "relation_depth": 3}),
-        
     ],
 )
 def test_extract_relation_details(s, s_dict_expected):
@@ -244,6 +261,7 @@ def test_extract_relation_details(s, s_dict_expected):
 def test_extract_relation_exception(exception_s):
     with pytest.raises(Exception):
         extract_relation_details(exception_s)
+
 
 @pytest.mark.parametrize(
     "s,s_dict_expected",
