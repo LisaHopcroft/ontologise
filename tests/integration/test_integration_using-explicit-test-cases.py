@@ -59,7 +59,7 @@ def test_peopla_attributes_of_attributes(
 
     for p in test_doc.all_peoplas:
         ### Print for information
-        print( p )
+        print(p)
         ### Collect global IDs
         if p.name == peopla_name:
             assert p.attributes[attribute] == attribute_dictionary
@@ -97,7 +97,7 @@ def test_split_peopla_attributes(test_name, settings_file, peopla_name, action_l
 
     for p in test_doc.all_peoplas:
         ### Print for information
-        print( p )
+        print(p)
         ### Collect global IDs
         if p.name == peopla_name:
             assert list(p.attributes.keys()).sort() == action_list.sort()

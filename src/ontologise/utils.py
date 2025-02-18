@@ -39,16 +39,6 @@ data_table_linebreak_regex = r"^\[/\]$"
 data_table_id_regex = r"^###\t\{.*\}$"
 data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
 
-generalise_relation = {
-    "DAUG": "CHILD",
-    "SON": "CHILD",
-    "MOTHER": "PARENT",
-    "FATHER": "PARENT",
-}
-
-origin_relations = ["MOTHER", "FATHER"]
-target_relations = ["DAUG", "SON"]
-acceptable_relations = origin_relations + target_relations
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
@@ -207,9 +197,7 @@ class ActionGroup:
         return out_s
 
     def print_description(self):
-        s_info = (
-            f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
-        )
+        s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         s_info = s_info + f" involving the following source Peoplas\n"
 
         s_debug = ""
@@ -281,8 +269,10 @@ class Peorel:
         return return_result
         # return self.__dict__ == other.__dict__
 
-    def __str__(self): # pragma: no cover
-        return f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
+    def __str__(self):  # pragma: no cover
+        return (
+            f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}"
+        )
 
 
 class Peopla:
@@ -381,12 +371,15 @@ class Peopla:
         if self.local_id:
             s_out = s_out + f"...with the local ID: {self.local_id}\n"
 
-        if len(self.attributes)==0:
+        if len(self.attributes) == 0:
             s_out = s_out + f"...with no attributes\n"
         else:
-            s_out = s_out + f"...and the following attributes:\n{log_pretty(self.attributes)}"
+            s_out = (
+                s_out
+                + f"...and the following attributes:\n{log_pretty(self.attributes)}"
+            )
 
-        return( s_out )
+        return s_out
 
 
 class Document:
@@ -1268,28 +1261,28 @@ class Document:
         s_out = s_out + "\n"
         s_out = s_out + "---------------------\n"
         s_out = s_out + "All Peoplas:\n"
-        for i, p in enumerate( self.all_peoplas ):
+        for i, p in enumerate(self.all_peoplas):
             s_out = s_out + f"[{i}] " + str(p) + "\n"
 
         s_out = s_out + "\n"
         s_out = s_out + "---------------------\n"
         s_out = s_out + "All Peorels:\n"
-        for i, p in enumerate( self.all_peorels ):
+        for i, p in enumerate(self.all_peorels):
             s_out = s_out + f"[{i}] " + str(p) + "\n"
 
         s_out = s_out + "\n"
         s_out = s_out + "---------------------\n"
         s_out = s_out + "All ActionGroups:\n"
-        for i, p in enumerate( self.all_action_groups ):
+        for i, p in enumerate(self.all_action_groups):
             s_out = s_out + f"[{i}] " + str(p) + "\n"
 
         s_out = s_out + "\n"
         s_out = s_out + "---------------------\n"
         s_out = s_out + f"Found {len(self.data_points)} data points\n"
 
-        s_out = s_out + str( self.data_points_df )
+        s_out = s_out + str(self.data_points_df)
 
-        return( s_out )
+        return s_out
 
     def print_summary(self):  # pragma: no cover
         """
@@ -1304,18 +1297,18 @@ class Document:
 
         print("---------------------\n")
         print(f"All Peoplas:")
-        for i, p in enumerate( self.all_peoplas ):
-            logger.info( f"[{i}] " + str(p) )
+        for i, p in enumerate(self.all_peoplas):
+            logger.info(f"[{i}] " + str(p))
 
         print("---------------------\n")
         print(f"All Peorels:")
-        for i, p in enumerate( self.all_peorels ):
-            logger.info( f"[{i}] " + str(p) )
+        for i, p in enumerate(self.all_peorels):
+            logger.info(f"[{i}] " + str(p))
 
         print("---------------------\n")
         print(f"All ActionGroups:")
-        for i, p in enumerate( self.all_action_groups ):
-            logger.info( f"[{i}] " + str(p) )
+        for i, p in enumerate(self.all_action_groups):
+            logger.info(f"[{i}] " + str(p))
 
         print("---------------------\n")
         print(f"Found {len(self.data_points)} data points")
@@ -1495,9 +1488,6 @@ def extract_relation_details(l0):
         + f" - relationship depth ? '{relation_depth}'\n"
         + f" - relationship text ? '{relation_text}'"
     )
-
-    if not relation_text in acceptable_relations:
-        raise Exception(f"{relation_text} is not a recognised relation string")
 
     relationship_info_dictionary = {
         "relation_text": relation_text,
