@@ -5,7 +5,11 @@
 ##PP:	20
 --------------------------------------------------------------------------------
 
-###	[ADAM, Jean](5)
-###	w/[CRAWFURD, Andrew](x)
-###	>	*SON*
-###	>	[CRAWFURD, William](6)
+###	[CRAWFURD, Andrew](x)
+###	w/[BARCLAY, Margaret]{385c9bf6-df87-4253-b587-bc827ca1b2db}
+###	(>	*FATHER*
+###	(>	[BARCLAY, Alexander]
+###	(>		OCC
+###	(>			ROLE[Fewar]
+###	(>			@[SCO, REN, LWH, Kirkton]
+###		MARRIED
