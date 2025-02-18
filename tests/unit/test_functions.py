@@ -22,6 +22,7 @@ from utils import (
     remove_all_leading_action_markup,
     extract_action_details,
     is_action_group_directed,
+    gender_inference_from_relation,
 )
 
 
@@ -327,3 +328,22 @@ def test_extract_relation_details(s, s_dict_expected):
 def test_extract_peopla_details(s, s_dict_expected):
     s_dict_observed = extract_peopla_details(s)
     assert s_dict_observed == s_dict_expected
+
+
+@pytest.mark.parametrize(
+    "relation,gender_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    [
+        # TEST: Basic
+        ("DAUG", "FEMALE"),
+        ("MOTHER", "FEMALE"),
+        ("SON", "MALE"),
+        ("FATHER", "MALE"),
+        ("X", "UNKNOWN"),
+    ],
+)
+def test_gender_inference_from_relation(relation, gender_expected):
+    gender_observed = gender_inference_from_relation(relation)
+    assert gender_observed == gender_expected

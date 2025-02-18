@@ -320,30 +320,6 @@ class Peopla:
 
         self.attributes[action_text] = inheritance
 
-    # def add_attribute(self, attribute_text, inheritance, secondary_peopla=None):
-
-    #     # self.attributes[attribute_text]["secondary_peopla"] = secondary_peopla
-
-    #     logger.info(
-    #         f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
-    #     )
-
-    #     if secondary_peopla:
-    #         logger.info(
-    #             f"NB. attribute includes reference to secondary PEOPLA object {secondary_peopla.name}"
-    #         )
-    #         logger.debug(
-    #             f"This information involves another Peopla: {secondary_peopla.name}"
-    #         )
-    #         logger.debug(f"Adding this to the inheritance object")
-    #         inheritance["with"] = secondary_peopla
-    #     else:
-    #         logger.debug(f"No other Peopla is involved")
-
-    #     logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
-
-    #     self.attributes[attribute_text] = inheritance
-
     def update_attribute(self, attribute_text, d):
 
         logger.info(
@@ -888,6 +864,13 @@ class Document:
             )
             logger.debug(f"But need to work out who the 'to' Peopla is")
 
+            ### If we have a gendered relation, we can augment the Peopla with this
+            ### Gender information
+
+            relation_peopla_is.update_attribute(
+                "GENDER", {"value": gender_inference_from_relation(self.current_relation_text)}
+            )
+
             ### This is where we have a relation attached directly to a single Peopla
             if not self.peopla_action_group_live:
 
@@ -1255,7 +1238,7 @@ class Document:
         s_out = s_out + "\n"
         s_out = s_out + "---------------------\n"
         s_out = s_out + "Shortcuts:\n"
-        for i, v in self.shortcuts:
+        for i, v in enumerate(self.shortcuts):
             s_out = s_out + f"[{i}: {v}]\n"
 
         s_out = s_out + "\n"
@@ -1533,3 +1516,16 @@ def is_action_group_directed(l0):
         return False
     else:
         return None
+
+relation_gender_mapping = {
+    "DAUG": "FEMALE",
+    "MOTHER": "FEMALE",
+    "SON": "MALE",
+    "FATHER": "MALE"
+}
+
+def gender_inference_from_relation(t):
+    inferred_gender = "UNKNOWN"
+    if t in relation_gender_mapping:
+        inferred_gender = relation_gender_mapping[t]
+    return inferred_gender

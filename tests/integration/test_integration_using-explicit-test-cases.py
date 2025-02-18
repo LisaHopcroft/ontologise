@@ -662,6 +662,81 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
+# -----------------------------------------------------------------
+# Integration test cases: inferring gender
+# -----------------------------------------------------------------
+# - Checking that gender is inferred correctly
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name,expected_gender",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) number of peoplas
+    # (4) global IDs of those peoplas
+    [
+        # TEST: Checking that SON generates MALE
+        (
+            "peorel_content_C1",
+            "settings_basic.yaml",
+            "C",
+            "MALE",
+        ),
+        # TEST: Checking that FATHER generates MALE
+        (
+            "peorel_content_C1",
+            "settings_basic.yaml",
+            "F",
+            "MALE",
+        ),
+        # TEST: Checking that DAUG generates FEMALE
+        (
+            "peorel_content_C1",
+            "settings_basic.yaml",
+            "I",
+            "FEMALE",
+        ),
+        # TEST: Checking that MOTHER generates FEMALE
+        (
+            "peorel_content_C1",
+            "settings_basic.yaml",
+            "L",
+            "FEMALE",
+        ),
+        # TEST: Checking that anything ungendered generates UNKNOWN
+        (
+            "peorel_content_C1",
+            "settings_basic.yaml",
+            "O",
+            "UNKNOWN",
+        ),
+    ],
+)
+def test_gender_inferrence_from_relations(
+    test_name, settings_file, peopla_name, expected_gender
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for this_peopla in test_doc.all_peoplas:
+        
+        if this_peopla.name == peopla_name:
+            observed_gender = this_peopla.attributes["GENDER"]["value"]
+            assert observed_gender == expected_gender
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
 
 # -----------------------------------------------------------------
 # Integration test cases: shortcuts
