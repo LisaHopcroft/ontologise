@@ -669,7 +669,7 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
 
 
 @pytest.mark.parametrize(
-    "test_name,settings_file,peopla_name,expected_gender",
+    "test_name,settings_file,peopla_name,expected_gender,expected_peorel_to,expected_peorel_relation",
     # parameters are:
     # (1) content file
     # (2) settings file
@@ -682,6 +682,8 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
             "settings_basic.yaml",
             "C",
             "MALE",
+            "A",
+            "SON",
         ),
         # TEST: Checking that FATHER generates MALE
         (
@@ -689,6 +691,8 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
             "settings_basic.yaml",
             "F",
             "MALE",
+            "D",
+            "FATHER",
         ),
         # TEST: Checking that DAUG generates FEMALE
         (
@@ -696,6 +700,8 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
             "settings_basic.yaml",
             "I",
             "FEMALE",
+            "G",
+            "DAUG",
         ),
         # TEST: Checking that MOTHER generates FEMALE
         (
@@ -703,6 +709,8 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
             "settings_basic.yaml",
             "L",
             "FEMALE",
+            "J",
+            "MOTHER",
         ),
         # TEST: Checking that anything ungendered generates UNKNOWN
         (
@@ -710,11 +718,13 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
             "settings_basic.yaml",
             "O",
             "UNKNOWN",
+            "M",
+            "X",
         ),
     ],
 )
-def test_gender_inferrence_from_relations(
-    test_name, settings_file, peopla_name, expected_gender
+def test_gender_inference_from_relations(
+    test_name, settings_file, peopla_name, expected_gender, expected_peorel_to, expected_peorel_relation
 ):
 
     content_f = DATA_DIR / f"{test_name}.txt"
@@ -730,11 +740,15 @@ def test_gender_inferrence_from_relations(
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
     for this_peopla in test_doc.all_peoplas:
-        
+
         if this_peopla.name == peopla_name:
             observed_gender = this_peopla.attributes["GENDER"]["value"]
             assert observed_gender == expected_gender
 
+            gender_evidence = this_peopla.attributes["GENDER"]["evidence"].pop()
+            assert gender_evidence.peopla_to.name == expected_peorel_to
+            assert gender_evidence.relation_text == expected_peorel_relation
+    
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 

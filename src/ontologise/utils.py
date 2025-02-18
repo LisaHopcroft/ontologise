@@ -864,12 +864,9 @@ class Document:
             )
             logger.debug(f"But need to work out who the 'to' Peopla is")
 
-            ### If we have a gendered relation, we can augment the Peopla with this
-            ### Gender information
-
-            relation_peopla_is.update_attribute(
-                "GENDER", {"value": gender_inference_from_relation(self.current_relation_text)}
-            )
+            ### Creating this here so that we can catch it and record it as evidence
+            ### in the case of gendered relations
+            new_peorel = []
 
             ### This is where we have a relation attached directly to a single Peopla
             if not self.peopla_action_group_live:
@@ -885,7 +882,7 @@ class Document:
                     self.current_relation_depth,
                 )
 
-                _new_peorel = self.record_peorel(peorel_tmp)
+                new_peorel.append( self.record_peorel(peorel_tmp) )
 
             ### This is where we have a relation attached to an open ActionGroup
             ### It will be indicated with a ( as to whether the relation refers to
@@ -925,7 +922,19 @@ class Document:
                         self.current_relation_depth,
                     )
 
-                    _new_peorel = self.record_peorel(peorel_tmp)
+                    new_peorel.append( self.record_peorel(peorel_tmp) )
+
+            ### If we have a gendered relation, we can augment the Peopla with this
+            ### Gender information. The evidence for this (i.e., the relevant Peorel
+            ### objects should be recorded alongside this inference).
+
+            relation_peopla_is.update_attribute(
+                "GENDER",
+                {
+                    "value": gender_inference_from_relation(self.current_relation_text),
+                    "evidence": new_peorel
+                },
+            )
 
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
