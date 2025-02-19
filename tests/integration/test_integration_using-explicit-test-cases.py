@@ -1055,7 +1055,84 @@ def test_gender_inference_from_relations(
             gender_evidence = this_peopla.attributes["GENDER"]["evidence"].pop()
             assert gender_evidence.peopla_to.name == expected_peorel_to
             assert gender_evidence.relation_text == expected_peorel_relation
-    
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: inferring gender
+# -----------------------------------------------------------------
+# - Checking that gender is inferred correctly
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name,expected_gender,expected_num_evidence,expected_line_reference",
+    ### This test will only work where there is a single line of evidence for a gender inference
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of peopla to test
+    # (4) their expected gender
+    # (4) the expected number of pieces of evidence
+    # (4) the expected line reference for that evidence (will only be one in this test case)
+    [
+        # TEST: Are the gender inferences evidenced correctly
+        # Context: Repeated peorel (created for issue #75)
+        (
+            "peorel_content_B7",
+            "settings_basic.yaml",
+            "C",
+            "FEMALE",
+            2,
+            7
+        ),
+        # TEST: Are the gender inferences evidenced correctly
+        # Context: Repeated peorel (created for issue #75)
+        (
+            "peorel_content_B7",
+            "settings_basic.yaml",
+            "D",
+            "FEMALE",
+            2,
+            9
+        ),
+    ],
+)
+def test_gender_evidence_is_correct(
+    test_name,
+    settings_file,
+    peopla_name,
+    expected_gender,
+    expected_num_evidence,
+    expected_line_reference,
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for this_peopla in test_doc.all_peoplas:
+
+        if this_peopla.name == peopla_name:
+            observed_gender = this_peopla.attributes["GENDER"]["value"]
+            assert observed_gender == expected_gender
+
+            observed_evidence_list = this_peopla.attributes["GENDER"]["evidence"]
+            observed_num_evidences = len(observed_evidence_list)
+            assert observed_num_evidences == expected_num_evidence
+
+            for this_evidence_peorel in observed_evidence_list:
+                assert len(this_evidence_peorel.evidence_reference) == 1
+                assert this_evidence_peorel.evidence_reference.pop() == expected_line_reference
+
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 

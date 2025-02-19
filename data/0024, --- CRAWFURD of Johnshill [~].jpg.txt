@@ -214,7 +214,7 @@ V.	Jean Adam of the 3/4 land of Johnshill
 		Paisley 1813.
 ###	>	[CRAWFURD, Andrew](6)
 ###	>	vs[M'KINLAY, John]{4f3210e4-9a04-4a04-a30a-cacdf177008a}
-###			FRIEND
+###	>		FRIEND
 >		"mountebank": a person who deceives others
 >		"Lancaster": ... ?
 

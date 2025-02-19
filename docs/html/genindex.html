@@ -88,21 +88,24 @@ window.addEventListener("load", () => mermaid.run());
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  
 </div>
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="utils.html#utils.Peopla.add_attribute">add_attribute() (utils.Peopla method)</a>
+      <li><a href="utils.html#utils.ActionGroup">ActionGroup (class in utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -151,6 +154,26 @@ window.addEventListener("load", () => mermaid.run());
   </ul></td>
 </tr></table>
 
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#utils.extract_action_details">extract_action_details() (in module utils)</a>
+</li>
+      <li><a href="utils.html#utils.extract_action_scope">extract_action_scope() (in module utils)</a>
+</li>
+      <li><a href="utils.html#utils.extract_attribute_information">extract_attribute_information() (in module utils)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#utils.extract_peopla_details">extract_peopla_details() (in module utils)</a>
+</li>
+      <li><a href="utils.html#utils.extract_relation_details">extract_relation_details() (in module utils)</a>
+</li>
+      <li><a href="utils.html#utils.extract_relation_scope">extract_relation_scope() (in module utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -168,6 +191,8 @@ window.addEventListener("load", () => mermaid.run());
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#utils.gender_inference_from_relation">gender_inference_from_relation() (in module utils)</a>
+</li>
       <li><a href="utils.html#utils.Document.generate_table_from_datapoints">generate_table_from_datapoints() (utils.Document method)</a>
 </li>
   </ul></td>
@@ -183,6 +208,10 @@ window.addEventListener("load", () => mermaid.run());
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="utils.html#utils.CustomFormatter.info_format">info_format (utils.CustomFormatter attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#utils.is_action_group_directed">is_action_group_directed() (in module utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -212,16 +241,28 @@ window.addEventListener("load", () => mermaid.run());
   </ul></td>
 </tr></table>
 
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#utils.Peopla.new_add_action">new_add_action() (utils.Peopla method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="utils.html#utils.Peopla">Peopla (class in utils)</a>
 </li>
-      <li><a href="utils.html#utils.Document.print_header_information">print_header_information() (utils.Document method)</a>
+      <li><a href="utils.html#utils.Peorel">Peorel (class in utils)</a>
+</li>
+      <li><a href="utils.html#utils.Document.print_current_status">print_current_status() (utils.Document method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="utils.html#utils.Peopla.print_peopla">print_peopla() (utils.Peopla method)</a>
+      <li><a href="utils.html#utils.ActionGroup.print_description">print_description() (utils.ActionGroup method)</a>
+</li>
+      <li><a href="utils.html#utils.Document.print_header_information">print_header_information() (utils.Document method)</a>
 </li>
       <li><a href="utils.html#utils.Document.print_summary">print_summary() (utils.Document method)</a>
 </li>
@@ -235,8 +276,26 @@ window.addEventListener("load", () => mermaid.run());
 </li>
       <li><a href="utils.html#utils.read_settings_file">read_settings_file() (in module utils)</a>
 </li>
+      <li><a href="utils.html#utils.ActionGroup.record_evidence">record_evidence() (utils.ActionGroup method)</a>
+
+      <ul>
+        <li><a href="utils.html#utils.Peopla.record_evidence">(utils.Peopla method)</a>
+</li>
+        <li><a href="utils.html#utils.Peorel.record_evidence">(utils.Peorel method)</a>
+</li>
+      </ul></li>
+      <li><a href="utils.html#utils.Document.record_peopla">record_peopla() (utils.Document method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#utils.Document.record_peorel">record_peorel() (utils.Document method)</a>
+</li>
+      <li><a href="utils.html#utils.remove_all_leading_action_markup">remove_all_leading_action_markup() (in module utils)</a>
+</li>
+      <li><a href="utils.html#utils.remove_all_leading_peopla_markup">remove_all_leading_peopla_markup() (in module utils)</a>
+</li>
+      <li><a href="utils.html#utils.remove_all_leading_relation_markup">remove_all_leading_relation_markup() (in module utils)</a>
+</li>
       <li><a href="utils.html#utils.CustomFormatter.reset">reset (utils.CustomFormatter attribute)</a>
 </li>
       <li><a href="utils.html#utils.Document.reset">reset() (utils.Document method)</a>
@@ -266,8 +325,24 @@ window.addEventListener("load", () => mermaid.run());
   </ul></td>
 </tr></table>
 
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#utils.translate_attribute">translate_attribute() (in module utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#utils.ActionGroup.update_attribute">update_attribute() (utils.ActionGroup method)</a>
+
+      <ul>
+        <li><a href="utils.html#utils.Peopla.update_attribute">(utils.Peopla method)</a>
+</li>
+      </ul></li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     utils

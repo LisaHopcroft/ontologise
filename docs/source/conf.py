@@ -14,6 +14,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath("../../src/ontologise"))
 sys.path.insert(0, os.path.abspath("../../tests"))
+sys.path.insert(0, os.path.abspath("../.."))
 
 
 print( "sys.path locations (i.e., where Sphinx will look for code):")
@@ -39,7 +40,8 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
-    "sphinxcontrib.mermaid"
+    "sphinxcontrib.mermaid",
+    "sphinxarg.ext",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
