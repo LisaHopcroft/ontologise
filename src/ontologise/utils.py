@@ -283,8 +283,8 @@ class Peorel:
     def __str__(self):  # pragma: no cover
         evidence_string = ",".join(str(x) for x in self.evidence_reference)
 
-        s_out = f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name}\n"
-        s_out = s_out + "Evidence: lines " + evidence_string + "\n"
+        s_out = f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} "
+        s_out = s_out + "[Evidence: " + evidence_string + "]\n"
 
         return s_out
 
@@ -375,6 +375,15 @@ class Peopla:
                 s_out
                 + f"...and the following attributes:\n{log_pretty(self.attributes)}"
             )
+            
+            if 'GENDER' in self.attributes:
+                
+                print( self.attributes['GENDER']['evidence'] )
+
+                s_out = s_out + f"...further information for gender evidence (if we have it):\n"
+
+                for this_peorel_evidence in self.attributes['GENDER']['evidence']:
+                    s_out = s_out + format(this_peorel_evidence)
 
         return s_out
 
@@ -952,7 +961,8 @@ class Document:
 
                 logger.debug(f"The scope for this is: {relation_scope}")
 
-                to_peopla_list = self.current_target_peoplas
+                logger.debug("Current to_peopla_list (step 1) - the target peoplas")
+                logger.debug(to_peopla_list)
 
                 if relation_scope == "target":
                     logger.debug(
@@ -964,10 +974,12 @@ class Document:
                         f"This information is relevant for the source and target peopla"
                     )
                     logger.debug(
-                        f"Ned to add the current source peopla to the 'to' list"
+                        f"Need to add the current source peopla to the 'to' list"
                     )
 
                     to_peopla_list.append(self.current_source_peopla)
+                    logger.debug("Current to_peopla_list (step 2) - adding the source peoplas")
+                    logger.debug(to_peopla_list)
 
                 for this_to_peopla in to_peopla_list:
                     peorel_tmp = Peorel(
