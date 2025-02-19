@@ -1,4 +1,5 @@
 import re
+import os
 import yaml
 from collections import defaultdict
 import logging
@@ -500,8 +501,9 @@ class Document:
 
                 self.print_current_status(self.current_line, line)
 
-                if self.current_line >= pause_threshold:
-                    input()
+                if not "PYTEST_CURRENT_TEST" in os.environ:
+                    if self.current_line >= pause_threshold:
+                        input()
 
         ### flatten the datapoints into a table here
         self.data_points_df = self.generate_table_from_datapoints()
