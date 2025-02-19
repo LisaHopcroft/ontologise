@@ -961,6 +961,8 @@ class Document:
 
                 logger.debug(f"The scope for this is: {relation_scope}")
 
+                to_peopla_list = deepcopy(self.current_target_peoplas)
+                
                 logger.debug("Current to_peopla_list (step 1) - the target peoplas")
                 logger.debug(to_peopla_list)
 
