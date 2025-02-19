@@ -466,7 +466,7 @@ class Document:
             logger.info(f"Shortcut mappings provided:")
             logger.info(f"{log_pretty(self.shortcut_mappings)}")
 
-    def read_document(self, pause_flag=False):
+    def read_document(self, pause_threshold=1):
         """
         Reading a document
         """
@@ -500,7 +500,7 @@ class Document:
 
                 self.print_current_status(self.current_line, line)
 
-                if pause_flag:
+                if self.current_line >= pause_threshold:
                     input()
 
         ### flatten the datapoints into a table here

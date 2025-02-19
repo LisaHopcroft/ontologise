@@ -52,10 +52,13 @@ def ontologise():
     ### This argument requests a pause after reading each line
     parser.add_argument(
         "-p",
+        nargs='?',
+        const=1,
         dest="pause",
         required=False,
-        help="Pause after every line",
-        action="store_true",
+        help="Request a pause after a specific line (default = 1)",
+        metavar="INTEGER",
+        type=int
     )
 
     ### This argument sets the logging information
@@ -111,8 +114,8 @@ if __name__ == "__main__":
     ### If the file name is present, use it
     file_to_read = args.file.name
 
-    ### If the pause flag is present, set pause_flag to true
-    pause_flag = True if args.pause else False
+    ### If the pause flag is present, set pause_threshold to true
+    pause_threshold = args.pause
 
     ### If the settings file is missing, use the default one
     settings_to_use = None
@@ -130,7 +133,7 @@ if __name__ == "__main__":
 
     ### Do the parsing
     d = Document(file_to_read, settings_file=settings_to_use)
-    d.read_document(pause_flag)
+    d.read_document(pause_threshold)
 
     ### Print a summary of the results
     print(d)
