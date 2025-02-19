@@ -974,6 +974,8 @@ class Document:
                 },
             )
 
+            self.relation_live = False
+
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
             logger.debug(
