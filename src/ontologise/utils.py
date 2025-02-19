@@ -972,9 +972,11 @@ class Document:
                     f"The context tells us that the 'to' peopla for this peorel is the current source peopla: {self.current_source_peopla}"
                 )
 
+                relevant_source_peopla = self.current_source_peopla_breadcrumbs[self.current_relation_depth-1]
+
                 peorel_tmp = Peorel(
                     relation_peopla_is,
-                    self.current_source_peopla,
+                    relevant_source_peopla,
                     self.current_relation_text,
                     self.current_relation_depth,
                 )
@@ -996,10 +998,36 @@ class Document:
 
                 logger.debug(f"The scope for this is: {relation_scope}")
 
-                to_peopla_list = deepcopy(self.current_target_peoplas)
+                # -----------------------------
+
+                # print( f"The current target peopla breadcrumbs (to be used where relation depth is {self.current_relation_depth}):\n")
+
+                # num_target_breadcrumbs = len(self.current_target_peopla_breadcrumbs)
+
+                # print( f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n")
+
+                # for i,b in enumerate(self.current_target_peopla_breadcrumbs):
+                #     for j,bj in enumerate( b ):
+                #         print( f"TARGET [{i}.{j}] {format(bj)}\n" )
+
+                # relevant_to_peopla_list = deepcopy(self.current_target_peoplas)
+
+                # print( f"The relevant depth is {self.current_relation_depth}:\n")
+
+                # print( self.current_target_peopla_breadcrumbs[0] )
+                # for i, j in enumerate(self.current_target_peopla_breadcrumbs[0]):
+                #     print( f"{i}: {j.name}\n" )
+
+                relevant_to_peopla_list = [(self.current_target_peopla_breadcrumbs[0])[(self.current_relation_depth-1)]]
+
+                # input()
+
+
+                # _relevant_to_peopla_list = self.current_target_peopla_breadcrumbs[0]
+                # relevant_to_peopla_list = _relevant_to_peopla_list[(self.current_relation_depth-1)]
 
                 logger.debug("Current to_peopla_list (step 1) - the target peoplas")
-                logger.debug(to_peopla_list)
+                logger.debug(relevant_to_peopla_list)
 
                 if relation_scope == "target":
                     logger.debug(
@@ -1014,11 +1042,26 @@ class Document:
                         f"Need to add the current source peopla to the 'to' list"
                     )
 
-                    to_peopla_list.append(self.current_source_peopla)
-                    logger.debug("Current to_peopla_list (step 2) - adding the source peoplas")
-                    logger.debug(to_peopla_list)
+                    # # -----------------------------
 
-                for this_to_peopla in to_peopla_list:
+                    # print( f"The current source peopla breadcrumbs (to be used where relation depth is {self.current_relation_depth}):\n")
+
+                    # num_source_breadcrumbs = len(self.current_source_peopla_breadcrumbs)
+
+                    # print( f"---> There are {num_source_breadcrumbs} SOURCE peopla breadcrumbs populated:\n")
+
+                    # for i,b in enumerate(self.current_source_peopla_breadcrumbs):
+                    #     print( f"SOURCE [{i}] {format(b)}\n" )
+
+                    # # -----------------------------
+
+                    relevant_source_peopla = self.current_source_peopla_breadcrumbs[(self.current_relation_depth)-1]
+
+                    relevant_to_peopla_list.append(relevant_source_peopla)
+                    logger.debug("Current to_peopla_list (step 2) - adding the source peoplas")
+                    logger.debug(relevant_to_peopla_list)
+
+                for this_to_peopla in relevant_to_peopla_list:
                     peorel_tmp = Peorel(
                         relation_peopla_is,
                         this_to_peopla,
@@ -1322,21 +1365,40 @@ class Document:
 
             #########################################################
 
-            ### If we're making a brand new Peopla object, then everything needs to be reset
-            ### (1) reset what our source and target peoplas are
-            self.current_source_peopla = source_peopla
-            self.current_target_peoplas = []
+            ### If we're making a new Peopla object and we're at the top level,
+            ### then everything needs to be reset.
+            ### We don't want to reset everything otherwise, as we might be in
+            ### a string of relations and we don't want to loose the existing source
+            ### and target Peoplas (see the test test_gender_evidence_is_correct()
+            ### for example of a string of relations).
 
-            ### (2) reset relevant live flags
-            self.peopla_live = True
-            self.peopla_action_group_live = False
-            self.relation_live = False
-            self.relation_depth = 0
+            this_depth = len(re.findall(peopla_relation_depth_regex, line ))
 
-            ### (3) reset the source/target breadcrumbs
-            self.current_source_peopla_breadcrumbs = []
-            self.current_source_peopla_breadcrumbs.append(source_peopla)
-            self.current_target_peopla_breadcrumbs = []
+            if this_depth == 0:
+                ### (1) reset what our source and target peoplas are
+                self.current_source_peopla = source_peopla
+                self.current_target_peoplas = []
+
+                ### (2) reset relevant live flags
+                self.peopla_live = True
+                self.peopla_action_group_live = False
+                self.relation_live = False
+                self.relation_depth = 0
+
+                ### (3) reset the source/target breadcrumbs
+                self.current_source_peopla_breadcrumbs = []
+                self.current_source_peopla_breadcrumbs.append(source_peopla)
+                self.current_target_peopla_breadcrumbs = []
+            else:
+                self.current_source_peopla_breadcrumbs = update_breadcrumbs(
+                    deepcopy(self.current_source_peopla_breadcrumbs),
+                    deepcopy(self.current_relation_depth),
+                    deepcopy(source_peopla)
+                )
+
+                new_target_list = deepcopy(self.current_target_peopla_breadcrumbs)[:self.current_relation_depth]
+
+                self.current_target_peopla_breadcrumbs = new_target_list
 
     def scan_for_header_lines(self, line):
         """
@@ -1678,8 +1740,14 @@ def record_evidence(object, line_number):
     object.evidence_reference = sorted(set(existing_list))
 
 def update_breadcrumbs(existing_list, update_depth, update_object):
+    logger.debug(f"Updating breadcrumbs from this: {existing_list}\n")
+
     # Remove everything including the level that is to be updated
     new_list = existing_list[:(update_depth)]
     # Append the new object (this will be at the correct depth)
     new_list.append( update_object )
+    
+    logger.debug(f"to this: {new_list}\n")
+    # input()
+
     return( new_list )
