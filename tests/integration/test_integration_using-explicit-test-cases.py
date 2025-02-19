@@ -1155,18 +1155,29 @@ def test_gender_evidence_is_correct(
     # (4) the expected line reference for that evidence AS STRING (will only be one in this test case)
     [
         # TEST: Are the nested pedigrees being interpreted correctly?
-        ("nested_pedigree_A", "settings_basic.yaml", "C", "B", "DAUG", "7"),
-        ("nested_pedigree_A", "settings_basic.yaml", "C", "A", "DAUG", "7"),
-        ("nested_pedigree_A", "settings_basic.yaml", "E", "D", "DAUG", "10"),
-        ("nested_pedigree_A", "settings_basic.yaml", "E", "C", "DAUG", "10"),
-        ("nested_pedigree_A", "settings_basic.yaml", "G", "F", "DAUG", "13"),
-        ("nested_pedigree_A", "settings_basic.yaml", "G", "E", "DAUG", "13"),
-        ("nested_pedigree_A", "settings_basic.yaml", "I", "H", "DAUG", "16"),
-        ("nested_pedigree_A", "settings_basic.yaml", "I", "G", "DAUG", "16"),
-        ("nested_pedigree_A", "settings_basic.yaml", "K", "J", "DAUG", "19"),
-        ("nested_pedigree_A", "settings_basic.yaml", "K", "I", "DAUG", "19"),
-        ("nested_pedigree_A", "settings_basic.yaml", "M", "L", "DAUG", "21"),
-        ("nested_pedigree_A", "settings_basic.yaml", "M", "K", "DAUG", "21"),
+        # One continuous hierarchy
+        ("nested_pedigree_A1", "settings_basic.yaml", "C", "B", "DAUG", "7"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "C", "A", "DAUG", "7"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "E", "D", "DAUG", "10"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "E", "C", "DAUG", "10"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "G", "F", "DAUG", "13"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "G", "E", "DAUG", "13"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "I", "H", "DAUG", "16"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "I", "G", "DAUG", "16"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "K", "J", "DAUG", "19"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "K", "I", "DAUG", "19"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "M", "L", "DAUG", "22"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "M", "K", "DAUG", "22"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Two separate hierarchies
+        ("nested_pedigree_A2", "settings_basic.yaml", "C", "B", "DAUG", "7"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "C", "A", "DAUG", "7"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "E", "D", "DAUG", "10"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "E", "C", "DAUG", "10"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "H", "G", "DAUG", "16"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "H", "F", "DAUG", "16"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "J", "I", "DAUG", "19"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "J", "H", "DAUG", "19"),
     ],
 )
 def test_nested_pedigrees(
