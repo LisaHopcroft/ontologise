@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 from pandas import testing
 import sys
+from collections import defaultdict
 
 sys.path.append("src/ontologise")
 
@@ -1133,6 +1134,79 @@ def test_gender_evidence_is_correct(
                 assert len(this_evidence_peorel.evidence_reference) == 1
                 assert this_evidence_peorel.evidence_reference.pop() == expected_line_reference
 
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: inferring gender
+# -----------------------------------------------------------------
+# - Checking that gender is inferred correctly
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name_is,peopla_name_to,expected_relation_text,expected_line_reference",
+    ### This test will only work where there is a single line of evidence for a gender inference
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla 'is' to test
+    # (4) name of the peopla 'to' to test
+    # (4) the expected relation text
+    # (4) the expected line reference for that evidence AS STRING (will only be one in this test case)
+    [
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        ("nested_pedigree_A", "settings_basic.yaml", "C", "B", "DAUG", "7"),
+        ("nested_pedigree_A", "settings_basic.yaml", "C", "A", "DAUG", "7"),
+        ("nested_pedigree_A", "settings_basic.yaml", "E", "D", "DAUG", "10"),
+        ("nested_pedigree_A", "settings_basic.yaml", "E", "C", "DAUG", "10"),
+        ("nested_pedigree_A", "settings_basic.yaml", "G", "F", "DAUG", "13"),
+        ("nested_pedigree_A", "settings_basic.yaml", "G", "E", "DAUG", "13"),
+        ("nested_pedigree_A", "settings_basic.yaml", "I", "H", "DAUG", "16"),
+        ("nested_pedigree_A", "settings_basic.yaml", "I", "G", "DAUG", "16"),
+        ("nested_pedigree_A", "settings_basic.yaml", "K", "J", "DAUG", "19"),
+        ("nested_pedigree_A", "settings_basic.yaml", "K", "I", "DAUG", "19"),
+        ("nested_pedigree_A", "settings_basic.yaml", "M", "L", "DAUG", "21"),
+        ("nested_pedigree_A", "settings_basic.yaml", "M", "K", "DAUG", "21"),
+    ],
+)
+def test_nested_pedigrees(
+    test_name,
+    settings_file,
+    peopla_name_is,
+    peopla_name_to,
+    expected_relation_text,
+    expected_line_reference
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    observed_relations_dict = defaultdict(dict)
+
+    for this_peorel in test_doc.all_peorels:
+        evidence_string = ",".join(str(x) for x in this_peorel.evidence_reference)
+
+        if this_peorel.peopla_is.name not in observed_relations_dict:
+            observed_relations_dict[this_peorel.peopla_is.name] = {}
+
+        if this_peorel.peopla_to.name not in observed_relations_dict[this_peorel.peopla_is.name]:
+            observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name] = {}
+
+        observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name]['text'] = this_peorel.relation_text
+        observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name]['evidence'] = evidence_string
+
+    assert observed_relations_dict[peopla_name_is][peopla_name_to]['text'] == expected_relation_text
+    assert observed_relations_dict[peopla_name_is][peopla_name_to]['evidence'] == expected_line_reference
+    
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
