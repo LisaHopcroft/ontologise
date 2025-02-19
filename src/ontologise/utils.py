@@ -435,9 +435,13 @@ class Document:
         self.current_action = None
         self.current_source_peopla = None
         self.current_target_peoplas = []
+
+        self.current_source_peopla_breadcrumbs = []
+        self.current_target_peopla_breadcrumbs = []
+
         self.relation_live = False
         self.relation_text = None
-        self.relation_depth = None
+        self.relation_depth = 0
 
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
@@ -581,6 +585,32 @@ class Document:
 
         status_update = status_update + "------------------------------------\n"
 
+        ### Breadcrumbs ---------------------------------------------
+
+        status_update = status_update + f"The current source peopla breadcrumbs:\n"
+
+        num_source_breadcrumbs = len(self.current_source_peopla_breadcrumbs)
+
+        status_update = (
+            status_update
+            + f"---> There are {num_source_breadcrumbs} SOURCE peopla breadcrumbs populated:\n"
+        )
+
+        for i,b in enumerate(self.current_source_peopla_breadcrumbs):
+            status_update = status_update + f"SOURCE [{i}] {format(b)}\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + f"The current target peopla breadcrumbs:\n"
+
+        num_target_breadcrumbs = len(self.current_target_peopla_breadcrumbs)
+
+        status_update = status_update + f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n"
+
+        for i,b in enumerate(self.current_target_peopla_breadcrumbs):
+            for j,bj in enumerate( b ):
+                status_update = status_update + f"TARGET [{i}.{j}] {format(bj)}\n"
+
         ### Peorels -------------------------------------------------
 
         status_update = (
@@ -676,7 +706,7 @@ class Document:
             self.relation_live = False
 
             self.current_relation_text = None
-            self.current_relation_depth = None
+            self.current_relation_depth = 0
 
     def scan_for_shortcut_lines(self, line):
         """
@@ -962,7 +992,7 @@ class Document:
                 logger.debug(f"The scope for this is: {relation_scope}")
 
                 to_peopla_list = deepcopy(self.current_target_peoplas)
-                
+
                 logger.debug("Current to_peopla_list (step 1) - the target peoplas")
                 logger.debug(to_peopla_list)
 
@@ -1192,6 +1222,14 @@ class Document:
 
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
+            ### (3) reset the source/target breadcrumbs
+            # self.current_target_peopla_breadcrumbs[self.relation_depth] = self.current_target_peoplas
+            self.current_target_peopla_breadcrumbs = update_breadcrumbs(
+                deepcopy(self.current_target_peopla_breadcrumbs),
+                deepcopy(self.relation_depth),
+                deepcopy(self.current_target_peoplas),
+            )
+
             ### Open an action group
             self.peopla_action_group_live = True
             self.peopla_action_group_directed = direction_flag
@@ -1277,14 +1315,23 @@ class Document:
             source_peopla = self.record_peopla(source_peopla_tmp)
             record_evidence(source_peopla, self.current_line)
 
+            #########################################################
+
+            ### If we're making a brand new Peopla object, then everything needs to be reset
+            ### (1) reset what our source and target peoplas are
             self.current_source_peopla = source_peopla
             self.current_target_peoplas = []
 
-            #########################################################
-
+            ### (2) reset relevant live flags
             self.peopla_live = True
             self.peopla_action_group_live = False
             self.relation_live = False
+            self.relation_depth = 0
+
+            ### (3) reset the source/target breadcrumbs
+            self.current_source_peopla_breadcrumbs = []
+            self.current_source_peopla_breadcrumbs.append(source_peopla)
+            self.current_target_peopla_breadcrumbs = []
 
     def scan_for_header_lines(self, line):
         """
@@ -1624,3 +1671,10 @@ def record_evidence(object, line_number):
     existing_list = object.evidence_reference
     existing_list.append(line_number)
     object.evidence_reference = sorted(set(existing_list))
+
+def update_breadcrumbs(existing_list, update_depth, update_object):
+    # Remove everything including the level that is to be updated
+    new_list = existing_list[:(update_depth)]
+    # Append the new object (this will be at the correct depth)
+    new_list.append( update_object )
+    return( new_list )

@@ -23,6 +23,7 @@ from utils import (
     extract_action_details,
     is_action_group_directed,
     gender_inference_from_relation,
+    update_breadcrumbs,
 )
 
 
@@ -347,3 +348,25 @@ def test_extract_peopla_details(s, s_dict_expected):
 def test_gender_inference_from_relation(relation, gender_expected):
     gender_observed = gender_inference_from_relation(relation)
     assert gender_observed == gender_expected
+
+
+@pytest.mark.parametrize(
+    "input_list,update_depth,update_object,expected_output",
+    # parameters are:
+    # (1) an input list
+    # (2) the level at which to update
+    # (3) what to update this level with
+    # (4) the expected result
+    [
+        # TEST: Basic
+        ([], 0, "A", ["A"]),
+        (["B"], 0, "A", ["A"]),
+        (["B", "C"], 0, "A", ["A"]),
+        (["A"], 1, "B", ["A", "B"]),
+        (["A", "B"], 1, "C", ["A", "C"]),
+        (["A", "B", "C", "D"], 1, "C", ["A", "C"]),
+    ],
+)
+def test_breadcrumb_updates(input_list, update_depth, update_object, expected_output):
+    observed_output = update_breadcrumbs(input_list, update_depth, update_object)
+    assert observed_output == expected_output
