@@ -466,7 +466,7 @@ class Document:
             logger.info(f"Shortcut mappings provided:")
             logger.info(f"{log_pretty(self.shortcut_mappings)}")
 
-    def read_document(self):
+    def read_document(self, pause_flag = False):
         """
         Reading a document
         """
