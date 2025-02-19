@@ -204,9 +204,6 @@ class ActionGroup:
 
         return out_s
 
-    def record_evidence(self, line_number):
-        self.evidence_reference.append(line_number)
-
     def print_description(self):
         s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         s_info = s_info + f" involving the following source Peoplas\n"
@@ -291,9 +288,6 @@ class Peorel:
 
         return s_out
 
-    def record_evidence(self, line_number):
-        self.evidence_reference.append(line_number)
-
 
 class Peopla:
     """
@@ -319,9 +313,6 @@ class Peopla:
         logger.info(
             f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.local_id}) ({self.global_id})"
         )
-
-    def record_evidence(self, line_number):
-        self.evidence_reference.append(line_number)
 
     # def add_relationship(self, peorel):
 
@@ -436,6 +427,9 @@ class Document:
         self.current_source_peopla = None
         self.current_target_peoplas = []
         self.relation_live = False
+        self.relation_text = None
+        self.relation_depth = None
+
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
         #############################################################
@@ -633,6 +627,7 @@ class Document:
             "shortcut_live",
             "peopla_live",
             "peopla_action_group_live",
+            "relation_live",
             "data_table_live",
         ]
 
@@ -669,6 +664,10 @@ class Document:
             self.peopla_live = False
             self.data_table_live = False
             self.shortcut_live = False
+            self.relation_live = False
+
+            self.current_relation_text = None
+            self.current_relation_depth = None
 
     def scan_for_shortcut_lines(self, line):
         """
@@ -908,7 +907,7 @@ class Document:
             )
 
             relation_peopla_is = self.record_peopla(relation_peopla_is_tmp)
-            relation_peopla_is.record_evidence(self.current_line)
+            record_evidence(relation_peopla_is, self.current_line)
 
             logger.debug(
                 f"Found the target of a relation action: '{relation_peopla_is.name}'"
@@ -937,7 +936,7 @@ class Document:
                 )
 
                 this_new_peorel = self.record_peorel(peorel_tmp)
-                this_new_peorel.record_evidence(self.current_line)
+                record_evidence(this_new_peorel, self.current_line)
                 new_peorel.append(this_new_peorel)
 
             ### This is where we have a relation attached to an open ActionGroup
@@ -979,7 +978,7 @@ class Document:
                     )
 
                     this_new_peorel = self.record_peorel(peorel_tmp)
-                    this_new_peorel.record_evidence(self.current_line)
+                    record_evidence(this_new_peorel, self.current_line)
                     new_peorel.append(this_new_peorel)
 
             ### If we have a gendered relation, we can augment the Peopla with this
@@ -995,6 +994,8 @@ class Document:
             )
 
             self.relation_live = False
+            self.current_relation_text = None
+            self.current_relation_depth = None
 
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
@@ -1080,7 +1081,7 @@ class Document:
                         target_peoplas=self.current_target_peoplas,
                         attributes=inheritance_hash,
                     )
-                    ag.record_evidence(self.current_line)
+                    record_evidence(ag, self.current_line)
 
                     o = ag.print_description()
                     logger.info(o["info"])
@@ -1173,7 +1174,7 @@ class Document:
             )
 
             target_peopla = self.record_peopla(target_peopla_tmp)
-            target_peopla.record_evidence(self.current_line)
+            record_evidence(target_peopla, self.current_line)
 
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
@@ -1260,7 +1261,7 @@ class Document:
             )
 
             source_peopla = self.record_peopla(source_peopla_tmp)
-            source_peopla.record_evidence(self.current_line)
+            record_evidence(source_peopla, self.current_line)
 
             self.current_source_peopla = source_peopla
             self.current_target_peoplas = []
@@ -1603,3 +1604,9 @@ def gender_inference_from_relation(t):
     if t in relation_gender_mapping:
         inferred_gender = relation_gender_mapping[t]
     return inferred_gender
+
+
+def record_evidence(object, line_number):
+    existing_list = object.evidence_reference
+    existing_list.append(line_number)
+    object.evidence_reference = sorted(set(existing_list))
