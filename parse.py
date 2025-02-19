@@ -3,6 +3,7 @@ import logging
 import argparse
 import os.path
 import sys
+import math
 
 
 logging_level_mapping = {
@@ -54,6 +55,7 @@ def ontologise():
         "-p",
         nargs='?',
         const=1,
+        default=math.inf,
         dest="pause",
         required=False,
         help="Request a pause after a specific line (default = 1)",
