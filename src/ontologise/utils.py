@@ -498,7 +498,8 @@ class Document:
                     self.reset(line)
 
                 self.print_current_status(self.current_line, line)
-                # input()
+                
+                if pause_flag: input()
 
         ### flatten the datapoints into a table here
         self.data_points_df = self.generate_table_from_datapoints()

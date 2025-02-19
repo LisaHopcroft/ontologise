@@ -38,6 +38,15 @@ parser.add_argument(
     type=lambda x: is_valid_file(parser, x),
 )
 
+### This argument requests a pause after reading each line
+parser.add_argument(
+    "-p",
+    dest="pause",
+    required=False,
+    help="Pause after every line",
+    action="store_true",
+)
+
 
 ### This argument sets the logging information
 parser.add_argument(
@@ -96,6 +105,9 @@ if args.file is None:
 ### If the file name is present, use it
 file_to_read = args.file.name
 
+### If the pause flag is present, set pause_flag to true
+pause_flag = True if args.pause else False
+
 ### If the settings file is missing, use the default one
 settings_to_use = None
 
@@ -112,7 +124,7 @@ logger.debug(f"Settings to use: {settings_to_use}")
 
 ### Do the parsing
 d = Document(file_to_read, settings_file=settings_to_use)
-d.read_document()
+d.read_document(pause_flag)
 
 ### Print a summary of the results
 print(d)
