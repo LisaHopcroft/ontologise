@@ -54,9 +54,6 @@ window.addEventListener("load", () => mermaid.run());
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../about.html">About</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../prerequisites.html">Prerequisites</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../markdown.html">Dated: 2020-11-23</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../markdown.html#tags">TAGS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../markdown.html#context-parameters">Context parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../modules.html">ontologise</a></li>
 </ul>
 
@@ -99,6 +96,31 @@ window.addEventListener("load", () => mermaid.run());
 
 <span class="n">data_point_separator</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">t&quot;</span>
 
+<span class="c1">### Regexes to identify specific lines</span>
+<span class="n">empty_line_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\s+$&quot;</span>
+<span class="n">ignore_line_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^!.*$&quot;</span>
+<span class="n">header_line_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^##\w+:&quot;</span>
+<span class="n">shortcut_line_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t\^\d+:$&quot;</span>
+<span class="n">shortcut_definition_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t[^\*\[\]\{\}]+\*?$&quot;</span>
+<span class="n">peopla_line_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t@?\[.*\](\(.*\))?(\{.*\})?$&quot;</span>
+<span class="n">peopla_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$&quot;</span>
+<span class="n">peopla_attribute_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t(\()?\t[^\*]+\*?$&quot;</span>
+<span class="n">peopla_relation_line_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t(\()?(&gt;\t)+\*(.*)\*$&quot;</span>
+<span class="n">peopla_relation_depth_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&gt;\t&quot;</span>
+<span class="n">peopla_relation_string_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;\*(.*)\*&quot;</span>
+<span class="n">peopla_relation_target_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t(\()?(&gt;\t)+@?\[.*\](\(.*\))?(\{.*\})?$&quot;</span>
+<span class="n">peopla_relation_scope_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t(\(?&gt;).*$&quot;</span>
+
+<span class="n">action_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^([^\*]+)(\*)?$&quot;</span>
+<span class="n">action_attribute_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t(\()?\t\t[^\*]+\*?$&quot;</span>
+<span class="n">action_group_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t(vs|w/).*$&quot;</span>
+<span class="n">action_group_vs_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\tvs\[.*$&quot;</span>
+<span class="n">action_group_w_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\tw\/\[.*$&quot;</span>
+<span class="n">action_scope_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t(\S*)\t.*$&quot;</span>
+<span class="n">data_table_header_regex</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;^###</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">data_point_separator</span><span class="p">)</span><span class="si">}</span><span class="s2">.*$&quot;</span>
+<span class="n">data_table_linebreak_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^\[/\]$&quot;</span>
+<span class="n">data_table_id_regex</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^###\t\{.*\}$&quot;</span>
+<span class="n">data_table_end_regex</span> <span class="o">=</span> <span class="sa">rf</span><span class="s2">&quot;^###</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">data_point_separator</span><span class="p">)</span><span class="si">}</span><span class="s2">END$&quot;</span>
 
 
 <span class="c1"># Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output</span>
@@ -219,34 +241,234 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">global_id</span> <span class="o">=</span> <span class="nb">id</span></div></div>
 
 
+<div class="viewcode-block" id="ActionGroup"><a class="viewcode-back" href="../utils.html#utils.ActionGroup">[docs]</a><span class="k">class</span> <span class="nc">ActionGroup</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A ActionGroup involves two or more Peoplas</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">source_peopla</span><span class="o">=</span><span class="p">[],</span> <span class="n">target_peoplas</span><span class="o">=</span><span class="p">[],</span> <span class="n">attributes</span><span class="o">=</span><span class="p">{}</span>
+    <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">directed</span> <span class="o">=</span> <span class="n">directed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_peopla</span> <span class="o">=</span> <span class="n">source_peopla</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_peoplas</span> <span class="o">=</span> <span class="n">target_peoplas</span>
+
+        <span class="c1">### Aggributes of the Relationship itself</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">attributes</span>
+
+        <span class="c1"># description_text = self.print_description()</span>
+
+        <span class="c1">### Evidence reference (line number from original file)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># logger.info( description_text[&quot;info&quot;] )</span>
+        <span class="c1"># logger.debug( description_text[&quot;debug&quot;] )</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">out_s</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;directed&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">directed</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;undirected&#39;</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> ActionGroup</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">out_s</span> <span class="o">=</span> <span class="n">out_s</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;...involving the following source Peoplas:</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">peopla</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">source_peopla</span><span class="p">]):</span>
+            <span class="n">out_s</span> <span class="o">=</span> <span class="n">out_s</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">peopla</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">out_s</span> <span class="o">=</span> <span class="n">out_s</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;...involving </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_peoplas</span><span class="p">)</span><span class="si">}</span><span class="s2"> target Peoplas:</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">peopla</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_peoplas</span><span class="p">):</span>
+            <span class="n">out_s</span> <span class="o">=</span> <span class="n">out_s</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">peopla</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">out_s</span> <span class="o">=</span> <span class="n">out_s</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;...</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span><span class="p">)</span><span class="si">}</span><span class="s2"> evidence lines are:</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">line_number</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span><span class="p">):</span>
+            <span class="n">out_s</span> <span class="o">=</span> <span class="n">out_s</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">line_number</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">out_s</span>
+
+<div class="viewcode-block" id="ActionGroup.record_evidence"><a class="viewcode-back" href="../utils.html#utils.ActionGroup.record_evidence">[docs]</a>    <span class="k">def</span> <span class="nf">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_number</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_number</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ActionGroup.print_description"><a class="viewcode-back" href="../utils.html#utils.ActionGroup.print_description">[docs]</a>    <span class="k">def</span> <span class="nf">print_description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;directed&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">directed</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;undirected&#39;</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> ActionGroup,</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_info</span> <span class="o">=</span> <span class="n">s_info</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; involving the following source Peoplas</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">s_debug</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">peopla</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">source_peopla</span><span class="p">]):</span>
+            <span class="n">s_debug</span> <span class="o">=</span> <span class="n">s_debug</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">peopla</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">s_info</span> <span class="o">=</span> <span class="n">s_info</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; involving </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_peoplas</span><span class="p">)</span><span class="si">}</span><span class="s2"> target Peoplas</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">peopla</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_peoplas</span><span class="p">):</span>
+            <span class="n">s_debug</span> <span class="o">=</span> <span class="n">s_debug</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">peopla</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="n">s_info</span><span class="p">,</span> <span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="n">s_debug</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="ActionGroup.update_attribute"><a class="viewcode-back" href="../utils.html#utils.ActionGroup.update_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">update_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_text</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Adding attribute to ACTION GROUP object </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">: (</span><span class="si">{</span><span class="n">attribute_text</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">existing_attributes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">attribute_text</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
+            <span class="n">existing_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">attribute_text</span><span class="p">]</span>
+        <span class="n">updated_attributes</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">existing_attributes</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;This is what exists at the moment:</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">existing_attributes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;This is what needs to be added: </span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;This is what it is going to look like: </span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">updated_attributes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">attribute_text</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_attributes</span></div></div>
+
+
+<div class="viewcode-block" id="Peorel"><a class="viewcode-back" href="../utils.html#utils.Peorel">[docs]</a><span class="k">class</span> <span class="nc">Peorel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Peorel object - relationship between two people</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">peopla_is</span><span class="p">,</span> <span class="n">peopla_to</span><span class="p">,</span> <span class="n">relation_text</span><span class="p">,</span> <span class="n">relation_depth</span><span class="p">,</span> <span class="n">details_hash</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation_text</span> <span class="o">=</span> <span class="n">relation_text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation_depth</span> <span class="o">=</span> <span class="n">relation_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peopla_is</span> <span class="o">=</span> <span class="n">peopla_is</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peopla_to</span> <span class="o">=</span> <span class="n">peopla_to</span>
+
+        <span class="c1">### Attributes of the Peorel itself</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">details_hash</span>
+
+        <span class="c1">### Evidence reference (line number from original file)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Creating a PEOREL object: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">relation_text</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">peopla_to</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (depth=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">relation_depth</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1">### What needs to match for two PEOREL objects to be considered the same?</span>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">return_result</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_text</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">relation_text</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_depth</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">relation_depth</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">name</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_to</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">peopla_to</span><span class="o">.</span><span class="n">name</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">global_id</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">global_id</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">local_id</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">local_id</span>
+        <span class="p">):</span>
+            <span class="n">return_result</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">return_result</span>
+        <span class="c1"># return self.__dict__ == other.__dict__</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">evidence_string</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span><span class="p">)</span>
+
+        <span class="n">s_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is a </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">relation_text</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">peopla_to</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;Evidence: lines &quot;</span> <span class="o">+</span> <span class="n">evidence_string</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="n">s_out</span>
+
+<div class="viewcode-block" id="Peorel.record_evidence"><a class="viewcode-back" href="../utils.html#utils.Peorel.record_evidence">[docs]</a>    <span class="k">def</span> <span class="nf">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_number</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_number</span><span class="p">)</span></div></div>
+
+
 <div class="viewcode-block" id="Peopla"><a class="viewcode-back" href="../utils.html#utils.Peopla">[docs]</a><span class="k">class</span> <span class="nc">Peopla</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A Peopla object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">place_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">global_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">place_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">local_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">global_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">&quot;place&quot;</span> <span class="k">if</span> <span class="n">place_flag</span> <span class="k">else</span> <span class="s2">&quot;person&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">input</span>
+
+        <span class="c1">### Aggributes of the Peopla itself</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1">### Any ActionGroups that are relevant to this Peopla</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_groups</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1">### IDs for the Peoplas</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">global_id</span> <span class="o">=</span> <span class="n">global_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_id</span> <span class="o">=</span> <span class="n">local_id</span>
+
+        <span class="c1">### Evidence reference (line number from original file)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Creating a PEOPLA object: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">) (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Creating a PEOPLA object: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">) (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">local_id</span><span class="si">}</span><span class="s2">) (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="si">}</span><span class="s2">)&quot;</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="Peopla.add_attribute"><a class="viewcode-back" href="../utils.html#utils.Peopla.add_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">add_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_text</span><span class="p">,</span> <span class="n">inheritance</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">attribute_text</span><span class="p">]</span> <span class="o">=</span> <span class="n">inheritance</span>
+<div class="viewcode-block" id="Peopla.record_evidence"><a class="viewcode-back" href="../utils.html#utils.Peopla.record_evidence">[docs]</a>    <span class="k">def</span> <span class="nf">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_number</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_number</span><span class="p">)</span></div>
+
+    <span class="c1"># def add_relationship(self, peorel):</span>
+
+    <span class="c1">#     self.peorels = self.peorels + peorel</span>
+
+    <span class="c1">#     logger.info(</span>
+    <span class="c1">#         f&quot;Adding a {peorel} {peorel.type} relationship to PEOPLA object {self.name}&quot;</span>
+    <span class="c1">#     )</span>
+
+    <span class="c1">#     logger.debug(</span>
+    <span class="c1">#         f&quot;- {peorel.type} actor relationship to PEOPLA object {self.name}&quot;</span>
+    <span class="c1">#     )</span>
+
+<div class="viewcode-block" id="Peopla.new_add_action"><a class="viewcode-back" href="../utils.html#utils.Peopla.new_add_action">[docs]</a>    <span class="k">def</span> <span class="nf">new_add_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_text</span><span class="p">,</span> <span class="n">inheritance</span><span class="p">):</span>
+
+        <span class="c1"># self.attributes[attribute_text][&quot;secondary_peopla&quot;] = secondary_peopla</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;NEW Adding attribute to PEOPLA object </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: (</span><span class="si">{</span><span class="n">action_text</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This is what is to be inherited:</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">inheritance</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">action_text</span><span class="p">]</span> <span class="o">=</span> <span class="n">inheritance</span></div>
+
+<div class="viewcode-block" id="Peopla.update_attribute"><a class="viewcode-back" href="../utils.html#utils.Peopla.update_attribute">[docs]</a>    <span class="k">def</span> <span class="nf">update_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_text</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Adding attribute to PEOPLA object </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: (</span><span class="si">{</span><span class="n">attribute_text</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-<div class="viewcode-block" id="Peopla.print_peopla"><a class="viewcode-back" href="../utils.html#utils.Peopla.print_peopla">[docs]</a>    <span class="k">def</span> <span class="nf">print_peopla</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I found this </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> PEOPLA called </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;It has the following attributes:</span><span class="se">\n</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">existing_attributes</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">attribute_text</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
+            <span class="n">existing_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">attribute_text</span><span class="p">]</span>
+        <span class="n">updated_attributes</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">existing_attributes</span><span class="p">,</span> <span class="o">**</span><span class="n">d</span><span class="p">}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;This is what exists at the moment:</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">existing_attributes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;This is what needs to be added: </span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;This is what it is going to look like: </span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="n">updated_attributes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">attribute_text</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_attributes</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> PEOPLA called </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">evidence_string</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">evidence_reference</span><span class="p">)</span>
+
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;Evidence: lines &quot;</span> <span class="o">+</span> <span class="n">evidence_string</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;It has the following global ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+            <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;...with the global ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">global_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_id</span><span class="p">:</span>
+            <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;...with the local ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">local_id</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;...with no attributes</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s_out</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">s_out</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;...and the following attributes:</span><span class="se">\n</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">s_out</span></div>
 
 
 <div class="viewcode-block" id="Document"><a class="viewcode-back" href="../utils.html#utils.Document">[docs]</a><span class="k">class</span> <span class="nc">Document</span><span class="p">:</span>
@@ -262,6 +484,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating a document object from:</span><span class="se">\n</span><span class="s2"> - </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="se">\n</span><span class="s2"> - </span><span class="si">{</span><span class="n">settings_file</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_line</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="c1"># Read settings file</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading settings file: &#39;</span><span class="si">{</span><span class="n">settings_file</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
@@ -274,9 +497,31 @@ window.addEventListener("load", () => mermaid.run());
         <span class="bp">self</span><span class="o">.</span><span class="n">shortcut_live</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="c1"># Saving the Peopla objects</span>
+        <span class="c1">#############################################################</span>
+        <span class="c1">### OLD VERSION (being used for w/ relationships) ###########</span>
+        <span class="c1">#############################################################</span>
+        <span class="c1"># # Saving the Peopla objects</span>
+        <span class="c1"># self.peopla_live = False</span>
+        <span class="c1"># self.peoplas_primary = []</span>
+        <span class="c1"># # Saving the Peopla objects that are derived from action_groups</span>
+        <span class="c1"># self.peopla_action_group_live = False</span>
+        <span class="c1"># self.peoplas_secondary = []</span>
+        <span class="c1">#############################################################</span>
+
+        <span class="c1">#############################################################</span>
+        <span class="c1">### NEW VERSION (being used for the vs action groups) #######</span>
+        <span class="c1">#############################################################</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">peoplas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_peoplas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_peorels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_action</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation_live</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_live</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_directed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#############################################################</span>
 
         <span class="c1"># Saving the data tables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_table_live</span> <span class="o">=</span> <span class="kc">False</span>
@@ -305,16 +550,16 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shortcut mappings provided:&quot;</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">log_pretty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcut_mappings</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Document.read_document"><a class="viewcode-back" href="../utils.html#utils.Document.read_document">[docs]</a>    <span class="k">def</span> <span class="nf">read_document</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Document.read_document"><a class="viewcode-back" href="../utils.html#utils.Document.read_document">[docs]</a>    <span class="k">def</span> <span class="nf">read_document</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pause_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reading a document</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">line_num</span> <span class="o">=</span> <span class="mi">0</span>
+
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
-                <span class="n">line_num</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_line</span> <span class="o">+=</span> <span class="mi">1</span>
 
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading line #</span><span class="si">{</span><span class="n">line_num</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reading line #</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_line</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shortcut_live</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_shortcut_lines</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
@@ -322,25 +567,173 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_shortcut_lines</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_peopla_attributes</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_table_live</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_table_live</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_data_points</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_peopla_attributes</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
                     <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_data_table_header</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_header_lines</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">scan_for_peopla_lines</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="c1">### It is possible for there to be blank lines inside a peopla</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">print_current_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_line</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">pause_flag</span><span class="p">:</span>
+                    <span class="nb">input</span><span class="p">()</span>
 
         <span class="c1">### flatten the datapoints into a table here</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data_points_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_table_from_datapoints</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Document.reset"><a class="viewcode-back" href="../utils.html#utils.Document.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+<div class="viewcode-block" id="Document.print_current_status"><a class="viewcode-back" href="../utils.html#utils.Document.print_current_status">[docs]</a>    <span class="k">def</span> <span class="nf">print_current_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;=================================================================</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1">### Headers -------------------------------------------------</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;There are currently </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">)</span><span class="si">}</span><span class="s2"> header items</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">):</span>
+                <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Header item (</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Just read line number [</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;The content was [</span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="s2">&quot;------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">status_update</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_peoplas</span><span class="p">)</span><span class="si">}</span><span class="s2"> Peoplas recorded overall</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">pp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_peoplas</span><span class="p">):</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;---&gt; Peopla #(</span><span class="si">{</span><span class="n">ii</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="s2">&quot;------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">status_update</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;The current source Peopla is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;--&gt; Current source peopla attribute (</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;There is no current source Peopla</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="s2">&quot;------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">status_update</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;There are currently </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span><span class="p">)</span><span class="si">}</span><span class="s2"> target Peoplas</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span><span class="p">):</span>
+                <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">attributes</span><span class="p">):</span>
+                    <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">status_update</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;--&gt; Current target peopla attribute (</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">q</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">attributes</span><span class="p">)[</span><span class="n">q</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;------&gt; (</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;There is no current target Peopla</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="s2">&quot;------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="c1">### Peorels -------------------------------------------------</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">status_update</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_peorels</span><span class="p">)</span><span class="si">}</span><span class="s2"> Peorels recorded overall</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">pp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_peorels</span><span class="p">):</span>
+            <span class="n">evidence_string</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pp</span><span class="o">.</span><span class="n">evidence_reference</span><span class="p">)</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">status_update</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;---&gt; Peorel #(</span><span class="si">{</span><span class="n">ii</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is a </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">relation_text</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">pp</span><span class="o">.</span><span class="n">peopla_to</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> [refs: </span><span class="si">{</span><span class="n">evidence_string</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="s2">&quot;------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="c1">### Action groups -------------------------------------------</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">status_update</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;There are currently </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span><span class="p">)</span><span class="si">}</span><span class="s2"> Action Groups</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span><span class="p">):</span>
+                <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;    directed? </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">directed</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;    source peopla? </span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">source_peopla</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;    target peoplas? </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">target_peoplas</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">q</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">target_peoplas</span><span class="p">):</span>
+                    <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">status_update</span>
+                        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;------&gt; target peopla in action group (</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">q</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;    attributes? length = </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;------&gt; (</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">) </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="c1">### Indicators ----------------------------------------------</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="s2">&quot;------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">relevant_live_indicators</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;shortcut_live&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peopla_live&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;peopla_action_group_live&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;data_table_live&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">relevant_live_indicators</span><span class="p">:</span>
+            <span class="n">status_update</span> <span class="o">=</span> <span class="n">status_update</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;The [</span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s2">] flag is </span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">r</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">status_update</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">status_update</span>
+            <span class="o">+</span> <span class="s2">&quot;=================================================================&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">status_update</span><span class="p">)</span></div>
+
+        <span class="c1"># input()</span>
+
+<div class="viewcode-block" id="Document.reset"><a class="viewcode-back" href="../utils.html#utils.Document.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Considering reset with: &#39;</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\s+$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">empty_line_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Resetting peopla&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_table_live</span><span class="p">:</span>
@@ -362,11 +755,11 @@ window.addEventListener("load", () => mermaid.run());
 <div class="viewcode-block" id="Document.scan_for_shortcut_lines"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_shortcut_lines">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_shortcut_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Function that examines the current input file from file.</span>
-<span class="sd">        If it&#39;s format corresponds to a shortcut definition,</span>
+<span class="sd">        If its format corresponds to a shortcut definition,</span>
 <span class="sd">        a new shortcut object will be created and added to the</span>
 <span class="sd">        list of shortcuts that are attached to the Document.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\^\d+:$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">shortcut_line_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Identified shortcut line: &#39;</span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 
             <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\^(\d+):$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
@@ -387,7 +780,7 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">h</span></div>
 
 <div class="viewcode-block" id="Document.scan_for_shortcut_definition"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_shortcut_definition">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_shortcut_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t[^\*\[\]\{\}]+\*?$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">shortcut_definition_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found a short cut definition&quot;</span><span class="p">)</span>
 
             <span class="n">current_shortcut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -431,7 +824,7 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        data tables that are attached to the Document.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;^###</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">data_point_separator</span><span class="p">)</span><span class="si">}</span><span class="s2">.*$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data_table_header_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="c1">### Previous approach where only one caret was present:</span>
             <span class="c1"># m = re.search(</span>
             <span class="c1">#     rf&quot;^###{re.escape(data_point_separator)}([^\^]*)(\^\d+)?$&quot;, line</span>
@@ -505,6 +898,7 @@ window.addEventListener("load", () => mermaid.run());
                 <span class="n">DataTable</span><span class="p">(</span><span class="n">header_columns</span><span class="p">,</span> <span class="n">relevant_header_shortcuts_combined</span><span class="p">)</span>
             <span class="p">)</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data_table_live</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="Document.scan_for_data_points"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_data_points">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_data_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
@@ -512,14 +906,14 @@ window.addEventListener("load", () => mermaid.run());
 
         <span class="n">current_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_tables</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">rf</span><span class="s2">&quot;^###</span><span class="si">{</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">data_point_separator</span><span class="p">)</span><span class="si">}</span><span class="s2">END$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data_table_end_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;End of table&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data_table_live</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\[/\]$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data_table_linebreak_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ignore (line break not relevant)&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^!.*$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">ignore_line_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Ignore (line starts with !)&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\{.*\}$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">data_table_id_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\{(.*)\}$$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="n">global_id</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found a global identifer: </span><span class="si">{</span><span class="n">global_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -551,23 +945,367 @@ window.addEventListener("load", () => mermaid.run());
         <span class="k">return</span> <span class="n">datapoint_table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="Document.scan_for_peopla_attributes"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_peopla_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_peopla_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Looking for peopla attributes in </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\t[^\*]+\*?$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="c1"># if re.match(r&quot;^###\t(\(&gt;)?\t\*([^\*]*)\*$&quot;, line):</span>
+        <span class="c1">#     logger.debug(&quot;Found a relationship that belongs to the current secondary Peopla&quot;)</span>
+        <span class="c1"># elif re.match(r&quot;^###\t(&gt;)?\t\*([^\*]*)\*$&quot;, line):</span>
+        <span class="c1">#     logger.debug(&quot;Found a relationship that belongs to BOTH the primary and secondary Peopla&quot;)</span>
+        <span class="c1"># if re.match(r&quot;^###\t(\()?\&gt;\t(.*)$&quot;, line):</span>
+        <span class="c1">#     m = re.search(r&quot;^###\t(\()?\&gt;\t(.*)$&quot;, line)</span>
+        <span class="c1">#     scope_flag = &quot;both&quot; if m.group(1) is None else &quot;secondary&quot;</span>
+        <span class="c1">#     text_to_parse = m.group(2)</span>
+        <span class="c1">#     logger.debug( f&quot;This is the scope flag: &#39;{scope_flag}&#39;&quot; )</span>
+        <span class="c1">#     logger.debug(f&quot;This is the text to parse: &#39;{text_to_parse}&#39;&quot;)</span>
+
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">peopla_relation_line_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found a peopla relationship&quot;</span><span class="p">)</span>
+
+            <span class="n">relation_details</span> <span class="o">=</span> <span class="n">extract_relation_details</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Identified that a &#39;</span><span class="si">{</span><span class="n">relation_details</span><span class="p">[</span><span class="s1">&#39;relation_text&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; relationship is now live&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Context will dictate which Peopla are involved in that Peorel&quot;</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_relation_text</span> <span class="o">=</span> <span class="n">relation_details</span><span class="p">[</span><span class="s2">&quot;relation_text&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_relation_depth</span> <span class="o">=</span> <span class="n">relation_details</span><span class="p">[</span><span class="s2">&quot;relation_depth&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_live</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">peopla_relation_target_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_live</span><span class="p">:</span>
+            <span class="c1">### If we&#39;re in here, we&#39;ve got a relation open</span>
+            <span class="c1">### AND we have found what the target is of that relation</span>
+
+            <span class="n">peopla_content_parsed</span> <span class="o">=</span> <span class="n">extract_peopla_details</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="c1">### Who is the target of the relation?</span>
+            <span class="n">relation_peopla_is_tmp</span> <span class="o">=</span> <span class="n">Peopla</span><span class="p">(</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;place_flag&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;local_id&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;global_id&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+
+            <span class="n">relation_peopla_is</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_peopla</span><span class="p">(</span><span class="n">relation_peopla_is_tmp</span><span class="p">)</span>
+            <span class="n">relation_peopla_is</span><span class="o">.</span><span class="n">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_line</span><span class="p">)</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found the target of a relation action: &#39;</span><span class="si">{</span><span class="n">relation_peopla_is</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;This will be in relation to the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_relation_text</span><span class="si">}</span><span class="s2"> relation (depth=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_relation_depth</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;But need to work out who the &#39;to&#39; Peopla is&quot;</span><span class="p">)</span>
+
+            <span class="c1">### Creating this here so that we can catch it and record it as evidence</span>
+            <span class="c1">### in the case of gendered relations</span>
+            <span class="n">new_peorel</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1">### This is where we have a relation attached directly to a single Peopla</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_live</span><span class="p">:</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The context tells us that the &#39;to&#39; peopla for this peorel is the current source peopla: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">peorel_tmp</span> <span class="o">=</span> <span class="n">Peorel</span><span class="p">(</span>
+                    <span class="n">relation_peopla_is</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_relation_text</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_relation_depth</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">this_new_peorel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_peorel</span><span class="p">(</span><span class="n">peorel_tmp</span><span class="p">)</span>
+                <span class="n">this_new_peorel</span><span class="o">.</span><span class="n">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_line</span><span class="p">)</span>
+                <span class="n">new_peorel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_new_peorel</span><span class="p">)</span>
+
+            <span class="c1">### This is where we have a relation attached to an open ActionGroup</span>
+            <span class="c1">### It will be indicated with a ( as to whether the relation refers to</span>
+            <span class="c1">### to the target Peopla(s) only or to the source AND target peoplas</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">relation_scope</span> <span class="o">=</span> <span class="n">extract_relation_scope</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The context tells us that the &#39;to&#39; peopla for this peorel is something to do with the target peopla&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The scope for this is: </span><span class="si">{</span><span class="n">relation_scope</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="n">to_peopla_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span>
+
+                <span class="k">if</span> <span class="n">relation_scope</span> <span class="o">==</span> <span class="s2">&quot;target&quot;</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;This information is only relevant for the target peopla&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No need to do anything more&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;This information is relevant for the source and target peopla&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Ned to add the current source peopla to the &#39;to&#39; list&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="n">to_peopla_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">this_to_peopla</span> <span class="ow">in</span> <span class="n">to_peopla_list</span><span class="p">:</span>
+                    <span class="n">peorel_tmp</span> <span class="o">=</span> <span class="n">Peorel</span><span class="p">(</span>
+                        <span class="n">relation_peopla_is</span><span class="p">,</span>
+                        <span class="n">this_to_peopla</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">current_relation_text</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">current_relation_depth</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="n">this_new_peorel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_peorel</span><span class="p">(</span><span class="n">peorel_tmp</span><span class="p">)</span>
+                    <span class="n">this_new_peorel</span><span class="o">.</span><span class="n">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_line</span><span class="p">)</span>
+                    <span class="n">new_peorel</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_new_peorel</span><span class="p">)</span>
+
+            <span class="c1">### If we have a gendered relation, we can augment the Peopla with this</span>
+            <span class="c1">### Gender information. The evidence for this (i.e., the relevant Peorel</span>
+            <span class="c1">### objects should be recorded alongside this inference).</span>
+
+            <span class="n">relation_peopla_is</span><span class="o">.</span><span class="n">update_attribute</span><span class="p">(</span>
+                <span class="s2">&quot;GENDER&quot;</span><span class="p">,</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">gender_inference_from_relation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_relation_text</span><span class="p">),</span>
+                    <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="n">new_peorel</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_live</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">action_attribute_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found an attribute of an action&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;This will be in relation to the </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_action</span><span class="si">}</span><span class="s2"> action&quot;</span>
+            <span class="p">)</span>
+
+            <span class="n">action_scope</span> <span class="o">=</span> <span class="n">extract_action_scope</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="n">line_content</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###[\s\(]+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">extract_attribute_information</span><span class="p">(</span><span class="n">line_content</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Identified &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_action</span><span class="si">}</span><span class="s2">&#39; / &#39;</span><span class="si">{</span><span class="n">info</span><span class="si">}</span><span class="s2">&#39; &quot;</span>  <span class="c1"># / &#39;{peopla_to_update.name}&#39;&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_live</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="n">action_scope</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">:</span>
+                    <span class="c1">### This is an attribute for an action that occurs between</span>
+                    <span class="c1">### members of an action group. We need to update the action</span>
+                    <span class="c1">### group to have this attribute. So:</span>
+                    <span class="c1">### 1. Find the action group</span>
+                    <span class="c1">### 2. Add the attributes</span>
+
+                    <span class="c1">###logger.critical(&quot;This has not been implemented yet&quot;)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">update_attribute</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">current_action</span><span class="p">,</span> <span class="n">info</span>
+                    <span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">action_scope</span> <span class="o">==</span> <span class="s2">&quot;target&quot;</span><span class="p">:</span>
+                    <span class="c1">### This is only relevant for the LAST target peoplas</span>
+                    <span class="c1">### We need to add an attribute to a peopla</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">update_attribute</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">current_action</span><span class="p">,</span> <span class="n">info</span>
+                    <span class="p">)</span>
+
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Adding [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_action</span><span class="si">}</span><span class="s2">] attribute to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">### This is an attribute for an action that belongs to a Peopla</span>
+                <span class="c1">### that is not part of an action group. So:</span>
+                <span class="c1">### 1. Find the Peopla</span>
+                <span class="c1">### 2. Add the attributes</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span><span class="o">.</span><span class="n">update_attribute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_action</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">peopla_attribute_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found a peopla attribute&quot;</span><span class="p">)</span>
 
-            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t\t([^\*]+)(\*?)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
-            <span class="n">attribute_text</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-            <span class="n">inheritance_flag</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Identified &#39;</span><span class="si">{</span><span class="n">attribute_text</span><span class="si">}</span><span class="s2">&#39; / &#39;</span><span class="si">{</span><span class="n">inheritance_flag</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="c1"># m = re.search(r&quot;^###\t(\()?\t([^\*]+)(\*?)$&quot;, line)</span>
+            <span class="c1"># secondary_flag = False if m.group(1) is None else True</span>
+            <span class="c1"># attribute_text = m.group(2).rstrip()</span>
+            <span class="c1"># inheritance_flag = m.group(3).rstrip()</span>
+            <span class="n">action_scope</span> <span class="o">=</span> <span class="n">extract_action_scope</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">action_details</span> <span class="o">=</span> <span class="n">extract_action_details</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_action</span> <span class="o">=</span> <span class="n">action_details</span><span class="p">[</span><span class="s2">&quot;action_text&quot;</span><span class="p">]</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The action scope is </span><span class="si">{</span><span class="n">action_scope</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Identified &#39;</span><span class="si">{</span><span class="n">action_details</span><span class="p">[</span><span class="s1">&#39;action_text&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; / &#39;</span><span class="si">{</span><span class="n">action_details</span><span class="p">[</span><span class="s1">&#39;inheritance_flag&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
 
             <span class="n">inheritance_hash</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">if</span> <span class="n">inheritance_flag</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">action_details</span><span class="p">[</span><span class="s2">&quot;inheritance_flag&quot;</span><span class="p">]:</span>
                 <span class="n">inheritance_hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span>
                 <span class="n">inheritance_hash</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;TITLE&quot;</span><span class="p">)</span>
 
-            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">peoplas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">add_attribute</span><span class="p">(</span><span class="n">attribute_text</span><span class="p">,</span> <span class="n">inheritance_hash</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span> <span class="o">=</span> <span class="kc">True</span></div>
+            <span class="c1">### What we have found here is an action of an action group</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_live</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">action_scope</span> <span class="o">==</span> <span class="s2">&quot;both&quot;</span><span class="p">:</span>
+                    <span class="c1">### This is a description of an action between an action group</span>
+                    <span class="c1">### We need to make a action_group</span>
+
+                    <span class="n">ag</span> <span class="o">=</span> <span class="n">ActionGroup</span><span class="p">(</span>
+                        <span class="n">action_details</span><span class="p">[</span><span class="s2">&quot;action_text&quot;</span><span class="p">],</span>
+                        <span class="n">directed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_directed</span><span class="p">,</span>
+                        <span class="n">source_peopla</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span><span class="p">,</span>
+                        <span class="n">target_peoplas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span><span class="p">,</span>
+                        <span class="n">attributes</span><span class="o">=</span><span class="n">inheritance_hash</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">ag</span><span class="o">.</span><span class="n">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_line</span><span class="p">)</span>
+
+                    <span class="n">o</span> <span class="o">=</span> <span class="n">ag</span><span class="o">.</span><span class="n">print_description</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">])</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">o</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">])</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span> <span class="o">+</span> <span class="p">[</span><span class="n">ag</span><span class="p">]</span>
+
+                <span class="k">elif</span> <span class="n">action_scope</span> <span class="o">==</span> <span class="s2">&quot;target&quot;</span><span class="p">:</span>
+                    <span class="c1">### This is only relevant for the LAST target peoplas</span>
+                    <span class="c1">### We need to add an attribute to a peopla</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">current_action</span> <span class="o">=</span> <span class="n">action_details</span><span class="p">[</span><span class="s2">&quot;action_text&quot;</span><span class="p">]</span>
+
+                    <span class="c1">### If this information is relevant for the primary Peopla</span>
+                    <span class="c1">### AND we have a action_group currently live (i.e., a secondary</span>
+                    <span class="c1">### Peopla that is part of this action_group) then that secondary</span>
+                    <span class="c1">### Peopla should be recorded as part of the action_group</span>
+                    <span class="c1"># secondary_peopla_object = None</span>
+                    <span class="c1"># if not secondary_flag and self.peopla_action_group_live:</span>
+                    <span class="c1">#     logger.debug(</span>
+                    <span class="c1">#         f&quot;This is information that defines a action_group between two Peoplas&quot;</span>
+                    <span class="c1">#     )</span>
+                    <span class="c1">#     logger.debug(f&quot;1. primary  : {self.peoplas_primary[-1].name}&quot;)</span>
+                    <span class="c1">#     logger.debug(f&quot;2. secondary: {self.peoplas_secondary[-1].name}&quot;)</span>
+                    <span class="c1">#     secondary_peopla_object = self.peoplas_secondary[-1]</span>
+
+                    <span class="c1">### Work out which Peopla we should update with the information -</span>
+                    <span class="c1">### the primary or the secondary Peopla</span>
+                    <span class="c1"># peopla_to_update = (</span>
+                    <span class="c1">#     (self.peoplas_secondary[-1])</span>
+                    <span class="c1">#     if secondary_flag</span>
+                    <span class="c1">#     else (self.peoplas_primary[-1])</span>
+                    <span class="c1"># )</span>
+                    <span class="c1"># logger.critical(&quot;This has not been implemented yet&quot;)</span>
+
+                    <span class="k">for</span> <span class="n">tp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Adding [</span><span class="si">{</span><span class="n">action_details</span><span class="p">[</span><span class="s1">&#39;action_text&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">] attribute to </span><span class="si">{</span><span class="n">tp</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+
+                        <span class="n">tp</span><span class="o">.</span><span class="n">update_attribute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_action</span><span class="p">,</span> <span class="n">inheritance_hash</span><span class="p">)</span>
+
+            <span class="c1">### What we have found here is an action of a Peopla</span>
+            <span class="c1">### (the current Source peopla)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_action</span> <span class="o">=</span> <span class="n">action_details</span><span class="p">[</span><span class="s2">&quot;action_text&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span><span class="o">.</span><span class="n">new_add_action</span><span class="p">(</span>
+                    <span class="n">action_details</span><span class="p">[</span><span class="s2">&quot;action_text&quot;</span><span class="p">],</span> <span class="n">inheritance_hash</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Maybe this shouldn&#39;t be removed????</span>
+            <span class="c1"># self.peopla_live = True</span>
+
+        <span class="c1"># elif re.match(r&quot;^###\tw/.*$&quot;, line):</span>
+        <span class="c1">#     logger.debug(&quot;Found a peopla action_group&quot;)</span>
+
+        <span class="c1">#     peopla_content = re.sub(r&quot;^###\s+&quot;, &quot;&quot;, line)</span>
+
+        <span class="c1">#     logger.debug(f&quot;Parsed out this content: {peopla_content}&quot;)</span>
+
+        <span class="c1">#     peopla_content_parsed = extract_peopla_details(peopla_content)</span>
+
+        <span class="c1">#     self.peoplas_secondary.append(</span>
+        <span class="c1">#         Peopla(</span>
+        <span class="c1">#             peopla_content_parsed[&quot;content&quot;],</span>
+        <span class="c1">#             peopla_content_parsed[&quot;place_flag&quot;],</span>
+        <span class="c1">#             peopla_content_parsed[&quot;local_id&quot;],</span>
+        <span class="c1">#             peopla_content_parsed[&quot;global_id&quot;],</span>
+        <span class="c1">#         )</span>
+        <span class="c1">#     )</span>
+
+        <span class="c1">#     ### Open an action group</span>
+        <span class="c1">#     self.peopla_action_group_live = True</span>
+        <span class="c1">#     self.peopla_action_group_directed = False</span>
+
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">action_group_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found an ActionGroup&quot;</span><span class="p">)</span>
+
+            <span class="c1"># peopla_content = remove_all_leading_markup(line)</span>
+            <span class="c1"># logger.debug(f&quot;Parsed out this content: {peopla_content}&quot;)</span>
+
+            <span class="n">peopla_content_parsed</span> <span class="o">=</span> <span class="n">extract_peopla_details</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="n">direction_flag</span> <span class="o">=</span> <span class="n">is_action_group_directed</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="n">target_peopla_tmp</span> <span class="o">=</span> <span class="n">Peopla</span><span class="p">(</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;place_flag&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;local_id&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;global_id&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+
+            <span class="n">target_peopla</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_peopla</span><span class="p">(</span><span class="n">target_peopla_tmp</span><span class="p">)</span>
+            <span class="n">target_peopla</span><span class="o">.</span><span class="n">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_line</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span> <span class="o">+</span> <span class="p">[</span><span class="n">target_peopla</span><span class="p">]</span>
+
+            <span class="c1">### Open an action group</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_live</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_directed</span> <span class="o">=</span> <span class="n">direction_flag</span></div>
+
+<div class="viewcode-block" id="Document.record_peopla"><a class="viewcode-back" href="../utils.html#utils.Document.record_peopla">[docs]</a>    <span class="k">def</span> <span class="nf">record_peopla</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+
+        <span class="n">peopla_ref</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="n">already_recorded</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">this_p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_peoplas</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">this_p</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">this_p</span><span class="o">.</span><span class="n">local_id</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">local_id</span> <span class="ow">or</span> <span class="n">this_p</span><span class="o">.</span><span class="n">global_id</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">global_id</span>
+            <span class="p">):</span>
+                <span class="n">already_recorded</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">peopla_ref</span> <span class="o">=</span> <span class="n">this_p</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">already_recorded</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This is a new Peopla that should be recorded (</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">all_peoplas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_peoplas</span> <span class="o">+</span> <span class="p">[</span><span class="n">peopla_ref</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;We have already seen this peopla (</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">peopla_ref</span></div>
+
+<div class="viewcode-block" id="Document.record_peorel"><a class="viewcode-back" href="../utils.html#utils.Document.record_peorel">[docs]</a>    <span class="k">def</span> <span class="nf">record_peorel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr</span><span class="p">):</span>
+
+        <span class="n">peorel_ref</span> <span class="o">=</span> <span class="n">pr</span>
+        <span class="n">already_recorded</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">this_peorel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_peorels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">this_peorel</span> <span class="o">==</span> <span class="n">pr</span><span class="p">:</span>
+                <span class="n">already_recorded</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">peorel_ref</span> <span class="o">=</span> <span class="n">this_peorel</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">already_recorded</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;This is a new Peorel that should be recorded (</span><span class="si">{</span><span class="n">pr</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">pr</span><span class="o">.</span><span class="n">relation_text</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">pr</span><span class="o">.</span><span class="n">peopla_to</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">all_peorels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_peorels</span> <span class="o">+</span> <span class="p">[</span><span class="n">peorel_ref</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;We have already seen this peorel (</span><span class="si">{</span><span class="n">pr</span><span class="o">.</span><span class="n">peopla_is</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">pr</span><span class="o">.</span><span class="n">relation_text</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">pr</span><span class="o">.</span><span class="n">peopla_to</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">peorel_ref</span></div>
 
 <div class="viewcode-block" id="Document.scan_for_peopla_lines"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_peopla_lines">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_peopla_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -576,16 +1314,44 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        will be created and added to the list of PEOPLA that are</span>
 <span class="sd">        attached to the Document.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t@?\[.*\](\{.*\})?$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t(\@?)\[(.*?)\](\{.*\})?$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
-            <span class="n">place_flag</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">global_id</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
-                <span class="n">global_id</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[\{\}]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Identified &#39;</span><span class="si">{</span><span class="n">place_flag</span><span class="si">}</span><span class="s2">&#39; / &#39;</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&#39; / &#39;</span><span class="si">{</span><span class="n">global_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">peoplas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Peopla</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">place_flag</span> <span class="o">==</span> <span class="s2">&quot;@&quot;</span><span class="p">,</span> <span class="n">global_id</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">peopla_line_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="c1"># m = re.search(r&quot;^###\t(\@?)\[(.*?)\](\(.*\))?(\{.*\})?$&quot;, line)</span>
+            <span class="c1"># place_flag = m.group(1)</span>
+            <span class="c1"># content = m.group(2)</span>
+            <span class="c1"># local_id = None</span>
+            <span class="c1"># if m.group(3):</span>
+            <span class="c1">#     local_id = re.sub(&quot;[\(\)]&quot;, &quot;&quot;, m.group(3))</span>
+            <span class="c1"># global_id = None</span>
+            <span class="c1"># if m.group(4):</span>
+            <span class="c1">#     global_id = re.sub(&quot;[\{\}]&quot;, &quot;&quot;, m.group(4))</span>
+            <span class="c1"># logger.debug(</span>
+            <span class="c1">#     f&quot;Identified &#39;{place_flag}&#39; / &#39;{content}&#39; / &#39;{local_id}&#39;/ &#39;{global_id}&#39;&quot;</span>
+            <span class="c1"># )</span>
+            <span class="c1"># self.peoplas_primary.append(Peopla(content, place_flag == &quot;@&quot;, local_id, global_id))</span>
+
+            <span class="c1">### New version #########################################</span>
+            <span class="c1"># peopla_content = remove_all_leading_markup(line)</span>
+            <span class="c1"># logger.debug(f&quot;Parsed out this content: {peopla_content}&quot;)</span>
+            <span class="n">peopla_content_parsed</span> <span class="o">=</span> <span class="n">extract_peopla_details</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+            <span class="n">source_peopla_tmp</span> <span class="o">=</span> <span class="n">Peopla</span><span class="p">(</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;place_flag&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;local_id&quot;</span><span class="p">],</span>
+                <span class="n">peopla_content_parsed</span><span class="p">[</span><span class="s2">&quot;global_id&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+
+            <span class="n">source_peopla</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_peopla</span><span class="p">(</span><span class="n">source_peopla_tmp</span><span class="p">)</span>
+            <span class="n">source_peopla</span><span class="o">.</span><span class="n">record_evidence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_line</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_source_peopla</span> <span class="o">=</span> <span class="n">source_peopla</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_target_peoplas</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1">#########################################################</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">peopla_live</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">peopla_action_group_live</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_live</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 <div class="viewcode-block" id="Document.scan_for_header_lines"><a class="viewcode-back" href="../utils.html#utils.Document.scan_for_header_lines">[docs]</a>    <span class="k">def</span> <span class="nf">scan_for_header_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -599,7 +1365,7 @@ window.addEventListener("load", () => mermaid.run());
             <span class="n">content</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;TITLE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding TITLE header attribute &#39;</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^##\w+:&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">header_line_regex</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^##(.*?):\s+(.*?)$&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
             <span class="n">flag</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -614,6 +1380,47 @@ window.addEventListener("load", () => mermaid.run());
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">key</span><span class="si">:{</span><span class="bp">self</span><span class="o">.</span><span class="n">header_length</span><span class="si">}}</span><span class="s2"> </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compiling a toString for a document</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Document parsed = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">key</span><span class="si">:{</span><span class="bp">self</span><span class="o">.</span><span class="n">header_length</span><span class="si">}}</span><span class="s2"> </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;Shortcuts:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">):</span>
+            <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">]</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;All Peoplas:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_peoplas</span><span class="p">):</span>
+            <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;All Peorels:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_peorels</span><span class="p">):</span>
+            <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;All ActionGroups:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span><span class="p">):</span>
+            <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">)</span><span class="si">}</span><span class="s2"> data points</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="n">s_out</span> <span class="o">=</span> <span class="n">s_out</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points_df</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">s_out</span>
+
 <div class="viewcode-block" id="Document.print_summary"><a class="viewcode-back" href="../utils.html#utils.Document.print_summary">[docs]</a>    <span class="k">def</span> <span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Printing a summary of a document</span>
@@ -621,13 +1428,27 @@ window.addEventListener("load", () => mermaid.run());
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Document parsed = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">print_header_information</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">peoplas</span><span class="p">:</span>
-            <span class="n">p</span><span class="o">.</span><span class="n">print_peopla</span><span class="p">()</span>
-
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Shortcuts:&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shortcuts</span><span class="p">)</span>
 
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">)</span><span class="si">}</span><span class="s2"> data points&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All Peoplas:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_peoplas</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
 
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All Peorels:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_peorels</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All ActionGroups:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_action_groups</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">] &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---------------------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points</span><span class="p">)</span><span class="si">}</span><span class="s2"> data points&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_points_df</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Document.get_header_information"><a class="viewcode-back" href="../utils.html#utils.Document.get_header_information">[docs]</a>    <span class="k">def</span> <span class="nf">get_header_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
@@ -635,6 +1456,235 @@ window.addEventListener("load", () => mermaid.run());
 <span class="sd">        Returning the value for a specific flag in a document header</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">flag</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="extract_attribute_information"><a class="viewcode-back" href="../utils.html#utils.extract_attribute_information">[docs]</a><span class="k">def</span> <span class="nf">extract_attribute_information</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse details from an attribute line.</span>
+<span class="sd">    Examples of attribute lines:</span>
+<span class="sd">    - @[SCO, REN, LWH, Johnshill] (belongs to, e.g., OF)</span>
+<span class="sd">    - :[1762-06] (belongs to, e.g., BORN)</span>
+<span class="sd">    - :[1810-11-&gt;1818] (belongs to, e.g., EDUCATED)</span>
+<span class="sd">    - :[1819-12-&gt;] (belongs to, e.g., HEALTH)</span>
+<span class="sd">    - :[1820-&gt;]~ (belongs to, e.g., RESIDED)</span>
+<span class="sd">    - CONDITION[Typhus fever] (belongs to, e.g., HEALTH)</span>
+<span class="sd">    - ROLE[Clerk] (belongs to, e.g., OCC)</span>
+<span class="sd">    - DUR[1 yr] (belongs to, e.g., OCC)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(.*)\[(.*)\](~)?$&quot;</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">translate_attribute</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">approx_flag</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;approx. </span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">approx_flag</span> <span class="k">else</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span></div>
+
+
+<span class="c1">### This is what we could do with Python 3.10</span>
+<span class="c1"># def translate(x):</span>
+<span class="c1">#     match x:</span>
+<span class="c1">#         case &#39;:&#39;:</span>
+<span class="c1">#             return &quot;DATE&quot;</span>
+<span class="c1">#         case &#39;@&#39;:</span>
+<span class="c1">#             return &quot;AT&quot;</span>
+<span class="c1">#         case _:</span>
+<span class="c1">#             return x</span>
+<div class="viewcode-block" id="translate_attribute"><a class="viewcode-back" href="../utils.html#utils.translate_attribute">[docs]</a><span class="k">def</span> <span class="nf">translate_attribute</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;:&quot;</span><span class="p">:</span> <span class="s2">&quot;DATE&quot;</span><span class="p">,</span> <span class="s2">&quot;@&quot;</span><span class="p">:</span> <span class="s2">&quot;AT&quot;</span><span class="p">,}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="remove_all_leading_peopla_markup"><a class="viewcode-back" href="../utils.html#utils.remove_all_leading_peopla_markup">[docs]</a><span class="k">def</span> <span class="nf">remove_all_leading_peopla_markup</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes markup, but retains the @ for place peoplas</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###[^@]*(\@?)(\[)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\1\2&quot;</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="remove_all_leading_action_markup"><a class="viewcode-back" href="../utils.html#utils.remove_all_leading_action_markup">[docs]</a><span class="k">def</span> <span class="nf">remove_all_leading_action_markup</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes markup, but retains the @ for place peoplas</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t(\S*)\t&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="remove_all_leading_relation_markup"><a class="viewcode-back" href="../utils.html#utils.remove_all_leading_relation_markup">[docs]</a><span class="k">def</span> <span class="nf">remove_all_leading_relation_markup</span><span class="p">(</span><span class="n">l</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes markup</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^###\t&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="extract_peopla_details"><a class="viewcode-back" href="../utils.html#utils.extract_peopla_details">[docs]</a><span class="k">def</span> <span class="nf">extract_peopla_details</span><span class="p">(</span><span class="n">l0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse details from a peopla line.</span>
+<span class="sd">    Examples of peopla lines:</span>
+<span class="sd">    - ###   [ADAM, Jean](5){80071ca9-d47a-4cb6-b283-f96ce7ad1618}</span>
+<span class="sd">    - ###   [CRAWFURD, Andrew](x){5cf88045-6337-428c-ab5b-8ea9b1a50103}</span>
+<span class="sd">    - ###   [M&#39;TURK, Michael]</span>
+<span class="sd">    - ###   [M&#39;TURK, Michael]*</span>
+<span class="sd">    - ###   @[SCO, REN, LWH, Johnshill]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">l1</span> <span class="o">=</span> <span class="n">remove_all_leading_peopla_markup</span><span class="p">(</span><span class="n">l0</span><span class="p">)</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">peopla_regex</span><span class="p">,</span> <span class="n">l1</span><span class="p">)</span>
+
+    <span class="n">place_flag</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
+    <span class="n">with_flag</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">local_id</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[\(\)]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+    <span class="n">global_id</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;[\{\}]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+    <span class="n">inheritance_flag</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;New method for extracting peopla details:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - is place flag present? &#39;</span><span class="si">{</span><span class="n">place_flag</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - is a with flag present? &#39;</span><span class="si">{</span><span class="n">with_flag</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - content is? &#39;</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - local_id provided? &#39;</span><span class="si">{</span><span class="n">local_id</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - global_id provided? &#39;</span><span class="si">{</span><span class="n">global_id</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - inheritance flag provided? &#39;</span><span class="si">{</span><span class="n">inheritance_flag</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">peopla_info_dictionary</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;place_flag&quot;</span><span class="p">:</span> <span class="n">place_flag</span><span class="p">,</span>
+        <span class="s2">&quot;with_flag&quot;</span><span class="p">:</span> <span class="n">with_flag</span><span class="p">,</span>
+        <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">content</span><span class="p">,</span>
+        <span class="s2">&quot;local_id&quot;</span><span class="p">:</span> <span class="n">local_id</span><span class="p">,</span>
+        <span class="s2">&quot;global_id&quot;</span><span class="p">:</span> <span class="n">global_id</span><span class="p">,</span>
+        <span class="s2">&quot;inheritance_flag&quot;</span><span class="p">:</span> <span class="n">inheritance_flag</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">peopla_info_dictionary</span></div>
+
+
+<div class="viewcode-block" id="extract_relation_scope"><a class="viewcode-back" href="../utils.html#utils.extract_relation_scope">[docs]</a><span class="k">def</span> <span class="nf">extract_relation_scope</span><span class="p">(</span><span class="n">l0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract details of the scope of an action</span>
+<span class="sd">    This</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">peopla_relation_scope_regex</span><span class="p">,</span> <span class="n">l0</span><span class="p">)</span>
+
+    <span class="n">scope</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">scope_indicator</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">scope_indicator</span> <span class="o">==</span> <span class="s2">&quot;&gt;&quot;</span><span class="p">:</span>
+            <span class="n">scope</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span>
+        <span class="k">elif</span> <span class="n">scope_indicator</span> <span class="o">==</span> <span class="s2">&quot;(&gt;&quot;</span><span class="p">:</span>
+            <span class="n">scope</span> <span class="o">=</span> <span class="s2">&quot;target&quot;</span>
+
+    <span class="k">return</span> <span class="n">scope</span></div>
+
+
+<div class="viewcode-block" id="extract_action_scope"><a class="viewcode-back" href="../utils.html#utils.extract_action_scope">[docs]</a><span class="k">def</span> <span class="nf">extract_action_scope</span><span class="p">(</span><span class="n">l0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract details of the scope of an action</span>
+<span class="sd">    This </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">action_scope_regex</span><span class="p">,</span> <span class="n">l0</span><span class="p">)</span>
+
+    <span class="n">scope_indicator</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">scope_indicator</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="n">scope</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span>
+    <span class="k">elif</span> <span class="n">scope_indicator</span> <span class="o">==</span> <span class="s2">&quot;(&quot;</span><span class="p">:</span>
+        <span class="n">scope</span> <span class="o">=</span> <span class="s2">&quot;target&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scope</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">scope</span></div>
+
+
+<div class="viewcode-block" id="extract_relation_details"><a class="viewcode-back" href="../utils.html#utils.extract_relation_details">[docs]</a><span class="k">def</span> <span class="nf">extract_relation_details</span><span class="p">(</span><span class="n">l0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse details from a relation line.</span>
+<span class="sd">    Examples of action lines:</span>
+<span class="sd">    - ###	&gt;	*SON*</span>
+<span class="sd">    - ###	&gt;	&gt;	*DAUG*</span>
+<span class="sd">    - ###	&gt;	*FATHER*</span>
+<span class="sd">    Where the closed vocabulary is:</span>
+<span class="sd">    * SON</span>
+<span class="sd">    * DAUG</span>
+<span class="sd">    * FATHER</span>
+<span class="sd">    * MOTHER</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">l1</span> <span class="o">=</span> <span class="n">remove_all_leading_relation_markup</span><span class="p">(</span><span class="n">l0</span><span class="p">)</span>
+
+    <span class="n">relation_depth</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">peopla_relation_depth_regex</span><span class="p">,</span> <span class="n">l1</span><span class="p">))</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">peopla_relation_string_regex</span><span class="p">,</span> <span class="n">l1</span><span class="p">)</span>
+    <span class="n">relation_text</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Extracting relationship information:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - relationship depth ? &#39;</span><span class="si">{</span><span class="n">relation_depth</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - relationship text ? &#39;</span><span class="si">{</span><span class="n">relation_text</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">relationship_info_dictionary</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;relation_text&quot;</span><span class="p">:</span> <span class="n">relation_text</span><span class="p">,</span>
+        <span class="s2">&quot;relation_depth&quot;</span><span class="p">:</span> <span class="n">relation_depth</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">relationship_info_dictionary</span></div>
+
+
+<div class="viewcode-block" id="extract_action_details"><a class="viewcode-back" href="../utils.html#utils.extract_action_details">[docs]</a><span class="k">def</span> <span class="nf">extract_action_details</span><span class="p">(</span><span class="n">l0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse details from a action line.</span>
+<span class="sd">    Examples of action lines:</span>
+<span class="sd">    - ###	(	OF</span>
+<span class="sd">    - ###       PROPRIETOR*</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">l1</span> <span class="o">=</span> <span class="n">remove_all_leading_action_markup</span><span class="p">(</span><span class="n">l0</span><span class="p">)</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">action_regex</span><span class="p">,</span> <span class="n">l1</span><span class="p">)</span>
+    <span class="n">action_text</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+    <span class="n">inheritance_flag</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">True</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;New method for extracting action details:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - attribute_text is ? &#39;</span><span class="si">{</span><span class="n">action_text</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; - inheritance flag provided? &#39;</span><span class="si">{</span><span class="n">inheritance_flag</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">action_info_dictionary</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;action_text&quot;</span><span class="p">:</span> <span class="n">action_text</span><span class="p">,</span>
+        <span class="s2">&quot;inheritance_flag&quot;</span><span class="p">:</span> <span class="n">inheritance_flag</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">action_info_dictionary</span></div>
+
+
+<div class="viewcode-block" id="is_action_group_directed"><a class="viewcode-back" href="../utils.html#utils.is_action_group_directed">[docs]</a><span class="k">def</span> <span class="nf">is_action_group_directed</span><span class="p">(</span><span class="n">l0</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">action_group_vs_regex</span><span class="p">,</span> <span class="n">l0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">action_group_w_regex</span><span class="p">,</span> <span class="n">l0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<span class="n">relation_gender_mapping</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;DAUG&quot;</span><span class="p">:</span> <span class="s2">&quot;FEMALE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;MOTHER&quot;</span><span class="p">:</span> <span class="s2">&quot;FEMALE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SON&quot;</span><span class="p">:</span> <span class="s2">&quot;MALE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FATHER&quot;</span><span class="p">:</span> <span class="s2">&quot;MALE&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="gender_inference_from_relation"><a class="viewcode-back" href="../utils.html#utils.gender_inference_from_relation">[docs]</a><span class="k">def</span> <span class="nf">gender_inference_from_relation</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="n">inferred_gender</span> <span class="o">=</span> <span class="s2">&quot;UNKNOWN&quot;</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">relation_gender_mapping</span><span class="p">:</span>
+        <span class="n">inferred_gender</span> <span class="o">=</span> <span class="n">relation_gender_mapping</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">inferred_gender</span></div>
 </pre></div>
 
            </div>

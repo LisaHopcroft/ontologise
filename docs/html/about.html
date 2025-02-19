@@ -47,7 +47,13 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">About</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">About</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-arguments">Command line arguments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#named-arguments">Named Arguments</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="prerequisites.html">Prerequisites</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">ontologise</a></li>
 </ul>
@@ -86,6 +92,37 @@ sources.</p>
 <li><p><a class="reference external" href="https://github.com/LisaHopcroft/ontologise">Github repo</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/ontologise/#description">PyPI package</a></p></li>
 </ul>
+<section id="command-line-arguments">
+<h2>Command line arguments<a class="headerlink" href="#command-line-arguments" title="Permalink to this heading"></a></h2>
+<p><p>Parsing Ontologise markup documents</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">parse</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">-</span><span class="n">i</span> <span class="n">FILE</span> <span class="p">[</span><span class="o">-</span><span class="n">s</span> <span class="n">SETTINGS</span> <span class="n">YAML</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">p</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">q</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">l</span> <span class="n">LOGGING</span> <span class="n">LEVEL</span><span class="p">]</span>
+</pre></div>
+</div>
+<section id="named-arguments">
+<h3>Named Arguments<a class="headerlink" href="#named-arguments" title="Permalink to this heading"></a></h3>
+<dl class="option-list">
+<dt><kbd>-i</kbd></dt>
+<dd><p>A file using the Ontologise markup format</p>
+</dd>
+<dt><kbd>-s</kbd></dt>
+<dd><p>The settings for the parsing</p>
+</dd>
+<dt><kbd>-p</kbd></dt>
+<dd><p>Pause after every line</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>-q</kbd></dt>
+<dd><p>Suppress any logging messages</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>-l</kbd></dt>
+<dd><p>Possible choices: critical, error, warn, warning, info, debug</p>
+<p>The logging level</p>
+</dd>
+</dl>
+</section>
+</section>
 </section>
 
 
