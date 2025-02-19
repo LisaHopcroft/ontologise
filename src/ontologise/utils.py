@@ -284,7 +284,7 @@ class Peorel:
         evidence_string = ",".join(str(x) for x in self.evidence_reference)
 
         s_out = f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} "
-        s_out = s_out + "[Evidence: " + evidence_string + "]\n"
+        s_out = s_out + "[Evidence: " + evidence_string + "]"
 
         return s_out
 
@@ -383,7 +383,7 @@ class Peopla:
                 s_out = s_out + f"...further information for gender evidence (if we have it):\n"
 
                 for this_peorel_evidence in self.attributes['GENDER']['evidence']:
-                    s_out = s_out + format(this_peorel_evidence)
+                    s_out = s_out + format(this_peorel_evidence) + "\n"
 
         return s_out
 
