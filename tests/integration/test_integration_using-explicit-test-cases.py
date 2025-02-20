@@ -84,36 +84,16 @@ def test_peopla_attributes_of_attributes(
     [
         # TEST: Are the peoplas evidenced correctly
         # Context: 1 peopla with one line of evidence
-        (
-            "peopla_content_D",
-            "settings_basic.yaml",
-            "A, B",
-            [7],
-        ),
+        ("peopla_content_D", "settings_basic.yaml", "A, B", [7],),
         # TEST: Are the peoplas evidenced correctly
         # Context: 1 peopla with multiple lines of evidence
-        (
-            "peopla_content_E1",
-            "settings_basic.yaml",
-            "A, B",
-            [7, 11],
-        ),
+        ("peopla_content_E1", "settings_basic.yaml", "A, B", [7, 11],),
         # TEST: Are the peoplas evidenced correctly
         # Context: 1 peopla with one line of evidence as a Peopla target
-        (
-            "peopla_content_E2",
-            "settings_basic.yaml",
-            "C, D",
-            [9],
-        ),
+        ("peopla_content_E2", "settings_basic.yaml", "C, D", [9],),
         # TEST: Are the peoplas evidenced correctly
         # Context: 1 peopla with multiple lines of evidence
-        (
-            "peopla_content_F9",
-            "settings_basic.yaml",
-            "A, B",
-            [7, 18],
-        ),
+        ("peopla_content_F9", "settings_basic.yaml", "A, B", [7, 18],),
     ],
 )
 def test_peopla_evidence_recording(
@@ -158,44 +138,16 @@ def test_peopla_evidence_recording(
     [
         # TEST: Are the peorels evidenced correctly
         # Context: 1 peorel with one line of evidence
-        (
-            "peorel_content_A1",
-            "settings_basic.yaml",
-            "B",
-            "SON",
-            "A",
-            [6],
-        ),
+        ("peorel_content_A1", "settings_basic.yaml", "B", "SON", "A", [6],),
         # TEST: Are the peorels evidenced correctly
         # Context: 1 peorel with two lines of evidence
-        (
-            "peorel_content_A2",
-            "settings_basic.yaml",
-            "B",
-            "SON",
-            "A",
-            [6, 10],
-        ),
+        ("peorel_content_A2", "settings_basic.yaml", "B", "SON", "A", [6, 10],),
         # TEST: Are the peorels evidenced correctly
         # Context: 1 peorel with one line of evidence
-        (
-            "peorel_content_B1",
-            "settings_basic.yaml",
-            "B",
-            "SON",
-            "A",
-            [7],
-        ),
+        ("peorel_content_B1", "settings_basic.yaml", "B", "SON", "A", [7],),
         # TEST: Are the peorels evidenced correctly
         # Context: 1 peorel with one line of evidence
-        (
-            "peorel_content_B2",
-            "settings_basic.yaml",
-            "B",
-            "SON",
-            "A",
-            [7],
-        ),
+        ("peorel_content_B2", "settings_basic.yaml", "B", "SON", "A", [7],),
     ],
 )
 def test_peorel_evidence_recording(
@@ -223,9 +175,11 @@ def test_peorel_evidence_recording(
         ### Print for information
         print(p)
         ### Collect global IDs
-        if ( p.peopla_is.name == peopla_is_name and 
-        p.peopla_to.name == peopla_to_name and
-        p.relation_text == peopla_relation ):
+        if (
+            p.peopla_is.name == peopla_is_name
+            and p.peopla_to.name == peopla_to_name
+            and p.relation_text == peopla_relation
+        ):
             assert p.evidence_reference == expected_evidence_list
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -270,74 +224,25 @@ def test_peorel_evidence_recording(
         ),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_E1",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "P",
-            [9],
-        ),
+        ("peopla_content_E1", "settings_basic.yaml", "A, B", "C, D", "P", [9],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_E1",
-            "settings_basic.yaml",
-            "A, B",
-            "E, F",
-            "Q",
-            [13],
-        ),
+        ("peopla_content_E1", "settings_basic.yaml", "A, B", "E, F", "Q", [13],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_E2",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "P",
-            [10],
-        ),
+        ("peopla_content_E2", "settings_basic.yaml", "A, B", "C, D", "P", [10],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_E3",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "Y",
-            [11],
-        ),
+        ("peopla_content_E3", "settings_basic.yaml", "A, B", "C, D", "Y", [11],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_Ex",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "Y",
-            [11],
-        ),
+        ("peopla_content_Ex", "settings_basic.yaml", "A, B", "C, D", "Y", [11],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_Ex",
-            "settings_basic.yaml",
-            "A, B",
-            "E, F",
-            "Z",
-            [16],
-        ),
+        ("peopla_content_Ex", "settings_basic.yaml", "A, B", "E, F", "Z", [16],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_F9",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "Y",
-            [16],
-        ),
+        ("peopla_content_F9", "settings_basic.yaml", "A, B", "C, D", "Y", [16],),
     ],
 )
 def test_actiongroup_evidence_recording(
@@ -970,6 +875,7 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
+
 # -----------------------------------------------------------------
 # Integration test cases: inferring gender
 # -----------------------------------------------------------------
@@ -985,54 +891,24 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
     # (4) global IDs of those peoplas
     [
         # TEST: Checking that SON generates MALE
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "C",
-            "MALE",
-            "A",
-            "SON",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "C", "MALE", "A", "SON",),
         # TEST: Checking that FATHER generates MALE
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "F",
-            "MALE",
-            "D",
-            "FATHER",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "F", "MALE", "D", "FATHER",),
         # TEST: Checking that DAUG generates FEMALE
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "I",
-            "FEMALE",
-            "G",
-            "DAUG",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "I", "FEMALE", "G", "DAUG",),
         # TEST: Checking that MOTHER generates FEMALE
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "L",
-            "FEMALE",
-            "J",
-            "MOTHER",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "L", "FEMALE", "J", "MOTHER",),
         # TEST: Checking that anything ungendered generates UNKNOWN
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "O",
-            "UNKNOWN",
-            "M",
-            "X",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "O", "UNKNOWN", "M", "X",),
     ],
 )
 def test_gender_inference_from_relations(
-    test_name, settings_file, peopla_name, expected_gender, expected_peorel_to, expected_peorel_relation
+    test_name,
+    settings_file,
+    peopla_name,
+    expected_gender,
+    expected_peorel_to,
+    expected_peorel_relation,
 ):
 
     content_f = DATA_DIR / f"{test_name}.txt"
@@ -1124,7 +1000,10 @@ def test_gender_evidence_is_correct(
 
             for this_evidence_peorel in observed_evidence_list:
                 assert len(this_evidence_peorel.evidence_reference) == 1
-                assert this_evidence_peorel.evidence_reference.pop() == expected_line_reference
+                assert (
+                    this_evidence_peorel.evidence_reference.pop()
+                    == expected_line_reference
+                )
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
@@ -1163,11 +1042,7 @@ def test_gender_evidence_is_correct(
         ("nested_pedigree_A7", "settings_basic.yaml", 4),
     ],
 )
-def test_nested_pedigree_num_relations(
-    test_name,
-    settings_file,
-    expected_num_peorel
-):
+def test_nested_pedigree_num_relations(test_name, settings_file, expected_num_peorel):
 
     content_f = DATA_DIR / f"{test_name}.txt"
     settings_f = SETTINGS_DIR / settings_file
@@ -1255,7 +1130,7 @@ def test_nested_pedigree_relations_that_should_be_recorded(
     peopla_name_is,
     peopla_name_to,
     expected_relation_text,
-    expected_line_reference
+    expected_line_reference,
 ):
 
     content_f = DATA_DIR / f"{test_name}.txt"
@@ -1278,15 +1153,30 @@ def test_nested_pedigree_relations_that_should_be_recorded(
         if this_peorel.peopla_is.name not in observed_relations_dict:
             observed_relations_dict[this_peorel.peopla_is.name] = {}
 
-        if this_peorel.peopla_to.name not in observed_relations_dict[this_peorel.peopla_is.name]:
-            observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name] = {}
+        if (
+            this_peorel.peopla_to.name
+            not in observed_relations_dict[this_peorel.peopla_is.name]
+        ):
+            observed_relations_dict[this_peorel.peopla_is.name][
+                this_peorel.peopla_to.name
+            ] = {}
 
-        observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name]['text'] = this_peorel.relation_text
-        observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name]['evidence'] = evidence_string
+        observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name][
+            "text"
+        ] = this_peorel.relation_text
+        observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name][
+            "evidence"
+        ] = evidence_string
 
-    assert observed_relations_dict[peopla_name_is][peopla_name_to]['text'] == expected_relation_text
-    assert observed_relations_dict[peopla_name_is][peopla_name_to]['evidence'] == expected_line_reference
-    
+    assert (
+        observed_relations_dict[peopla_name_is][peopla_name_to]["text"]
+        == expected_relation_text
+    )
+    assert (
+        observed_relations_dict[peopla_name_is][peopla_name_to]["evidence"]
+        == expected_line_reference
+    )
+
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 

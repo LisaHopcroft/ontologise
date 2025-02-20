@@ -386,7 +386,7 @@ def test_breadcrumb_updates(input_list, update_depth, update_object, expected_ou
     [
         # TEST: Basic
         ([], 1, [None]),
-        ([None], 2, [None,None]),
+        ([None], 2, [None, None]),
         (["A"], 1, ["A"]),
         (["A"], 2, ["A", None]),
     ],

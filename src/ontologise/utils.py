@@ -288,7 +288,9 @@ class Peorel:
     def __str__(self):  # pragma: no cover
         evidence_string = ",".join(str(x) for x in self.evidence_reference)
 
-        s_out = f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} "
+        s_out = (
+            f"{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} "
+        )
         s_out = s_out + "[Evidence: " + evidence_string + "]"
 
         return s_out
@@ -380,14 +382,17 @@ class Peopla:
                 s_out
                 + f"...and the following attributes:\n{log_pretty(self.attributes)}"
             )
-            
-            if 'GENDER' in self.attributes:
-                
-                print( self.attributes['GENDER']['evidence'] )
 
-                s_out = s_out + f"...further information for gender evidence (if we have it):\n"
+            if "GENDER" in self.attributes:
 
-                for this_peorel_evidence in self.attributes['GENDER']['evidence']:
+                print(self.attributes["GENDER"]["evidence"])
+
+                s_out = (
+                    s_out
+                    + f"...further information for gender evidence (if we have it):\n"
+                )
+
+                for this_peorel_evidence in self.attributes["GENDER"]["evidence"]:
                     s_out = s_out + format(this_peorel_evidence) + "\n"
 
         return s_out
@@ -602,7 +607,7 @@ class Document:
             + f"---> There are {num_source_breadcrumbs} SOURCE peopla breadcrumbs populated:\n"
         )
 
-        for i,b in enumerate(self.current_source_peopla_breadcrumbs):
+        for i, b in enumerate(self.current_source_peopla_breadcrumbs):
             status_update = status_update + f"SOURCE [{i}] {format(b)}\n"
 
         status_update = status_update + "------------------------------------\n"
@@ -611,11 +616,14 @@ class Document:
 
         num_target_breadcrumbs = len(self.current_target_peopla_breadcrumbs)
 
-        status_update = status_update + f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n"
+        status_update = (
+            status_update
+            + f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n"
+        )
 
-        for i,b in enumerate(self.current_target_peopla_breadcrumbs):
+        for i, b in enumerate(self.current_target_peopla_breadcrumbs):
             if b:
-                for j,bj in enumerate( b ):
+                for j, bj in enumerate(b):
                     status_update = status_update + f"TARGET [{i}.{j}] {format(bj)}\n"
             else:
                 status_update = status_update + f"TARGET [{i}] is absent\n"
@@ -977,7 +985,9 @@ class Document:
                     f"The context tells us that the 'to' peopla for this peorel is the current source peopla: {self.current_source_peopla}"
                 )
 
-                relevant_source_peopla = self.current_source_peopla_breadcrumbs[self.current_breadcrumb_depth-1]
+                relevant_source_peopla = self.current_source_peopla_breadcrumbs[
+                    self.current_breadcrumb_depth - 1
+                ]
 
                 print(
                     f"*** The 'is' peopla is {relation_peopla_is.name}\n",
@@ -1029,7 +1039,11 @@ class Document:
 
                 # print( f"The relevant depth is {self.current_relation_depth}:\n")
 
-                relevant_to_peopla_list = deepcopy(self.current_target_peopla_breadcrumbs[(self.current_breadcrumb_depth-1)])
+                relevant_to_peopla_list = deepcopy(
+                    self.current_target_peopla_breadcrumbs[
+                        (self.current_breadcrumb_depth - 1)
+                    ]
+                )
                 tt = ""
                 for n, x in enumerate(self.current_target_peoplas):
                     tt = f"{tt}[{n}] {x.name}\n"
@@ -1042,11 +1056,10 @@ class Document:
                     f"*** The current_target_peopla (as breadcrumbs) is\n",
                     self.print_target_breadcrumbs(),
                     f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
-                    f"*** There are {len(relevant_to_peopla_list)} relevant target_peopla\n"
+                    f"*** There are {len(relevant_to_peopla_list)} relevant target_peopla\n",
                 )
 
                 # input()
-
 
                 # _relevant_to_peopla_list = self.current_target_peopla_breadcrumbs[0]
                 # relevant_to_peopla_list = _relevant_to_peopla_list[(self.current_relation_depth-1)]
@@ -1080,10 +1093,14 @@ class Document:
 
                     # # -----------------------------
 
-                    relevant_source_peopla = self.current_source_peopla_breadcrumbs[(self.current_breadcrumb_depth)-1]
+                    relevant_source_peopla = self.current_source_peopla_breadcrumbs[
+                        (self.current_breadcrumb_depth) - 1
+                    ]
 
                     relevant_to_peopla_list.append(relevant_source_peopla)
-                    logger.debug("Current to_peopla_list (step 2) - adding the source peoplas")
+                    logger.debug(
+                        "Current to_peopla_list (step 2) - adding the source peoplas"
+                    )
                     logger.debug(relevant_to_peopla_list)
 
                     print(
@@ -1092,9 +1109,8 @@ class Document:
                         f"*** The current_source_peopla (as breadcrumbs) is\n",
                         self.print_source_breadcrumbs(),
                         f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
-                        f"*** There are now {len(relevant_to_peopla_list)} relevant 'to' peopla\n"
+                        f"*** There are now {len(relevant_to_peopla_list)} relevant 'to' peopla\n",
                     )
-
 
                 for this_to_peopla in set(relevant_to_peopla_list):
                     peorel_tmp = Peorel(
@@ -1304,32 +1320,33 @@ class Document:
             record_evidence(target_peopla, self.current_line)
 
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
-            #self.current_target_peoplas.append(target_peopla)
+            # self.current_target_peoplas.append(target_peopla)
 
             # new_target_peoplas = []
-            
+
             # if self.current_breadcrumb_depth <= (len(self.current_target_peopla_breadcrumbs)-1):
             #     new_target_peoplas = deepcopy(self.current_target_peopla_breadcrumbs[self.current_breadcrumb_depth])
-            
+
             new_target_peoplas = [target_peopla]
 
-            print(f"^^^^^^^^^^^^^^^^^^^^^ num target peoplas { len(new_target_peoplas) }")
+            print(
+                f"^^^^^^^^^^^^^^^^^^^^^ num target peoplas { len(new_target_peoplas) }"
+            )
             for n, t in enumerate(new_target_peoplas):
                 print(f"^^^^^^^^^^^^^^^^^^^^^ ({n}) {t}")
-            
 
             ### (3) reset the source/target breadcrumbs
             # self.current_target_peopla_breadcrumbs[self.relation_depth] = self.current_target_peoplas
 
-            print( f"IN HERE __________{line}\n" )
-            print( f"IN HERE __________{get_depth(line)}")
+            print(f"IN HERE __________{line}\n")
+            print(f"IN HERE __________{get_depth(line)}")
 
             self.current_target_peopla_breadcrumbs = update_breadcrumbs(
                 deepcopy(self.current_target_peopla_breadcrumbs),
                 self.current_breadcrumb_depth,
                 # deepcopy(self.current_target_peoplas),
                 new_target_peoplas,
-                "TARGET"
+                "TARGET",
             )
 
             ### Open an action group
@@ -1362,27 +1379,24 @@ class Document:
 
         o = f"BREADCRUMBS | SOURCE | {n} populated breadcrumbs\n"
 
-        for i,b in enumerate(self.current_source_peopla_breadcrumbs):
+        for i, b in enumerate(self.current_source_peopla_breadcrumbs):
             o = o + f"BREADCRUMBS | SOURCE | [{i}] {format(b)}\n"
 
-        return( o )
+        return o
 
     def print_target_breadcrumbs(self):
         n = len(self.current_target_peopla_breadcrumbs)
 
         o = f"BREADCRUMBS | TARGET | {n} populated breadcrumbs\n"
 
-        for i,b in enumerate(self.current_target_peopla_breadcrumbs):
+        for i, b in enumerate(self.current_target_peopla_breadcrumbs):
             if b:
-                for j,bj in enumerate( b ):
+                for j, bj in enumerate(b):
                     o = o + f"BREADCRUMBS | TARGET | [{i}.{j}] {format(bj)}\n"
             else:
                 o = o + f"BREADCRUMBS | TARGET | [{i}] is absent\n"
 
-        return( o )
-
-
-
+        return o
 
     def record_peorel(self, pr):
 
@@ -1453,7 +1467,7 @@ class Document:
             ### and target Peoplas (see the test test_gender_evidence_is_correct()
             ### for example of a string of relations).
 
-            this_depth = len(re.findall(peopla_relation_depth_regex, line ))
+            this_depth = len(re.findall(peopla_relation_depth_regex, line))
 
             if this_depth == 0:
                 ### (1) reset what our source and target peoplas are
@@ -1475,10 +1489,12 @@ class Document:
                     deepcopy(self.current_source_peopla_breadcrumbs),
                     this_depth,
                     deepcopy(source_peopla),
-                    "SOURCE"
+                    "SOURCE",
                 )
 
-                new_target_list = deepcopy(self.current_target_peopla_breadcrumbs)[:this_depth]
+                new_target_list = deepcopy(self.current_target_peopla_breadcrumbs)[
+                    :this_depth
+                ]
 
                 self.current_target_peopla_breadcrumbs = new_target_list
 
@@ -1821,14 +1837,16 @@ def record_evidence(object, line_number):
     existing_list.append(line_number)
     object.evidence_reference = sorted(set(existing_list))
 
-def update_breadcrumbs(existing_list, update_depth, update_object,label = ""):
-    logger.debug(f"!!!!!!!!!!!!! [UPDATE {label} BCs] The update depth is {update_depth}")
+
+def update_breadcrumbs(existing_list, update_depth, update_object, label=""):
+    logger.debug(
+        f"!!!!!!!!!!!!! [UPDATE {label} BCs] The update depth is {update_depth}"
+    )
     logger.debug(
         f"!!!!!!!!!!!!! [UPDATE {label} BCs] Updating breadcrumbs from this ({len(existing_list)} items):\n"
     )
     # for i,x in enumerate( existing_list ):
     #     f"!!!!!!!!!!!!! [UPDATE {label} BCs] [{i}] {x.name}\n"
-    
 
     # Remove everything including the level that is to be updated
     new_list = existing_list[:(update_depth)]
@@ -1841,20 +1859,24 @@ def update_breadcrumbs(existing_list, update_depth, update_object,label = ""):
         new_list = pad_with_none(new_list, update_depth)
 
     # Append the new object (this will be at the correct depth)
-    new_list.append( update_object )
+    new_list.append(update_object)
 
-    logger.debug(f"!!!!!!!!!!!!! [UPDATE {label} BCs] to this: ({len(new_list)} items)\n")
+    logger.debug(
+        f"!!!!!!!!!!!!! [UPDATE {label} BCs] to this: ({len(new_list)} items)\n"
+    )
     # for i,x in enumerate( new_list ):
     #     f"!!!!!!!!!!!!! [UPDATE {label} BCs] [{i}] {x.name}\n"
-    
+
     # input()
 
-    return( new_list )
+    return new_list
+
 
 def pad_with_none(l, n, pad=None):
     if len(l) >= n:
         return l[:n]
     return l + ([pad] * (n - len(l)))
 
+
 def get_depth(l):
-    return len(re.findall(peopla_relation_depth_regex, l ))
+    return len(re.findall(peopla_relation_depth_regex, l))
