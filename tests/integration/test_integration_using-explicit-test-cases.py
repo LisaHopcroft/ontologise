@@ -120,7 +120,6 @@ def test_peopla_attributes_in_pedigrees(
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
-
 # -----------------------------------------------------------------
 # Integration test cases: peopla content evidence
 # -----------------------------------------------------------------
@@ -334,7 +333,7 @@ def test_actiongroup_evidence_recording_single_targets(
 
 
 @pytest.mark.parametrize(
-    "test_name,settings_file,peopla_source,expected_target_peoplas,expected_action_text,expected_evidence_list",
+    "test_name,settings_file,expected_num_action_groups,peopla_source,expected_target_peoplas,expected_action_text,expected_evidence_list",
     # parameters are:
     # (1) content file
     # (2) settings file
@@ -346,8 +345,11 @@ def test_actiongroup_evidence_recording_single_targets(
         (
             # TEST: Are the ActionGroups evidenced correctly
             # Context: 1 ActionGroups with multiple targets
+            # TEST: Are the ActionGroups evidenced correctly
+            # Context: 1 ActionGroups with multiple targets
             "secondary_peopla_content_C",
             "settings_basic.yaml",
+            1,
             "A, B",
             ["D, E", "F, G"],
             "J",
@@ -357,8 +359,12 @@ def test_actiongroup_evidence_recording_single_targets(
             # TEST: Are the ActionGroups evidenced correctly
             # Context: 1 ActionGroups with multiple targets plus
             #          additional metadata
+            # TEST: Are the ActionGroups evidenced correctly
+            # Context: 1 ActionGroups with multiple targets plus
+            #          additional metadata
             "secondary_peopla_content_D",
             "settings_basic.yaml",
+            1,
             "A, B",
             ["D, E", "F, G"],
             "J",
@@ -369,8 +375,13 @@ def test_actiongroup_evidence_recording_single_targets(
             # Context: 1 ActionGroups with multiple targets plus
             #          an intervening relation that could confuse
             #          things
+            # TEST: Are the ActionGroups evidenced correctly
+            # Context: 1 ActionGroups with multiple targets plus
+            #          an intervening relation that could confuse
+            #          things
             "secondary_peopla_content_E",
             "settings_basic.yaml",
+            1,
             "A, B",
             ["D, E", "F, G"],
             "J",
@@ -381,6 +392,7 @@ def test_actiongroup_evidence_recording_single_targets(
 def test_actiongroup_evidence_recording_multiple_targets(
     test_name,
     settings_file,
+    expected_num_action_groups,
     peopla_source,
     expected_target_peoplas,
     expected_action_text,
@@ -399,18 +411,25 @@ def test_actiongroup_evidence_recording_multiple_targets(
     print(f"Settings : {settings_f}")
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
+    assert len(test_doc.all_action_groups)==expected_num_action_groups
+
     for p in test_doc.all_action_groups:
         ### Print for information
         print(p)
-        ### Collect global IDs
-        if p.type == expected_action_text and p.source_peopla.name == peopla_source:
+
+        if (
+            p.type == expected_action_text
+            and p.source_peopla.name == peopla_source
+        ):
+            
             observed_target_peoplas = []
             for tp in p.target_peoplas:
                 observed_target_peoplas.append(tp.name)
 
-            assert len(p.target_peoplas) == len(expected_target_peoplas)
+            assert len(observed_target_peoplas) == len(expected_target_peoplas)
             assert sorted(observed_target_peoplas) == sorted(expected_target_peoplas)
             assert p.evidence_reference == expected_evidence_list
+
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 

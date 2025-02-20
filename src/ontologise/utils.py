@@ -21,7 +21,8 @@ shortcut_line_regex = r"^###\t\^\d+:$"
 shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
 peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
-peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
+# peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
+peopla_attribute_regex = r"^###\t(\()?(>\t)+\t?[^\*]+\*?$"
 peopla_relation_line_regex = r"^###\t(\()?(>\t)+\*(.*)\*$"
 peopla_relation_depth_regex = r">\t"
 peopla_relation_string_regex = r"\*(.*)\*"
@@ -1059,7 +1060,7 @@ class Document:
                 },
             )
 
-            self.relation_live = False
+            # self.relation_live = False
             self.current_relation_text = None
             self.current_relation_depth = 0
 
@@ -1111,7 +1112,7 @@ class Document:
         elif re.match(peopla_attribute_regex, line):
             logger.debug("Found a peopla attribute")
 
-            action_scope = extract_action_scope(line)
+            action_scope = extract_action_scope_expanded(line)
             action_details = extract_action_details(line)
 
             self.current_action = action_details["action_text"]
@@ -1126,8 +1127,65 @@ class Document:
                 inheritance_hash = self.header
                 inheritance_hash.pop("TITLE")
 
+            ### What we have found here is an action of relation
+            if self.relation_live:
+
+                if action_scope == "both":
+                    ### This is an action that applies to both the 'is' and
+                    ### 'to' Peoplas in a relation
+
+                    logger.debug(
+                        "FOUND AN ACTION IN A RELATION, RELEVANT TO THE IS AND TO"
+                    )
+
+                    for p in self.all_peorels:
+                        print(p)
+
+                    input()
+
+                    ##### COPIED CODE FROM ACTION GROUP SECTION
+                    ##### TEMPORARILY BEING KEPT FOR REFERENCE ONLY
+                    # ag = ActionGroup(
+                    #     action_details["action_text"],
+                    #     directed=self.peopla_action_group_directed,
+                    #     source_peopla=self.current_source_peopla,
+                    #     target_peoplas=self.current_target_peoplas,
+                    #     attributes=inheritance_hash,
+                    # )
+                    # record_evidence(ag, self.current_line)
+
+                    # o = ag.print_description()
+                    # logger.info(o["info"])
+                    # logger.debug(o["debug"])
+
+                    # self.all_action_groups = self.all_action_groups + [ag]
+
+                elif action_scope == "target":
+                    ### This is an action that applies to ONLY the 'is'
+                    ### Peoplas in a relation
+
+                    logger.debug("FOUND AN ACTION IN A RELATION, RELEVANT TO THE IS ONLY")
+
+                    for p in self.all_peorels:
+                        print(p)
+
+                    input()
+                    
+                    self.current_action = action_details["action_text"]
+
+                    ### Need to add this information to the target peopla that 
+
+                    ##### COPIED CODE FROM ACTION GROUP SECTION
+                    ##### TEMPORARILY BEING KEPT FOR REFERENCE ONLY
+                    # for tp in self.current_target_peoplas:
+                    #     logger.debug(
+                    #         f"Adding [{action_details['action_text']}] attribute to {tp.name}"
+                    #     )
+
+                    #     tp.update_attribute(self.current_action, inheritance_hash)
+
             ### What we have found here is an action of an action group
-            if self.peopla_action_group_live:
+            elif self.peopla_action_group_live:
                 if action_scope == "both":
                     ### This is a description of an action between an action group
                     ### We need to make a action_group
@@ -1486,7 +1544,8 @@ def remove_all_leading_action_markup(l):
     """
     Removes markup, but retains the @ for place peoplas
     """
-    return re.sub(r"^###\t(\S*)\t", "", l)
+    # return re.sub(r"^###\t(\S*)(\t)+", "", l)
+    return re.sub(r"^###\t(.*)(\t)", "", l)
 
 
 def remove_all_leading_relation_markup(l):
@@ -1564,8 +1623,9 @@ def extract_relation_scope(l0):
 def extract_action_scope(l0):
     """
     Extract details of the scope of an action
-    This 
     """
+
+    # action_scope_regex = r"^###\t(\S*)\t.*$"
 
     m = re.search(action_scope_regex, l0)
 
@@ -1577,6 +1637,25 @@ def extract_action_scope(l0):
         scope = "target"
     else:
         scope = None
+
+    return scope
+
+
+def extract_action_scope_expanded(l0):
+    """
+    Extract details of the scope of an action
+    """
+
+    action_scope_regex_new = r"^###\t(.*)(\t+).*$"
+
+    m = re.search(action_scope_regex_new,l0)
+
+    scope_indicator = m.group(1)
+
+    if re.search("\(",scope_indicator):
+        scope = "target"
+    else:
+        scope = "both"
 
     return scope
 
@@ -1622,13 +1701,18 @@ def extract_action_details(l0):
     Examples of action lines:
     - ###	(	OF
     - ###       PROPRIETOR*
-
+    - ###	>	(	OCC
+    - ###	>	>		OCC
+    - ###	>	(>		OCC
+    - ###	>	(	@OCC
+    - ###	>	>		@OCC
+    - ###	>	(>		@OCC
     """
 
     l1 = remove_all_leading_action_markup(l0)
 
     m = re.search(action_regex, l1)
-    action_text = m.group(1).rstrip()
+    action_text = m.group(1).strip()
     inheritance_flag = False if m.group(2) is None else True
 
     logger.debug(
