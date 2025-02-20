@@ -413,6 +413,8 @@ def test_actiongroup_evidence_recording_multiple_targets(
 
     assert len(test_doc.all_action_groups)==expected_num_action_groups
 
+    all_passing = 0
+
     for p in test_doc.all_action_groups:
         ### Print for information
         print(p)
@@ -421,7 +423,7 @@ def test_actiongroup_evidence_recording_multiple_targets(
             p.type == expected_action_text
             and p.source_peopla.name == peopla_source
         ):
-            
+
             observed_target_peoplas = []
             for tp in p.target_peoplas:
                 observed_target_peoplas.append(tp.name)
@@ -430,6 +432,9 @@ def test_actiongroup_evidence_recording_multiple_targets(
             assert sorted(observed_target_peoplas) == sorted(expected_target_peoplas)
             assert p.evidence_reference == expected_evidence_list
 
+            all_passing += 1
+    
+    assert all_passing == expected_num_action_groups
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
