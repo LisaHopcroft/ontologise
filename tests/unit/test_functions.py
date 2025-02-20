@@ -24,6 +24,7 @@ from utils import (
     is_action_group_directed,
     gender_inference_from_relation,
     update_breadcrumbs,
+    pad_with_none,
 )
 
 
@@ -365,8 +366,31 @@ def test_gender_inference_from_relation(relation, gender_expected):
         (["A"], 1, "B", ["A", "B"]),
         (["A", "B"], 1, "C", ["A", "C"]),
         (["A", "B", "C", "D"], 1, "C", ["A", "C"]),
+        ([], 1, "A", [None, "A"]),
+        ([], 2, "A", [None, None, "A"]),
+        (["A", None], 2, "B", ["A", None, "B"]),
     ],
 )
 def test_breadcrumb_updates(input_list, update_depth, update_object, expected_output):
     observed_output = update_breadcrumbs(input_list, update_depth, update_object)
+    assert observed_output == expected_output
+
+
+@pytest.mark.parametrize(
+    "input_list,target_length,expected_output",
+    # parameters are:
+    # (1) an input list
+    # (2) the level at which to update
+    # (3) what to update this level with
+    # (4) the expected result
+    [
+        # TEST: Basic
+        ([], 1, [None]),
+        ([None], 2, [None,None]),
+        (["A"], 1, ["A"]),
+        (["A"], 2, ["A", None]),
+    ],
+)
+def test_pad_with_none(input_list, target_length, expected_output):
+    observed_output = pad_with_none(input_list, target_length)
     assert observed_output == expected_output

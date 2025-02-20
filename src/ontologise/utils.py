@@ -613,8 +613,11 @@ class Document:
         status_update = status_update + f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n"
 
         for i,b in enumerate(self.current_target_peopla_breadcrumbs):
-            for j,bj in enumerate( b ):
-                status_update = status_update + f"TARGET [{i}.{j}] {format(bj)}\n"
+            if b:
+                for j,bj in enumerate( b ):
+                    status_update = status_update + f"TARGET [{i}.{j}] {format(bj)}\n"
+            else:
+                status_update = status_update + f"TARGET [{i}] is absent\n"
 
         ### Peorels -------------------------------------------------
 
@@ -1014,11 +1017,15 @@ class Document:
 
                 # print( f"The relevant depth is {self.current_relation_depth}:\n")
 
-                # print( self.current_target_peopla_breadcrumbs[0] )
-                # for i, j in enumerate(self.current_target_peopla_breadcrumbs[0]):
-                #     print( f"{i}: {j.name}\n" )
+                print( self.current_target_peopla_breadcrumbs )
+                for i, j in enumerate(self.current_target_peopla_breadcrumbs):
+                    if j is not None: 
+                        print( f"{i}: {len(j)} target peoplas\n" )
+                    else:
+                        print( f"{i}: missing target peopla\n" )
 
-                relevant_to_peopla_list = [(self.current_target_peopla_breadcrumbs[0])[(self.current_relation_depth-1)]]
+
+                relevant_to_peopla_list = self.current_target_peopla_breadcrumbs[(self.current_relation_depth-1)]
 
                 # input()
 
@@ -1061,7 +1068,7 @@ class Document:
                     logger.debug("Current to_peopla_list (step 2) - adding the source peoplas")
                     logger.debug(relevant_to_peopla_list)
 
-                for this_to_peopla in relevant_to_peopla_list:
+                for this_to_peopla in set(relevant_to_peopla_list):
                     peorel_tmp = Peorel(
                         relation_peopla_is,
                         this_to_peopla,
@@ -1087,7 +1094,7 @@ class Document:
 
             self.relation_live = False
             self.current_relation_text = None
-            self.current_relation_depth = None
+            self.current_relation_depth = 0
 
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
@@ -1272,9 +1279,14 @@ class Document:
 
             ### (3) reset the source/target breadcrumbs
             # self.current_target_peopla_breadcrumbs[self.relation_depth] = self.current_target_peoplas
+
+            print( f"IN HERE __________{line}\n" )
+            print( f"IN HERE __________{get_depth(line)}")
+
             self.current_target_peopla_breadcrumbs = update_breadcrumbs(
                 deepcopy(self.current_target_peopla_breadcrumbs),
-                deepcopy(self.relation_depth),
+                #deepcopy(self.relation_depth),
+                get_depth(line),
                 deepcopy(self.current_target_peoplas),
             )
 
@@ -1392,11 +1404,11 @@ class Document:
             else:
                 self.current_source_peopla_breadcrumbs = update_breadcrumbs(
                     deepcopy(self.current_source_peopla_breadcrumbs),
-                    deepcopy(self.current_relation_depth),
+                    this_depth,
                     deepcopy(source_peopla)
                 )
 
-                new_target_list = deepcopy(self.current_target_peopla_breadcrumbs)[:self.current_relation_depth]
+                new_target_list = deepcopy(self.current_target_peopla_breadcrumbs)[:this_depth]
 
                 self.current_target_peopla_breadcrumbs = new_target_list
 
@@ -1740,14 +1752,31 @@ def record_evidence(object, line_number):
     object.evidence_reference = sorted(set(existing_list))
 
 def update_breadcrumbs(existing_list, update_depth, update_object):
+    logger.debug(f"The update depth is {update_depth}")
     logger.debug(f"Updating breadcrumbs from this: {existing_list}\n")
 
     # Remove everything including the level that is to be updated
     new_list = existing_list[:(update_depth)]
+
+    # If you are updating something at a deeper level and you don't have an
+    # entry for a higher level, need to add a None to show that that was missing
+    # (this can happen where there isn't a Target peopla at a higher level (see
+    # nested_pedictree_A3.txt).
+    if update_depth > (len(new_list)):
+        new_list = pad_with_none(new_list, update_depth)
+
     # Append the new object (this will be at the correct depth)
     new_list.append( update_object )
-    
+
     logger.debug(f"to this: {new_list}\n")
     # input()
 
     return( new_list )
+
+def pad_with_none(l, n, pad=None):
+    if len(l) >= n:
+        return l[:n]
+    return l + ([pad] * (n - len(l)))
+
+def get_depth(l):
+    return len(re.findall(peopla_relation_depth_regex, l ))
