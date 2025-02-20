@@ -1032,14 +1032,22 @@ def test_gender_evidence_is_correct(
         # Two separate hierarchies
         ("nested_pedigree_A2", "settings_basic.yaml", 8),
         # TEST: Are the nested pedigrees being interpreted correctly?
-        # Hierarchy that requires breadcrumbs
-        ("nested_pedigree_A5", "settings_basic.yaml", 12),
+        # Hierarchy that includes other information AND a missing target Peopla
+        ("nested_pedigree_A3", "settings_basic.yaml", 3),
         # TEST: Are the nested pedigrees being interpreted correctly?
         # Hierarchy that includes other information AND a missing target Peopla
-        ("nested_pedigree_A6", "settings_basic.yaml", 3),
+        # As A3 but with 'real' data, other metadata and an extra blank line
+        ("nested_pedigree_A3+", "settings_basic.yaml", 3),
         # TEST: Are the nested pedigrees being interpreted correctly?
         # Hierarchy that includes other information AND full target Peoplas
-        ("nested_pedigree_A7", "settings_basic.yaml", 4),
+        ("nested_pedigree_A4", "settings_basic.yaml", 4),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND full target Peoplas
+        # As A4 but with 'real' data and other metadata
+        ("nested_pedigree_A4+", "settings_basic.yaml", 4),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that requires breadcrumbs
+        ("nested_pedigree_A5", "settings_basic.yaml", 12),
     ],
 )
 def test_nested_pedigree_num_relations(test_name, settings_file, expected_num_peorel):
@@ -1098,6 +1106,79 @@ def test_nested_pedigree_num_relations(test_name, settings_file, expected_num_pe
         ("nested_pedigree_A2", "settings_basic.yaml", "J", "I", "DAUG", "19"),
         ("nested_pedigree_A2", "settings_basic.yaml", "J", "H", "DAUG", "19"),
         # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        ("nested_pedigree_A3", "settings_basic.yaml", "B", "A", "DAUG", "6"),
+        ("nested_pedigree_A3", "settings_basic.yaml", "K", "J", "SON", "15"),
+        ("nested_pedigree_A3", "settings_basic.yaml", "K", "B", "SON", "15"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        # As A3 but with 'real' data, other metadata and an extra blank line
+        (
+            "nested_pedigree_A3+",
+            "settings_basic.yaml",
+            "CRAWFURD, Barbara",
+            "CRAWFURD, Andrew",
+            "DAUG",
+            "6",
+        ),
+        (
+            "nested_pedigree_A3+",
+            "settings_basic.yaml",
+            "LOGAN, John",
+            "LOGAN, James",
+            "SON",
+            "16",
+        ),
+        (
+            "nested_pedigree_A3+",
+            "settings_basic.yaml",
+            "LOGAN, John",
+            "CRAWFURD, Barbara",
+            "SON",
+            "16",
+        ),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND full target Peoplas
+        ("nested_pedigree_A4", "settings_basic.yaml", "B", "A", "DAUG", "7"),
+        ("nested_pedigree_A4", "settings_basic.yaml", "B", "D", "DAUG", "7"),
+        ("nested_pedigree_A4", "settings_basic.yaml", "K", "J", "SON", "16"),
+        ("nested_pedigree_A4", "settings_basic.yaml", "K", "B", "SON", "16"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        # As A4 but with 'real' data and other metadata
+        (
+            "nested_pedigree_A4+",
+            "settings_basic.yaml",
+            "CRAWFURD, Barbara",
+            "CRAWFURD, Andrew",
+            "DAUG",
+            "7",
+        ),
+        (
+            "nested_pedigree_A4+",
+            "settings_basic.yaml",
+            "CRAWFURD, Barbara",
+            "LOGAN, .",
+            "DAUG",
+            "7",
+        ),
+        (
+            "nested_pedigree_A4+",
+            "settings_basic.yaml",
+            "LOGAN, John",
+            "LOGAN, James",
+            "SON",
+            "17",
+        ),
+        (
+            "nested_pedigree_A4+",
+            "settings_basic.yaml",
+            "LOGAN, John",
+            "CRAWFURD, Barbara",
+            "SON",
+            "17",
+        ),
+        # TEST: Are the nested pedigrees being interpreted correctly?
         # Hierarchy that requires breadcrumbs
         ("nested_pedigree_A5", "settings_basic.yaml", "C", "B", "DAUG", "7"),
         ("nested_pedigree_A5", "settings_basic.yaml", "C", "A", "DAUG", "7"),
@@ -1111,17 +1192,6 @@ def test_nested_pedigree_num_relations(test_name, settings_file, expected_num_pe
         ("nested_pedigree_A5", "settings_basic.yaml", "K", "C", "DAUG", "19"),
         ("nested_pedigree_A5", "settings_basic.yaml", "M", "L", "DAUG", "22"),
         ("nested_pedigree_A5", "settings_basic.yaml", "M", "A", "DAUG", "22"),
-        # TEST: Are the nested pedigrees being interpreted correctly?
-        # Hierarchy that includes other information AND a missing target Peopla
-        ("nested_pedigree_A6", "settings_basic.yaml", "B", "A", "DAUG", "6"),
-        ("nested_pedigree_A6", "settings_basic.yaml", "K", "J", "SON", "15"),
-        ("nested_pedigree_A6", "settings_basic.yaml", "K", "B", "SON", "15"),
-        # TEST: Are the nested pedigrees being interpreted correctly?
-        # Hierarchy that includes other information AND full target Peoplas
-        ("nested_pedigree_A7", "settings_basic.yaml", "B", "A", "DAUG", "7"),
-        ("nested_pedigree_A7", "settings_basic.yaml", "B", "D", "DAUG", "7"),
-        ("nested_pedigree_A7", "settings_basic.yaml", "K", "J", "SON", "16"),
-        ("nested_pedigree_A7", "settings_basic.yaml", "K", "B", "SON", "16"),
     ],
 )
 def test_nested_pedigree_relations_that_should_be_recorded(
