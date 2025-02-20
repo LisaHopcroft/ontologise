@@ -280,7 +280,6 @@ def test_actiongroup_evidence_recording_single_targets(
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
-
 @pytest.mark.parametrize(
     "test_name,settings_file,peopla_source,expected_target_peoplas,expected_action_text,expected_evidence_list",
     # parameters are:
@@ -292,8 +291,8 @@ def test_actiongroup_evidence_recording_single_targets(
     # (6) list of line numbers for evidence
     [
         (
-        # TEST: Are the ActionGroups evidenced correctly
-        # Context: 1 ActionGroups with multiple targets
+            # TEST: Are the ActionGroups evidenced correctly
+            # Context: 1 ActionGroups with multiple targets
             "secondary_peopla_content_C",
             "settings_basic.yaml",
             "A, B",
@@ -302,9 +301,9 @@ def test_actiongroup_evidence_recording_single_targets(
             [11],
         ),
         (
-        # TEST: Are the ActionGroups evidenced correctly
-        # Context: 1 ActionGroups with multiple targets plus
-        #          additional metadata
+            # TEST: Are the ActionGroups evidenced correctly
+            # Context: 1 ActionGroups with multiple targets plus
+            #          additional metadata
             "secondary_peopla_content_D",
             "settings_basic.yaml",
             "A, B",
@@ -313,10 +312,10 @@ def test_actiongroup_evidence_recording_single_targets(
             [15],
         ),
         (
-        # TEST: Are the ActionGroups evidenced correctly
-        # Context: 1 ActionGroups with multiple targets plus
-        #          an intervening relation that could confuse
-        #          things
+            # TEST: Are the ActionGroups evidenced correctly
+            # Context: 1 ActionGroups with multiple targets plus
+            #          an intervening relation that could confuse
+            #          things
             "secondary_peopla_content_E",
             "settings_basic.yaml",
             "A, B",
@@ -351,10 +350,7 @@ def test_actiongroup_evidence_recording_multiple_targets(
         ### Print for information
         print(p)
         ### Collect global IDs
-        if (
-            p.type == expected_action_text
-            and p.source_peopla.name == peopla_source
-        ):
+        if p.type == expected_action_text and p.source_peopla.name == peopla_source:
             observed_target_peoplas = []
             for tp in p.target_peoplas:
                 observed_target_peoplas.append(tp.name)
@@ -1357,6 +1353,7 @@ table_shortcuts_multiple_A_expected = pd.DataFrame(
         "Y": ["", "M2", "N2",],
         "Z": ["", "M3", "N3",],
         "global_id": [None, None, None],
+        "local_id": [None, None, None],
     }
 )
 
@@ -1386,6 +1383,7 @@ table_shortcuts_multiple_B_expected = pd.DataFrame(
         "Y": ["", "M2", "N2", "", "P2", "Q2",],
         "Z": ["", "M3", "N3", "", "P3", "Q3",],
         "global_id": [None, None, None, None, None, None],
+        "local_id": [None, None, None, None, None, None],
     }
 )
 
@@ -1415,6 +1413,7 @@ table_shortcuts_multiple_C_expected = pd.DataFrame(
         "Y": ["", "M2", "N2", "", "P2", "Q2",],
         "Z": ["", "M3", "N3", "", "P3", "Q3",],
         "global_id": [None, None, None, None, None, None],
+        "local_id": [None, None, None, None, None, None],
     }
 )
 
@@ -1445,6 +1444,7 @@ table_shortcuts_multiple_D1_expected = pd.DataFrame(
         "Y": ["", "M2", "N2", "", "P2", "Q2",],
         "Z": ["", "M3", "N3", "", "P3", "Q3",],
         "global_id": [None, None, None, None, None, None],
+        "local_id": [None, None, None, None, None, None],
     }
 )
 
@@ -1475,6 +1475,7 @@ table_shortcuts_multiple_D2_expected = pd.DataFrame(
         "Y": ["", "M2", "N2", "", "P2", "Q2",],
         "Z": ["", "M3", "N3", "", "P3", "Q3",],
         "global_id": [None, None, None, None, None, None],
+        "local_id": [None, None, None, None, None, None],
     }
 )
 
@@ -1503,6 +1504,7 @@ table_shortcuts_multiple_E_expected = pd.DataFrame(
         "Y": ["", "M2", "N2", "", "P2", "Q2",],
         "Z": ["", "M3", "N3", "", "P3", "Q3",],
         "global_id": [None, None, None, None, None, None],
+        "local_id": [None, None, None, None, None, None],
     }
 )
 
@@ -1522,6 +1524,47 @@ table_shortcuts_multiple_F_expected = pd.DataFrame(
         "Y": ["", "M2", "N2",],
         "Z": ["", "M3", "N3",],
         "global_id": ["i-1", "j-2", "k-3"],
+        "local_id": [None, None, None],
+    }
+)
+
+
+table_shortcuts_multiple_G_expected = pd.DataFrame(
+    {
+        "ENSLAVED_AT": ["PLACE", "PLACE", "PLACE",],
+        "ENSLAVED_ATX": [
+            "1800_TEXT_TEXT:00",
+            "1800_TEXT_TEXT:00",
+            "1800_TEXT_TEXT:00",
+        ],
+        "ENSLAVED_DATE": ["1800-01-01", "1800-01-01", "1800-01-01",],
+        "GENDER": ["MALE", "MALE", "MALE",],
+        "COLOUR": ["BLUE", "BLUE", "BLUE",],
+        "X": ["L1", "M1", "N1",],
+        "Y": ["", "M2", "N2",],
+        "Z": ["", "M3", "N3",],
+        "global_id": [None, None, None],
+        "local_id": ["i-1", "j-2", "k-3"],
+    }
+)
+
+
+table_shortcuts_multiple_H_expected = pd.DataFrame(
+    {
+        "ENSLAVED_AT": ["PLACE", "PLACE", "PLACE",],
+        "ENSLAVED_ATX": [
+            "1800_TEXT_TEXT:00",
+            "1800_TEXT_TEXT:00",
+            "1800_TEXT_TEXT:00",
+        ],
+        "ENSLAVED_DATE": ["1800-01-01", "1800-01-01", "1800-01-01",],
+        "GENDER": ["MALE", "MALE", "MALE",],
+        "COLOUR": ["BLUE", "BLUE", "BLUE",],
+        "X": ["L1", "M1", "N1",],
+        "Y": ["", "M2", "N2",],
+        "Z": ["", "M3", "N3",],
+        "global_id": [None, "j-2", None],
+        "local_id": ["i-1", None, "k-3"],
     }
 )
 
@@ -1586,6 +1629,20 @@ table_shortcuts_multiple_F_expected = pd.DataFrame(
             "table_shortcuts_multiple_F",
             "settings_colour_shortcuts.yaml",
             table_shortcuts_multiple_F_expected,
+        ),
+        # TEST: Are global IDs being picked up and assigned correctly?
+        # Context: 1 table, 2 shortcuts on one, 1 on the other, no overlapping shortcuts
+        (
+            "table_shortcuts_multiple_G",
+            "settings_colour_shortcuts.yaml",
+            table_shortcuts_multiple_G_expected,
+        ),
+        # TEST: Are global IDs being picked up and assigned correctly?
+        # Context: 1 table, 2 shortcuts on one, 1 on the other, no overlapping shortcuts
+        (
+            "table_shortcuts_multiple_H",
+            "settings_colour_shortcuts.yaml",
+            table_shortcuts_multiple_H_expected,
         ),
     ],
 )

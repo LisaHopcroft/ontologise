@@ -37,7 +37,8 @@ action_group_w_regex = r"^###\t(>\t)*w\/\[.*$"
 action_scope_regex = r"^###\t(\S*)\t.*$"
 data_table_header_regex = rf"^###{re.escape(data_point_separator)}.*$"
 data_table_linebreak_regex = r"^\[/\]$"
-data_table_id_regex = r"^###\t\{.*\}$"
+data_table_global_id_regex = r"^###\t\{.*\}$"
+data_table_local_id_regex = r"^###\t\(.*\)$"
 data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
@@ -153,9 +154,13 @@ class DataPoint:
 
         self.cells = data
         self.global_id = None
+        self.local_id = None
 
     def add_global_id(self, id):
         self.global_id = id
+
+    def add_local_id(self, id):
+        self.local_id = id
 
 
 class ActionGroup:
@@ -839,11 +844,22 @@ class Document:
             logger.debug("Ignore (line break not relevant)")
         elif re.match(ignore_line_regex, line):
             logger.debug("Ignore (line starts with !)")
-        elif re.match(data_table_id_regex, line):
-            m = re.search(r"^###\t\{(.*)\}$$", line)
-            global_id = m.group(1).rstrip()
-            logger.debug(f"Found a global identifer: {global_id}")
-            self.data_points[-1].add_global_id(global_id)
+        elif re.match(data_table_global_id_regex, line) or re.match(
+            data_table_local_id_regex, line
+        ):
+            ### Check for a global ID
+            m = re.search(r"\{(.*)\}", line)
+            if m:
+                global_id = m.group(1).rstrip()
+                logger.debug(f"Found a global identifer: {global_id}")
+                self.data_points[-1].add_global_id(global_id)
+
+            ### Check for a local ID
+            m = re.search(r"\((.*)\)", line)
+            if m:
+                local_id = m.group(1).rstrip()
+                logger.debug(f"Found a local identifer: {local_id}")
+                self.data_points[-1].add_local_id(local_id)
         else:
             content_list = re.split("\t+", line.rstrip())
             logger.debug(f"Found {len(content_list)} data points for the table")
@@ -864,6 +880,7 @@ class Document:
             d_df = pd.DataFrame.from_dict(d_dict_flat)
 
             d_df["global_id"] = d.global_id
+            d_df["local_id"] = d.local_id
 
             datapoint_table = pd.concat([datapoint_table, d_df])
 
