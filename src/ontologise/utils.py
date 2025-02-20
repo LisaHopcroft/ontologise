@@ -410,8 +410,8 @@ class Document:
         self.current_source_peopla = None
         self.current_target_peoplas = []
 
-        self.current_source_peopla_breadcrumbs = []
-        self.current_target_peopla_breadcrumbs = []
+        self.pedigree_breadcrumbs_source = []
+        self.pedigree_breadcrumbs_target = []
 
         self.relation_live = False
         self.relation_text = None
@@ -456,7 +456,7 @@ class Document:
         with open(self.file, "r") as d:
             for line in d:
                 self.current_line += 1
-                self.current_breadcrumb_depth = get_depth(line)
+                self.current_breadcrumb_depth = get_pedigree_depth(line)
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
@@ -567,28 +567,28 @@ class Document:
 
         status_update = status_update + f"The current source peopla breadcrumbs:\n"
 
-        num_source_breadcrumbs = len(self.current_source_peopla_breadcrumbs)
+        num_source_breadcrumbs = len(self.pedigree_breadcrumbs_source)
 
         status_update = (
             status_update
             + f"---> There are {num_source_breadcrumbs} SOURCE peopla breadcrumbs populated:\n"
         )
 
-        for i, b in enumerate(self.current_source_peopla_breadcrumbs):
+        for i, b in enumerate(self.pedigree_breadcrumbs_source):
             status_update = status_update + f"SOURCE [{i}] {format(b)}\n"
 
         status_update = status_update + "------------------------------------\n"
 
         status_update = status_update + f"The current target peopla breadcrumbs:\n"
 
-        num_target_breadcrumbs = len(self.current_target_peopla_breadcrumbs)
+        num_target_breadcrumbs = len(self.pedigree_breadcrumbs_target)
 
         status_update = (
             status_update
             + f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n"
         )
 
-        for i, b in enumerate(self.current_target_peopla_breadcrumbs):
+        for i, b in enumerate(self.pedigree_breadcrumbs_target):
             if b:
                 for j, bj in enumerate(b):
                     status_update = status_update + f"TARGET [{i}.{j}] {format(bj)}\n"
@@ -925,7 +925,7 @@ class Document:
                     f"The context tells us that the 'to' peopla for this peorel is the current source peopla: {self.current_source_peopla}"
                 )
 
-                relevant_source_peopla = self.current_source_peopla_breadcrumbs[
+                relevant_source_peopla = self.pedigree_breadcrumbs_source[
                     self.current_breadcrumb_depth - 1
                 ]
 
@@ -964,7 +964,7 @@ class Document:
                 logger.debug(f"The scope for this is: {relation_scope}")
 
                 relevant_to_peopla_list = deepcopy(
-                    self.current_target_peopla_breadcrumbs[
+                    self.pedigree_breadcrumbs_target[
                         (self.current_breadcrumb_depth - 1)
                     ]
                 )
@@ -999,7 +999,7 @@ class Document:
                         f"Need to add the current source peopla to the 'to' list"
                     )
 
-                    relevant_source_peopla = self.current_source_peopla_breadcrumbs[
+                    relevant_source_peopla = self.pedigree_breadcrumbs_source[
                         (self.current_breadcrumb_depth) - 1
                     ]
 
@@ -1178,8 +1178,8 @@ class Document:
             new_target_peoplas = [target_peopla]
 
             ### Update the target breadcrumbs
-            self.current_target_peopla_breadcrumbs = update_breadcrumbs(
-                deepcopy(self.current_target_peopla_breadcrumbs),
+            self.pedigree_breadcrumbs_target = update_breadcrumbs(
+                deepcopy(self.pedigree_breadcrumbs_target),
                 self.current_breadcrumb_depth,
                 new_target_peoplas,
                 "TARGET",
@@ -1211,21 +1211,21 @@ class Document:
         return peopla_ref
 
     def print_source_breadcrumbs(self):
-        n = len(self.current_target_peopla_breadcrumbs)
+        n = len(self.pedigree_breadcrumbs_target)
 
         o = f"BREADCRUMBS | SOURCE | {n} populated breadcrumbs\n"
 
-        for i, b in enumerate(self.current_source_peopla_breadcrumbs):
+        for i, b in enumerate(self.pedigree_breadcrumbs_source):
             o = o + f"BREADCRUMBS | SOURCE | [{i}] {format(b)}\n"
 
         return o
 
     def print_target_breadcrumbs(self):
-        n = len(self.current_target_peopla_breadcrumbs)
+        n = len(self.pedigree_breadcrumbs_target)
 
         o = f"BREADCRUMBS | TARGET | {n} populated breadcrumbs\n"
 
-        for i, b in enumerate(self.current_target_peopla_breadcrumbs):
+        for i, b in enumerate(self.pedigree_breadcrumbs_target):
             if b:
                 for j, bj in enumerate(b):
                     o = o + f"BREADCRUMBS | TARGET | [{i}.{j}] {format(bj)}\n"
@@ -1301,22 +1301,22 @@ class Document:
                 self.relation_depth = 0
 
                 ### (3) reset the source/target breadcrumbs
-                self.current_source_peopla_breadcrumbs = []
-                self.current_source_peopla_breadcrumbs.append(source_peopla)
-                self.current_target_peopla_breadcrumbs = []
+                self.pedigree_breadcrumbs_source = []
+                self.pedigree_breadcrumbs_source.append(source_peopla)
+                self.pedigree_breadcrumbs_target = []
             else:
-                self.current_source_peopla_breadcrumbs = update_breadcrumbs(
-                    deepcopy(self.current_source_peopla_breadcrumbs),
+                self.pedigree_breadcrumbs_source = update_breadcrumbs(
+                    deepcopy(self.pedigree_breadcrumbs_source),
                     this_depth,
                     deepcopy(source_peopla),
                     "SOURCE",
                 )
 
-                new_target_list = deepcopy(self.current_target_peopla_breadcrumbs)[
+                new_target_list = deepcopy(self.pedigree_breadcrumbs_target)[
                     :this_depth
                 ]
 
-                self.current_target_peopla_breadcrumbs = new_target_list
+                self.pedigree_breadcrumbs_target = new_target_list
 
     def scan_for_header_lines(self, line):
         """
@@ -1689,5 +1689,5 @@ def pad_with_none(l, n, pad=None):
     return l + ([pad] * (n - len(l)))
 
 
-def get_depth(l):
+def get_pedigree_depth(l):
     return len(re.findall(peopla_relation_depth_regex, l))
