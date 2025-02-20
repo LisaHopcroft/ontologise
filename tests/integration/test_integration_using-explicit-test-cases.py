@@ -1235,7 +1235,7 @@ def test_nested_pedigree_num_relations(
         ("nested_pedigree_A5", "settings_basic.yaml", "K", "J", "DAUG", "19"),
         ("nested_pedigree_A5", "settings_basic.yaml", "K", "C", "DAUG", "19"),
         ("nested_pedigree_A5", "settings_basic.yaml", "M", "L", "DAUG", "22"),
-        ("nested_pedigree_A5", "settings_basic.yaml", "M", "B", "DAUG", "22"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "M", "A", "DAUG", "22"),
         # TEST: Are the nested pedigrees being interpreted correctly?
         # Hierarchy that includes other information AND a missing target Peopla
         ("nested_pedigree_A6", "settings_basic.yaml", "B", "A", "DAUG", "6"),

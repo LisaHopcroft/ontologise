@@ -1303,15 +1303,15 @@ class Document:
             target_peopla = self.record_peopla(target_peopla_tmp)
             record_evidence(target_peopla, self.current_line)
 
-            #self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
+            self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
             #self.current_target_peoplas.append(target_peopla)
 
-            new_target_peoplas = []
+            # new_target_peoplas = []
             
-            if self.current_breadcrumb_depth <= (len(self.current_target_peopla_breadcrumbs)-1):
-                new_target_peoplas = deepcopy(self.current_target_peopla_breadcrumbs[self.current_breadcrumb_depth])
+            # if self.current_breadcrumb_depth <= (len(self.current_target_peopla_breadcrumbs)-1):
+            #     new_target_peoplas = deepcopy(self.current_target_peopla_breadcrumbs[self.current_breadcrumb_depth])
             
-            new_target_peoplas.append( target_peopla )
+            new_target_peoplas = [target_peopla]
 
             print(f"^^^^^^^^^^^^^^^^^^^^^ num target peoplas { len(new_target_peoplas) }")
             for n, t in enumerate(new_target_peoplas):
