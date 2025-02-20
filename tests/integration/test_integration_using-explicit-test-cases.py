@@ -974,7 +974,9 @@ def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
         (
             "peorel_content_B2",
             "settings_basic.yaml",
-            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
+            [
+                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
+            ],
         ),
         # TEST: Relation between source and target peoplas and a target relation
         (
@@ -989,7 +991,9 @@ def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
         (
             "peorel_content_B4",
             "settings_basic.yaml",
-            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
+            [
+                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
+            ],
         ),
         # TEST: Checking that relations are not duplicated
         (
@@ -1004,7 +1008,18 @@ def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
         (
             "peorel_content_B6",
             "settings_basic.yaml",
-            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
+            [
+                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
+            ],
+        ),
+        # TEST: Checking that relations are not duplicated
+        (
+            "secondary_peopla_content_F",
+            "settings_basic.yaml",
+            [
+                Peorel(Peopla("M"), Peopla("F, G"), "X", 1),
+                Peorel(Peopla("M"), Peopla("A, B"), "X", 1),
+            ],
         ),
     ],
 )
