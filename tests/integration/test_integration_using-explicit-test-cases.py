@@ -1079,24 +1079,16 @@ def test_gender_inference_from_relations(
     [
         # TEST: Are the gender inferences evidenced correctly
         # Context: Repeated peorel (created for issue #75)
-        (
-            "peorel_content_B7",
-            "settings_basic.yaml",
-            "C",
-            "FEMALE",
-            2,
-            7
-        ),
+        ("peorel_content_B7", "settings_basic.yaml", "C", "FEMALE", 2, 7),
         # TEST: Are the gender inferences evidenced correctly
         # Context: Repeated peorel (created for issue #75)
-        (
-            "peorel_content_B7",
-            "settings_basic.yaml",
-            "D",
-            "FEMALE",
-            2,
-            9
-        ),
+        ("peorel_content_B7", "settings_basic.yaml", "D", "FEMALE", 2, 9),
+        # TEST: Are the gender inferences evidenced correctly
+        # Context: Repeated peorel (created for issue #75)
+        ("peorel_content_B8", "settings_basic.yaml", "C", "FEMALE", 2, 7),
+        # TEST: Are the gender inferences evidenced correctly
+        # Context: Repeated peorel (created for issue #75)
+        ("peorel_content_B8", "settings_basic.yaml", "D", "FEMALE", 2, 12),
     ],
 )
 def test_gender_evidence_is_correct(
@@ -1144,6 +1136,58 @@ def test_gender_evidence_is_correct(
 
 
 @pytest.mark.parametrize(
+    "test_name,settings_file,expected_num_peorel",
+    ### This test will only work where there is a single line of evidence for a gender inference
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla 'is' to test
+    # (4) name of the peopla 'to' to test
+    # (4) the expected relation text
+    # (4) the expected line reference for that evidence AS STRING (will only be one in this test case)
+    [
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # One continuous hierarchy
+        ("nested_pedigree_A1", "settings_basic.yaml", 12),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Two separate hierarchies
+        ("nested_pedigree_A2", "settings_basic.yaml", 8),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that requires breadcrumbs
+        ("nested_pedigree_A5", "settings_basic.yaml", 12),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        ("nested_pedigree_A6", "settings_basic.yaml", 3),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND full target Peoplas
+        ("nested_pedigree_A7", "settings_basic.yaml", 4),
+    ],
+)
+def test_nested_pedigree_num_relations(
+    test_name,
+    settings_file,
+    expected_num_peorel
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    observed_num_peorel = len(test_doc.all_peorels)
+    assert observed_num_peorel == expected_num_peorel
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+@pytest.mark.parametrize(
     "test_name,settings_file,peopla_name_is,peopla_name_to,expected_relation_text,expected_line_reference",
     ### This test will only work where there is a single line of evidence for a gender inference
     # parameters are:
@@ -1178,9 +1222,34 @@ def test_gender_evidence_is_correct(
         ("nested_pedigree_A2", "settings_basic.yaml", "H", "F", "DAUG", "16"),
         ("nested_pedigree_A2", "settings_basic.yaml", "J", "I", "DAUG", "19"),
         ("nested_pedigree_A2", "settings_basic.yaml", "J", "H", "DAUG", "19"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that requires breadcrumbs
+        ("nested_pedigree_A5", "settings_basic.yaml", "C", "B", "DAUG", "7"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "C", "A", "DAUG", "7"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "E", "D", "DAUG", "10"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "E", "C", "DAUG", "10"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "G", "F", "DAUG", "13"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "G", "E", "DAUG", "13"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "I", "H", "DAUG", "16"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "I", "C", "DAUG", "16"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "K", "J", "DAUG", "19"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "K", "C", "DAUG", "19"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "M", "L", "DAUG", "22"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "M", "B", "DAUG", "22"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        ("nested_pedigree_A6", "settings_basic.yaml", "B", "A", "DAUG", "6"),
+        ("nested_pedigree_A6", "settings_basic.yaml", "K", "J", "SON", "15"),
+        ("nested_pedigree_A6", "settings_basic.yaml", "K", "B", "SON", "15"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND full target Peoplas
+        ("nested_pedigree_A7", "settings_basic.yaml", "B", "A", "DAUG", "7"),
+        ("nested_pedigree_A7", "settings_basic.yaml", "B", "D", "DAUG", "7"),
+        ("nested_pedigree_A7", "settings_basic.yaml", "K", "J", "SON", "16"),
+        ("nested_pedigree_A7", "settings_basic.yaml", "K", "B", "SON", "16"),
     ],
 )
-def test_nested_pedigrees(
+def test_nested_pedigree_relations_that_should_be_recorded(
     test_name,
     settings_file,
     peopla_name_is,
