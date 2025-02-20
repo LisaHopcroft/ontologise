@@ -19,7 +19,6 @@ from utils import (
     extract_relation_scope,
     remove_all_leading_peopla_markup,
     extract_action_scope,
-    extract_action_scope_expanded,
     remove_all_leading_action_markup,
     extract_action_details,
     is_action_group_directed,
@@ -85,27 +84,6 @@ def test_extract_action_details(s_in, s_out_expected):
 def test_extract_action_scope(s_in, s_out_expected):
     s_out_observed = extract_action_scope(s_in)
     assert s_out_observed == s_out_expected
-
-
-@pytest.mark.parametrize(
-    "s_in, s_out_expected",
-    # parameters are:
-    # (1) the line as read in the Document
-    # (2) the scope as expected
-    [
-        # TEST: Basic
-        ("###		A", "both"),
-        ("###	(	A", "target"),
-        ("###	>		A", "both"),
-        ("###	>	(	A", "target"),
-        ("###	>	>		A", "both"),
-        ("###	>	>	(	A", "target"),
-    ],
-)
-def test_extract_action_scope_expanded(s_in, s_out_expected):
-    s_out_observed = extract_action_scope_expanded(s_in)
-    assert s_out_observed == s_out_expected
-
 
 @pytest.mark.parametrize(
     "s_in, s_out_expected",
