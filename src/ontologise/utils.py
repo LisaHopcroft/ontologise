@@ -19,7 +19,6 @@ ignore_line_regex = r"^!.*$"
 header_line_regex = r"^##\w+:"
 shortcut_line_regex = r"^###\t\^\d+:$"
 shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
-# peopla_line_regex = r"^###\t@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
 peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
@@ -31,9 +30,6 @@ peopla_relation_scope_regex = r"^###\t(\(?>).*$"
 
 action_regex = r"^([^\*]+)(\*)?$"
 action_attribute_regex = r"^###\t(\()?\t\t[^\*]+\*?$"
-# action_group_regex = r"^###\t(vs|w/).*$"
-# action_group_vs_regex = r"^###\tvs\[.*$"
-# action_group_w_regex = r"^###\tw\/\[.*$"
 action_group_regex = r"^###\t(>\t)*(vs|w/).*$"
 action_group_vs_regex = r"^###\t(>\t)*vs\[.*$"
 action_group_w_regex = r"^###\t(>\t)*w\/\[.*$"
@@ -43,7 +39,6 @@ data_table_header_regex = rf"^###{re.escape(data_point_separator)}.*$"
 data_table_linebreak_regex = r"^\[/\]$"
 data_table_id_regex = r"^###\t\{.*\}$"
 data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
-
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
@@ -180,13 +175,8 @@ class ActionGroup:
         ### Aggributes of the Relationship itself
         self.attributes = attributes
 
-        # description_text = self.print_description()
-
         ### Evidence reference (line number from original file)
         self.evidence_reference = []
-
-        # logger.info( description_text["info"] )
-        # logger.debug( description_text["debug"] )
 
     def __str__(self):
         out_s = (
@@ -283,7 +273,6 @@ class Peorel:
             return_result = True
 
         return return_result
-        # return self.__dict__ == other.__dict__
 
     def __str__(self):  # pragma: no cover
         evidence_string = ",".join(str(x) for x in self.evidence_reference)
@@ -321,21 +310,7 @@ class Peopla:
             f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.local_id}) ({self.global_id})"
         )
 
-    # def add_relationship(self, peorel):
-
-    #     self.peorels = self.peorels + peorel
-
-    #     logger.info(
-    #         f"Adding a {peorel} {peorel.type} relationship to PEOPLA object {self.name}"
-    #     )
-
-    #     logger.debug(
-    #         f"- {peorel.type} actor relationship to PEOPLA object {self.name}"
-    #     )
-
     def new_add_action(self, action_text, inheritance):
-
-        # self.attributes[attribute_text]["secondary_peopla"] = secondary_peopla
 
         logger.info(
             f"NEW Adding attribute to PEOPLA object {self.name}: ({action_text})"
@@ -425,18 +400,7 @@ class Document:
         self.shortcuts = []
 
         #############################################################
-        ### OLD VERSION (being used for w/ relationships) ###########
-        #############################################################
-        # # Saving the Peopla objects
-        # self.peopla_live = False
-        # self.peoplas_primary = []
-        # # Saving the Peopla objects that are derived from action_groups
-        # self.peopla_action_group_live = False
-        # self.peoplas_secondary = []
-        #############################################################
-
-        #############################################################
-        ### NEW VERSION (being used for the vs action groups) #######
+        ### Setting up tracking flags and objects                 ###
         #############################################################
         self.peopla_live = False
         self.all_peoplas = []
@@ -519,6 +483,9 @@ class Document:
 
                 self.print_current_status(self.current_line, line)
 
+                ### If "PYTEST_CURRENT_TEST" exists in os.environ, then
+                ### we are currently running test. We don't want to use
+                ### the pause functionality if we are running a test.
                 if not "PYTEST_CURRENT_TEST" in os.environ:
                     if self.current_line >= pause_threshold:
                         input()
@@ -799,18 +766,8 @@ class Document:
         """
 
         if re.match(data_table_header_regex, line):
-            ### Previous approach where only one caret was present:
-            # m = re.search(
-            #     rf"^###{re.escape(data_point_separator)}([^\^]*)(\^\d+)?$", line
-            # )
-            # header_content = m.group(1)
-            # header_shortcut = m.group(2).replace("^","")
-            # header_columns = header_content.split(data_point_separator)
-            # logger.debug(f"Identified table header: '{header_content}'")
-            # logger.debug(f"with {len(header_columns)} columns")
-            # logger.debug(f"with shortcut: {header_shortcut}")
 
-            ### Now we can have more than one shortcut
+            ### We can handle more than one shortcut
             m = re.search(
                 rf"^###{re.escape(data_point_separator)}([^\^]*)([\^\d]+)$", line
             )
@@ -823,11 +780,6 @@ class Document:
             logger.debug(f"with shortcut: {header_shortcuts}")
 
             logger.debug(f"Shortcuts are: {log_pretty(self.shortcuts)}\n")
-            # m = re.search(rf"^###{re.escape(data_point_separator)}(.*)$", line)
-            # header_content    = m.group(1)
-            # header_columns = header_content.split(data_point_separator)
-            # logger.debug(f"Identified table header: '{header_content}'")
-            # logger.debug(f"with {len(header_columns)} columns")
 
             logger.debug(
                 f"Is/are the header shortcut(s) ({header_shortcuts}) correct?????"
@@ -899,7 +851,6 @@ class Document:
                 f"This is the current table attributes: {current_table.attributes}"
             )
             self.data_points.append(DataPoint(content_list, current_table))
-            # (self.data_points[-1]).print_data_point()
 
     def generate_table_from_datapoints(self):
         datapoint_table = pd.DataFrame()
@@ -921,17 +872,6 @@ class Document:
     def scan_for_peopla_attributes(self, line):
 
         logger.debug(f"Looking for peopla attributes in {line}")
-
-        # if re.match(r"^###\t(\(>)?\t\*([^\*]*)\*$", line):
-        #     logger.debug("Found a relationship that belongs to the current secondary Peopla")
-        # elif re.match(r"^###\t(>)?\t\*([^\*]*)\*$", line):
-        #     logger.debug("Found a relationship that belongs to BOTH the primary and secondary Peopla")
-        # if re.match(r"^###\t(\()?\>\t(.*)$", line):
-        #     m = re.search(r"^###\t(\()?\>\t(.*)$", line)
-        #     scope_flag = "both" if m.group(1) is None else "secondary"
-        #     text_to_parse = m.group(2)
-        #     logger.debug( f"This is the scope flag: '{scope_flag}'" )
-        #     logger.debug(f"This is the text to parse: '{text_to_parse}'")
 
         if re.match(peopla_relation_line_regex, line):
             logger.debug("Found a peopla relationship")
@@ -1023,22 +963,6 @@ class Document:
 
                 logger.debug(f"The scope for this is: {relation_scope}")
 
-                # -----------------------------
-
-                # print( f"The current target peopla breadcrumbs (to be used where relation depth is {self.current_relation_depth}):\n")
-
-                # num_target_breadcrumbs = len(self.current_target_peopla_breadcrumbs)
-
-                # print( f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n")
-
-                # for i,b in enumerate(self.current_target_peopla_breadcrumbs):
-                #     for j,bj in enumerate( b ):
-                #         print( f"TARGET [{i}.{j}] {format(bj)}\n" )
-
-                # relevant_to_peopla_list = deepcopy(self.current_target_peoplas)
-
-                # print( f"The relevant depth is {self.current_relation_depth}:\n")
-
                 relevant_to_peopla_list = deepcopy(
                     self.current_target_peopla_breadcrumbs[
                         (self.current_breadcrumb_depth - 1)
@@ -1059,11 +983,6 @@ class Document:
                     f"*** There are {len(relevant_to_peopla_list)} relevant target_peopla\n",
                 )
 
-                # input()
-
-                # _relevant_to_peopla_list = self.current_target_peopla_breadcrumbs[0]
-                # relevant_to_peopla_list = _relevant_to_peopla_list[(self.current_relation_depth-1)]
-
                 logger.debug("Current to_peopla_list (step 1) - the target peoplas")
                 logger.debug(relevant_to_peopla_list)
 
@@ -1079,19 +998,6 @@ class Document:
                     logger.debug(
                         f"Need to add the current source peopla to the 'to' list"
                     )
-
-                    # # -----------------------------
-
-                    # print( f"The current source peopla breadcrumbs (to be used where relation depth is {self.current_relation_depth}):\n")
-
-                    # num_source_breadcrumbs = len(self.current_source_peopla_breadcrumbs)
-
-                    # print( f"---> There are {num_source_breadcrumbs} SOURCE peopla breadcrumbs populated:\n")
-
-                    # for i,b in enumerate(self.current_source_peopla_breadcrumbs):
-                    #     print( f"SOURCE [{i}] {format(b)}\n" )
-
-                    # # -----------------------------
 
                     relevant_source_peopla = self.current_source_peopla_breadcrumbs[
                         (self.current_breadcrumb_depth) - 1
@@ -1150,9 +1056,7 @@ class Document:
 
             line_content = re.sub(r"^###[\s\(]+", "", line)
             info = extract_attribute_information(line_content)
-            logger.debug(
-                f"Identified '{self.current_action}' / '{info}' "  # / '{peopla_to_update.name}'"
-            )
+            logger.debug(f"Identified '{self.current_action}' / '{info}' ")
 
             if self.peopla_action_group_live:
 
@@ -1162,8 +1066,6 @@ class Document:
                     ### group to have this attribute. So:
                     ### 1. Find the action group
                     ### 2. Add the attributes
-
-                    ###logger.critical("This has not been implemented yet")
 
                     self.all_action_groups[-1].update_attribute(
                         self.current_action, info
@@ -1192,10 +1094,6 @@ class Document:
         elif re.match(peopla_attribute_regex, line):
             logger.debug("Found a peopla attribute")
 
-            # m = re.search(r"^###\t(\()?\t([^\*]+)(\*?)$", line)
-            # secondary_flag = False if m.group(1) is None else True
-            # attribute_text = m.group(2).rstrip()
-            # inheritance_flag = m.group(3).rstrip()
             action_scope = extract_action_scope(line)
             action_details = extract_action_details(line)
 
@@ -1238,28 +1136,6 @@ class Document:
 
                     self.current_action = action_details["action_text"]
 
-                    ### If this information is relevant for the primary Peopla
-                    ### AND we have a action_group currently live (i.e., a secondary
-                    ### Peopla that is part of this action_group) then that secondary
-                    ### Peopla should be recorded as part of the action_group
-                    # secondary_peopla_object = None
-                    # if not secondary_flag and self.peopla_action_group_live:
-                    #     logger.debug(
-                    #         f"This is information that defines a action_group between two Peoplas"
-                    #     )
-                    #     logger.debug(f"1. primary  : {self.peoplas_primary[-1].name}")
-                    #     logger.debug(f"2. secondary: {self.peoplas_secondary[-1].name}")
-                    #     secondary_peopla_object = self.peoplas_secondary[-1]
-
-                    ### Work out which Peopla we should update with the information -
-                    ### the primary or the secondary Peopla
-                    # peopla_to_update = (
-                    #     (self.peoplas_secondary[-1])
-                    #     if secondary_flag
-                    #     else (self.peoplas_primary[-1])
-                    # )
-                    # logger.critical("This has not been implemented yet")
-
                     for tp in self.current_target_peoplas:
                         logger.debug(
                             f"Adding [{action_details['action_text']}] attribute to {tp.name}"
@@ -1277,28 +1153,6 @@ class Document:
 
             # Maybe this shouldn't be removed????
             # self.peopla_live = True
-
-        # elif re.match(r"^###\tw/.*$", line):
-        #     logger.debug("Found a peopla action_group")
-
-        #     peopla_content = re.sub(r"^###\s+", "", line)
-
-        #     logger.debug(f"Parsed out this content: {peopla_content}")
-
-        #     peopla_content_parsed = extract_peopla_details(peopla_content)
-
-        #     self.peoplas_secondary.append(
-        #         Peopla(
-        #             peopla_content_parsed["content"],
-        #             peopla_content_parsed["place_flag"],
-        #             peopla_content_parsed["local_id"],
-        #             peopla_content_parsed["global_id"],
-        #         )
-        #     )
-
-        #     ### Open an action group
-        #     self.peopla_action_group_live = True
-        #     self.peopla_action_group_directed = False
 
         elif re.match(action_group_regex, line):
             logger.debug("Found an ActionGroup")
@@ -1320,31 +1174,13 @@ class Document:
             record_evidence(target_peopla, self.current_line)
 
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
-            # self.current_target_peoplas.append(target_peopla)
-
-            # new_target_peoplas = []
-
-            # if self.current_breadcrumb_depth <= (len(self.current_target_peopla_breadcrumbs)-1):
-            #     new_target_peoplas = deepcopy(self.current_target_peopla_breadcrumbs[self.current_breadcrumb_depth])
 
             new_target_peoplas = [target_peopla]
 
-            print(
-                f"^^^^^^^^^^^^^^^^^^^^^ num target peoplas { len(new_target_peoplas) }"
-            )
-            for n, t in enumerate(new_target_peoplas):
-                print(f"^^^^^^^^^^^^^^^^^^^^^ ({n}) {t}")
-
-            ### (3) reset the source/target breadcrumbs
-            # self.current_target_peopla_breadcrumbs[self.relation_depth] = self.current_target_peoplas
-
-            print(f"IN HERE __________{line}\n")
-            print(f"IN HERE __________{get_depth(line)}")
-
+            ### Update the target breadcrumbs
             self.current_target_peopla_breadcrumbs = update_breadcrumbs(
                 deepcopy(self.current_target_peopla_breadcrumbs),
                 self.current_breadcrumb_depth,
-                # deepcopy(self.current_target_peoplas),
                 new_target_peoplas,
                 "TARGET",
             )
@@ -1429,23 +1265,7 @@ class Document:
         attached to the Document.
         """
         if re.match(peopla_line_regex, line):
-            # m = re.search(r"^###\t(\@?)\[(.*?)\](\(.*\))?(\{.*\})?$", line)
-            # place_flag = m.group(1)
-            # content = m.group(2)
-            # local_id = None
-            # if m.group(3):
-            #     local_id = re.sub("[\(\)]", "", m.group(3))
-            # global_id = None
-            # if m.group(4):
-            #     global_id = re.sub("[\{\}]", "", m.group(4))
-            # logger.debug(
-            #     f"Identified '{place_flag}' / '{content}' / '{local_id}'/ '{global_id}'"
-            # )
-            # self.peoplas_primary.append(Peopla(content, place_flag == "@", local_id, global_id))
 
-            ### New version #########################################
-            # peopla_content = remove_all_leading_markup(line)
-            # logger.debug(f"Parsed out this content: {peopla_content}")
             peopla_content_parsed = extract_peopla_details(line)
 
             source_peopla_tmp = Peopla(
@@ -1839,14 +1659,11 @@ def record_evidence(object, line_number):
 
 
 def update_breadcrumbs(existing_list, update_depth, update_object, label=""):
-    logger.debug(
-        f"!!!!!!!!!!!!! [UPDATE {label} BCs] The update depth is {update_depth}"
-    )
-    logger.debug(
-        f"!!!!!!!!!!!!! [UPDATE {label} BCs] Updating breadcrumbs from this ({len(existing_list)} items):\n"
-    )
-    # for i,x in enumerate( existing_list ):
-    #     f"!!!!!!!!!!!!! [UPDATE {label} BCs] [{i}] {x.name}\n"
+    if label != "":
+        label += " "
+
+    logger.debug(f"[Updating {label}breadcrumbs] The update depth is {update_depth}")
+    logger.debug(f"[Updating {label}breadcrumbs] ...from {len(existing_list)} items)\n")
 
     # Remove everything including the level that is to be updated
     new_list = existing_list[:(update_depth)]
@@ -1861,13 +1678,7 @@ def update_breadcrumbs(existing_list, update_depth, update_object, label=""):
     # Append the new object (this will be at the correct depth)
     new_list.append(update_object)
 
-    logger.debug(
-        f"!!!!!!!!!!!!! [UPDATE {label} BCs] to this: ({len(new_list)} items)\n"
-    )
-    # for i,x in enumerate( new_list ):
-    #     f"!!!!!!!!!!!!! [UPDATE {label} BCs] [{i}] {x.name}\n"
-
-    # input()
+    logger.debug(f"[Updating {label}breadcrumbs] ...to {len(new_list)} items\n")
 
     return new_list
 
