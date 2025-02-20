@@ -552,7 +552,10 @@ def create_default_datapoint_df():
     # (6) Add the global_id column
     default_df["global_id"] = None
 
-    # (7) Return the dataframe
+    # (7) Add the local_id column
+    default_df["local_id"] = None
+
+    # (8) Return the dataframe
     return default_df
 
 
