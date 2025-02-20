@@ -3,6 +3,7 @@ from pathlib import Path
 import pandas as pd
 from pandas import testing
 import sys
+from collections import defaultdict
 
 sys.path.append("src/ontologise")
 
@@ -83,36 +84,16 @@ def test_peopla_attributes_of_attributes(
     [
         # TEST: Are the peoplas evidenced correctly
         # Context: 1 peopla with one line of evidence
-        (
-            "peopla_content_D",
-            "settings_basic.yaml",
-            "A, B",
-            [7],
-        ),
+        ("peopla_content_D", "settings_basic.yaml", "A, B", [7],),
         # TEST: Are the peoplas evidenced correctly
         # Context: 1 peopla with multiple lines of evidence
-        (
-            "peopla_content_E1",
-            "settings_basic.yaml",
-            "A, B",
-            [7, 11],
-        ),
+        ("peopla_content_E1", "settings_basic.yaml", "A, B", [7, 11],),
         # TEST: Are the peoplas evidenced correctly
         # Context: 1 peopla with one line of evidence as a Peopla target
-        (
-            "peopla_content_E2",
-            "settings_basic.yaml",
-            "C, D",
-            [9],
-        ),
+        ("peopla_content_E2", "settings_basic.yaml", "C, D", [9],),
         # TEST: Are the peoplas evidenced correctly
         # Context: 1 peopla with multiple lines of evidence
-        (
-            "peopla_content_F9",
-            "settings_basic.yaml",
-            "A, B",
-            [7, 18],
-        ),
+        ("peopla_content_F9", "settings_basic.yaml", "A, B", [7, 18],),
     ],
 )
 def test_peopla_evidence_recording(
@@ -157,44 +138,16 @@ def test_peopla_evidence_recording(
     [
         # TEST: Are the peorels evidenced correctly
         # Context: 1 peorel with one line of evidence
-        (
-            "peorel_content_A1",
-            "settings_basic.yaml",
-            "B",
-            "SON",
-            "A",
-            [6],
-        ),
+        ("peorel_content_A1", "settings_basic.yaml", "B", "SON", "A", [6],),
         # TEST: Are the peorels evidenced correctly
         # Context: 1 peorel with two lines of evidence
-        (
-            "peorel_content_A2",
-            "settings_basic.yaml",
-            "B",
-            "SON",
-            "A",
-            [6, 10],
-        ),
+        ("peorel_content_A2", "settings_basic.yaml", "B", "SON", "A", [6, 10],),
         # TEST: Are the peorels evidenced correctly
         # Context: 1 peorel with one line of evidence
-        (
-            "peorel_content_B1",
-            "settings_basic.yaml",
-            "B",
-            "SON",
-            "A",
-            [7],
-        ),
+        ("peorel_content_B1", "settings_basic.yaml", "B", "SON", "A", [7],),
         # TEST: Are the peorels evidenced correctly
         # Context: 1 peorel with one line of evidence
-        (
-            "peorel_content_B2",
-            "settings_basic.yaml",
-            "B",
-            "SON",
-            "A",
-            [7],
-        ),
+        ("peorel_content_B2", "settings_basic.yaml", "B", "SON", "A", [7],),
     ],
 )
 def test_peorel_evidence_recording(
@@ -222,9 +175,11 @@ def test_peorel_evidence_recording(
         ### Print for information
         print(p)
         ### Collect global IDs
-        if ( p.peopla_is.name == peopla_is_name and 
-        p.peopla_to.name == peopla_to_name and
-        p.relation_text == peopla_relation ):
+        if (
+            p.peopla_is.name == peopla_is_name
+            and p.peopla_to.name == peopla_to_name
+            and p.relation_text == peopla_relation
+        ):
             assert p.evidence_reference == expected_evidence_list
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -269,77 +224,28 @@ def test_peorel_evidence_recording(
         ),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_E1",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "P",
-            [9],
-        ),
+        ("peopla_content_E1", "settings_basic.yaml", "A, B", "C, D", "P", [9],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_E1",
-            "settings_basic.yaml",
-            "A, B",
-            "E, F",
-            "Q",
-            [13],
-        ),
+        ("peopla_content_E1", "settings_basic.yaml", "A, B", "E, F", "Q", [13],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_E2",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "P",
-            [10],
-        ),
+        ("peopla_content_E2", "settings_basic.yaml", "A, B", "C, D", "P", [10],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_E3",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "Y",
-            [11],
-        ),
+        ("peopla_content_E3", "settings_basic.yaml", "A, B", "C, D", "Y", [11],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_Ex",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "Y",
-            [11],
-        ),
+        ("peopla_content_Ex", "settings_basic.yaml", "A, B", "C, D", "Y", [11],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_Ex",
-            "settings_basic.yaml",
-            "A, B",
-            "E, F",
-            "Z",
-            [16],
-        ),
+        ("peopla_content_Ex", "settings_basic.yaml", "A, B", "E, F", "Z", [16],),
         # TEST: Are the ActionGroups evidenced correctly
         # Context: 2 ActionGroups with one line of evidence
-        (
-            "peopla_content_F9",
-            "settings_basic.yaml",
-            "A, B",
-            "C, D",
-            "Y",
-            [16],
-        ),
+        ("peopla_content_F9", "settings_basic.yaml", "A, B", "C, D", "Y", [16],),
     ],
 )
-def test_actiongroup_evidence_recording(
+def test_actiongroup_evidence_recording_single_targets(
     test_name,
     settings_file,
     peopla_source,
@@ -369,6 +275,92 @@ def test_actiongroup_evidence_recording(
             and p.source_peopla.name == peopla_source
             and p.target_peoplas.pop().name == peopla_target
         ):
+            assert p.evidence_reference == expected_evidence_list
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_source,expected_target_peoplas,expected_action_text,expected_evidence_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the source peopla
+    # (4) list of the multiple target peopla
+    # (5) the action text
+    # (6) list of line numbers for evidence
+    [
+        (
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 1 ActionGroups with multiple targets
+            "secondary_peopla_content_C",
+            "settings_basic.yaml",
+            "A, B",
+            ["D, E", "F, G"],
+            "J",
+            [11],
+        ),
+        (
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 1 ActionGroups with multiple targets plus
+        #          additional metadata
+            "secondary_peopla_content_D",
+            "settings_basic.yaml",
+            "A, B",
+            ["D, E", "F, G"],
+            "J",
+            [15],
+        ),
+        (
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 1 ActionGroups with multiple targets plus
+        #          an intervening relation that could confuse
+        #          things
+            "secondary_peopla_content_E",
+            "settings_basic.yaml",
+            "A, B",
+            ["D, E", "F, G"],
+            "J",
+            [13],
+        ),
+    ],
+)
+def test_actiongroup_evidence_recording_multiple_targets(
+    test_name,
+    settings_file,
+    peopla_source,
+    expected_target_peoplas,
+    expected_action_text,
+    expected_evidence_list,
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for p in test_doc.all_action_groups:
+        ### Print for information
+        print(p)
+        ### Collect global IDs
+        if (
+            p.type == expected_action_text
+            and p.source_peopla.name == peopla_source
+        ):
+            observed_target_peoplas = []
+            for tp in p.target_peoplas:
+                observed_target_peoplas.append(tp.name)
+
+            assert len(p.target_peoplas) == len(expected_target_peoplas)
+            assert sorted(observed_target_peoplas) == sorted(expected_target_peoplas)
             assert p.evidence_reference == expected_evidence_list
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -969,6 +961,7 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
+
 # -----------------------------------------------------------------
 # Integration test cases: inferring gender
 # -----------------------------------------------------------------
@@ -984,54 +977,24 @@ def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
     # (4) global IDs of those peoplas
     [
         # TEST: Checking that SON generates MALE
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "C",
-            "MALE",
-            "A",
-            "SON",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "C", "MALE", "A", "SON",),
         # TEST: Checking that FATHER generates MALE
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "F",
-            "MALE",
-            "D",
-            "FATHER",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "F", "MALE", "D", "FATHER",),
         # TEST: Checking that DAUG generates FEMALE
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "I",
-            "FEMALE",
-            "G",
-            "DAUG",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "I", "FEMALE", "G", "DAUG",),
         # TEST: Checking that MOTHER generates FEMALE
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "L",
-            "FEMALE",
-            "J",
-            "MOTHER",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "L", "FEMALE", "J", "MOTHER",),
         # TEST: Checking that anything ungendered generates UNKNOWN
-        (
-            "peorel_content_C1",
-            "settings_basic.yaml",
-            "O",
-            "UNKNOWN",
-            "M",
-            "X",
-        ),
+        ("peorel_content_C1", "settings_basic.yaml", "O", "UNKNOWN", "M", "X",),
     ],
 )
 def test_gender_inference_from_relations(
-    test_name, settings_file, peopla_name, expected_gender, expected_peorel_to, expected_peorel_relation
+    test_name,
+    settings_file,
+    peopla_name,
+    expected_gender,
+    expected_peorel_to,
+    expected_peorel_relation,
 ):
 
     content_f = DATA_DIR / f"{test_name}.txt"
@@ -1078,24 +1041,16 @@ def test_gender_inference_from_relations(
     [
         # TEST: Are the gender inferences evidenced correctly
         # Context: Repeated peorel (created for issue #75)
-        (
-            "peorel_content_B7",
-            "settings_basic.yaml",
-            "C",
-            "FEMALE",
-            2,
-            7
-        ),
+        ("peorel_content_B7", "settings_basic.yaml", "C", "FEMALE", 2, 7),
         # TEST: Are the gender inferences evidenced correctly
         # Context: Repeated peorel (created for issue #75)
-        (
-            "peorel_content_B7",
-            "settings_basic.yaml",
-            "D",
-            "FEMALE",
-            2,
-            9
-        ),
+        ("peorel_content_B7", "settings_basic.yaml", "D", "FEMALE", 2, 9),
+        # TEST: Are the gender inferences evidenced correctly
+        # Context: Repeated peorel (created for issue #75)
+        ("peorel_content_B8", "settings_basic.yaml", "C", "FEMALE", 2, 7),
+        # TEST: Are the gender inferences evidenced correctly
+        # Context: Repeated peorel (created for issue #75)
+        ("peorel_content_B8", "settings_basic.yaml", "D", "FEMALE", 2, 12),
     ],
 )
 def test_gender_evidence_is_correct(
@@ -1131,7 +1086,252 @@ def test_gender_evidence_is_correct(
 
             for this_evidence_peorel in observed_evidence_list:
                 assert len(this_evidence_peorel.evidence_reference) == 1
-                assert this_evidence_peorel.evidence_reference.pop() == expected_line_reference
+                assert (
+                    this_evidence_peorel.evidence_reference.pop()
+                    == expected_line_reference
+                )
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: inferring gender
+# -----------------------------------------------------------------
+# - Checking that gender is inferred correctly
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_num_peorel",
+    ### This test will only work where there is a single line of evidence for a gender inference
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla 'is' to test
+    # (4) name of the peopla 'to' to test
+    # (4) the expected relation text
+    # (4) the expected line reference for that evidence AS STRING (will only be one in this test case)
+    [
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # One continuous hierarchy
+        ("nested_pedigree_A1", "settings_basic.yaml", 12),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Two separate hierarchies
+        ("nested_pedigree_A2", "settings_basic.yaml", 8),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        ("nested_pedigree_A3", "settings_basic.yaml", 3),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        # As A3 but with 'real' data, other metadata and an extra blank line
+        ("nested_pedigree_A3+", "settings_basic.yaml", 3),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND full target Peoplas
+        ("nested_pedigree_A4", "settings_basic.yaml", 4),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND full target Peoplas
+        # As A4 but with 'real' data and other metadata
+        ("nested_pedigree_A4+", "settings_basic.yaml", 4),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that requires breadcrumbs
+        ("nested_pedigree_A5", "settings_basic.yaml", 12),
+    ],
+)
+def test_nested_pedigree_num_relations(test_name, settings_file, expected_num_peorel):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    observed_num_peorel = len(test_doc.all_peorels)
+    assert observed_num_peorel == expected_num_peorel
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name_is,peopla_name_to,expected_relation_text,expected_line_reference",
+    ### This test will only work where there is a single line of evidence for a gender inference
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla 'is' to test
+    # (4) name of the peopla 'to' to test
+    # (4) the expected relation text
+    # (4) the expected line reference for that evidence AS STRING (will only be one in this test case)
+    [
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # One continuous hierarchy
+        ("nested_pedigree_A1", "settings_basic.yaml", "C", "B", "DAUG", "7"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "C", "A", "DAUG", "7"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "E", "D", "DAUG", "10"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "E", "C", "DAUG", "10"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "G", "F", "DAUG", "13"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "G", "E", "DAUG", "13"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "I", "H", "DAUG", "16"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "I", "G", "DAUG", "16"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "K", "J", "DAUG", "19"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "K", "I", "DAUG", "19"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "M", "L", "DAUG", "22"),
+        ("nested_pedigree_A1", "settings_basic.yaml", "M", "K", "DAUG", "22"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Two separate hierarchies
+        ("nested_pedigree_A2", "settings_basic.yaml", "C", "B", "DAUG", "7"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "C", "A", "DAUG", "7"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "E", "D", "DAUG", "10"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "E", "C", "DAUG", "10"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "H", "G", "DAUG", "16"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "H", "F", "DAUG", "16"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "J", "I", "DAUG", "19"),
+        ("nested_pedigree_A2", "settings_basic.yaml", "J", "H", "DAUG", "19"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        ("nested_pedigree_A3", "settings_basic.yaml", "B", "A", "DAUG", "6"),
+        ("nested_pedigree_A3", "settings_basic.yaml", "K", "J", "SON", "15"),
+        ("nested_pedigree_A3", "settings_basic.yaml", "K", "B", "SON", "15"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        # As A3 but with 'real' data, other metadata and an extra blank line
+        (
+            "nested_pedigree_A3+",
+            "settings_basic.yaml",
+            "CRAWFURD, Barbara",
+            "CRAWFURD, Andrew",
+            "DAUG",
+            "6",
+        ),
+        (
+            "nested_pedigree_A3+",
+            "settings_basic.yaml",
+            "LOGAN, John",
+            "LOGAN, James",
+            "SON",
+            "16",
+        ),
+        (
+            "nested_pedigree_A3+",
+            "settings_basic.yaml",
+            "LOGAN, John",
+            "CRAWFURD, Barbara",
+            "SON",
+            "16",
+        ),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND full target Peoplas
+        ("nested_pedigree_A4", "settings_basic.yaml", "B", "A", "DAUG", "7"),
+        ("nested_pedigree_A4", "settings_basic.yaml", "B", "D", "DAUG", "7"),
+        ("nested_pedigree_A4", "settings_basic.yaml", "K", "J", "SON", "16"),
+        ("nested_pedigree_A4", "settings_basic.yaml", "K", "B", "SON", "16"),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that includes other information AND a missing target Peopla
+        # As A4 but with 'real' data and other metadata
+        (
+            "nested_pedigree_A4+",
+            "settings_basic.yaml",
+            "CRAWFURD, Barbara",
+            "CRAWFURD, Andrew",
+            "DAUG",
+            "7",
+        ),
+        (
+            "nested_pedigree_A4+",
+            "settings_basic.yaml",
+            "CRAWFURD, Barbara",
+            "LOGAN, .",
+            "DAUG",
+            "7",
+        ),
+        (
+            "nested_pedigree_A4+",
+            "settings_basic.yaml",
+            "LOGAN, John",
+            "LOGAN, James",
+            "SON",
+            "17",
+        ),
+        (
+            "nested_pedigree_A4+",
+            "settings_basic.yaml",
+            "LOGAN, John",
+            "CRAWFURD, Barbara",
+            "SON",
+            "17",
+        ),
+        # TEST: Are the nested pedigrees being interpreted correctly?
+        # Hierarchy that requires breadcrumbs
+        ("nested_pedigree_A5", "settings_basic.yaml", "C", "B", "DAUG", "7"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "C", "A", "DAUG", "7"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "E", "D", "DAUG", "10"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "E", "C", "DAUG", "10"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "G", "F", "DAUG", "13"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "G", "E", "DAUG", "13"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "I", "H", "DAUG", "16"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "I", "C", "DAUG", "16"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "K", "J", "DAUG", "19"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "K", "C", "DAUG", "19"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "M", "L", "DAUG", "22"),
+        ("nested_pedigree_A5", "settings_basic.yaml", "M", "A", "DAUG", "22"),
+    ],
+)
+def test_nested_pedigree_relations_that_should_be_recorded(
+    test_name,
+    settings_file,
+    peopla_name_is,
+    peopla_name_to,
+    expected_relation_text,
+    expected_line_reference,
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    observed_relations_dict = defaultdict(dict)
+
+    for this_peorel in test_doc.all_peorels:
+        evidence_string = ",".join(str(x) for x in this_peorel.evidence_reference)
+
+        if this_peorel.peopla_is.name not in observed_relations_dict:
+            observed_relations_dict[this_peorel.peopla_is.name] = {}
+
+        if (
+            this_peorel.peopla_to.name
+            not in observed_relations_dict[this_peorel.peopla_is.name]
+        ):
+            observed_relations_dict[this_peorel.peopla_is.name][
+                this_peorel.peopla_to.name
+            ] = {}
+
+        observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name][
+            "text"
+        ] = this_peorel.relation_text
+        observed_relations_dict[this_peorel.peopla_is.name][this_peorel.peopla_to.name][
+            "evidence"
+        ] = evidence_string
+
+    assert (
+        observed_relations_dict[peopla_name_is][peopla_name_to]["text"]
+        == expected_relation_text
+    )
+    assert (
+        observed_relations_dict[peopla_name_is][peopla_name_to]["evidence"]
+        == expected_line_reference
+    )
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 

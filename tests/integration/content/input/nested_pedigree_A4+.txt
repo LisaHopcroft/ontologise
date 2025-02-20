@@ -1,0 +1,19 @@
+#[PEDIGREE]
+----------------------------------------------------------------------
+
+###	[CRAWFURD, Andrew](6)
+###	w/[LOGAN, .]
+###	>	*DAUG*
+###	>	[CRAWFURD, Barbara]{dad5c5cd-d92d-4ba4-a8fe-23ea24871bea}
+###	>		DIED
+###	>			:[1825-10-20]
+###	>			@[SCO, REN, LWH, Johnshill]
+###	>	w/[LOGAN, James]{6b624adf-41fa-4eb8-bc1c-857823da9072}
+###	>	(	OF
+###	>	(		@[SCO, REN, LWH, Lochwinnoch]
+###	>		MARRIED
+
+###	>	>	*SON*
+###	>	>	[LOGAN, John]
+###	>	>		DIED
+###	>	>			AGED[14]
