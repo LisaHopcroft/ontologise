@@ -92,6 +92,15 @@ def test_peopla_attributes_of_attributes(
             "E",
             {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"},
         ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "pedigree_attributes_B",
+            "settings_basic.yaml",
+            "C, D",
+            "E",
+            {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"},
+        ),
     ],
 )
 def test_peopla_attributes_in_pedigrees(

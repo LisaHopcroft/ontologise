@@ -1,11 +1,12 @@
 import re
 import os
 import yaml
-from collections import defaultdict
+from collections import defaultdict, Counter
 import logging
 import pandas as pd
 from copy import deepcopy
 import pprint
+import math
 
 
 PROJECT_NAME = "Ontologise"
@@ -22,6 +23,7 @@ shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
 peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
 peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
+peopla_pedigree_attribute_regex = r"^###\t(\()?(>\t)+[^\*]+\*?$"
 peopla_relation_line_regex = r"^###\t(\()?(>\t)+\*(.*)\*$"
 peopla_relation_depth_regex = r">\t"
 peopla_relation_string_regex = r"\*(.*)\*"
@@ -29,7 +31,8 @@ peopla_relation_target_regex = r"^###\t(\()?(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_relation_scope_regex = r"^###\t(\(?>).*$"
 
 action_regex = r"^([^\*]+)(\*)?$"
-action_attribute_regex = r"^###\t(\()?\t\t[^\*]+\*?$"
+action_attribute_regex          = r"^###\t(\()?\t\t[^\*]+\*?$"
+pedigree_action_attribute_regex = r"^###\t[\(\t<]+(\t)+[^\*]+\*?$"
 action_group_regex = r"^###\t(>\t)*(vs|w/).*$"
 action_group_vs_regex = r"^###\t(>\t)*vs\[.*$"
 action_group_w_regex = r"^###\t(>\t)*w\/\[.*$"
@@ -415,6 +418,7 @@ class Document:
         self.current_source_peopla = None
         self.current_target_peoplas = []
 
+        self.current_pedigree_indent = 0
         self.pedigree_breadcrumbs_source = []
         self.pedigree_breadcrumbs_target = []
 
@@ -697,6 +701,7 @@ class Document:
             self.current_relation_text = None
             self.current_relation_depth = 0
             self.current_breadcrumb_depth = 0
+            self.current_pedigree_indent = math.inf
 
     def scan_for_shortcut_lines(self, line):
         """
@@ -889,6 +894,9 @@ class Document:
     def scan_for_peopla_attributes(self, line):
 
         logger.debug(f"Looking for peopla attributes in {line}")
+        logger.debug(f"Current pedigree indent {self.current_pedigree_indent}")
+
+        # input()
 
         if re.match(peopla_relation_line_regex, line):
             logger.debug("Found a peopla relationship")
@@ -922,6 +930,8 @@ class Document:
 
             relation_peopla_is = self.record_peopla(relation_peopla_is_tmp)
             record_evidence(relation_peopla_is, self.current_line)
+
+            self.is_relation_peopla = relation_peopla_is
 
             logger.debug(
                 f"Found the target of a relation action: '{relation_peopla_is.name}'"
@@ -1062,6 +1072,7 @@ class Document:
             self.relation_live = False
             self.current_relation_text = None
             self.current_relation_depth = 0
+            self.current_pedigree_indent = math.inf
 
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
@@ -1205,6 +1216,71 @@ class Document:
             ### Open an action group
             self.peopla_action_group_live = True
             self.peopla_action_group_directed = direction_flag
+
+        elif (
+            re.match(peopla_pedigree_attribute_regex, line)
+            and count_indent(line) > self.current_pedigree_indent
+        ):
+            logger.debug("Found an attribute of an action IN A PEDIGREE")
+            logger.debug(
+                f"This will be added to {self.is_relation_peopla.name} (the current pedigree target)"
+            )
+
+            action_scope = extract_action_scope(line)
+
+            line_content = re.sub(r"^###[\s\(>]+", "", line)
+            info = extract_attribute_information(line_content)
+            logger.debug(f"Identified '{self.current_action}' / '{info}' ")
+
+            self.is_relation_peopla.update_attribute(self.current_action, info)
+
+            logger.debug(
+                f"Adding [{self.current_action}] attribute to {self.is_relation_peopla.name}"
+            )
+
+            # input()
+
+        elif (
+            re.match(peopla_pedigree_attribute_regex, line)
+            and count_indent(line) <= self.current_pedigree_indent
+        ):
+            logger.debug("Found a peopla attribute INSIDE A PEDIGREE")
+
+            action_scope = extract_pedigree_action_scope(line)
+            action_details = extract_pedigree_action_details(line)
+
+            self.current_action = action_details["action_text"]
+            self.current_pedigree_indent = count_indent(line)
+
+            logger.debug(f"The action scope is {action_scope}")
+            logger.debug(
+                f"Identified '{action_details['action_text']}' / '{action_details['inheritance_flag']} / '{action_details['pedigree_depth']}'"
+            )
+
+            inheritance_hash = {}
+            if action_details["inheritance_flag"]:
+                inheritance_hash = self.header
+                inheritance_hash.pop("TITLE")
+
+            ### If there is an action within a pedigree, it is relevant ONLY for the 'is'
+            ### Peopla in the relation.
+
+            logger.debug(
+                f"Adding [{action_details['action_text']}] attribute to pedigree object {self.is_relation_peopla.name}"
+            )
+            self.is_relation_peopla.update_attribute(
+                self.current_action, inheritance_hash
+            )
+
+            ### Then as we encounter attribute of attribute lines that are inside a
+            ### we will update these same Peoplas with those attributes of attributes
+
+            ### All updating of attributes will be done by the update_attribute() function
+
+            ### Note that self.current_pedigree_peoplas will need to be set to [] at the
+            ### appropriate point - probably when we encounter a source Peopla???
+
+            # input()
 
     def record_peopla(self, p):
 
@@ -1486,7 +1562,16 @@ def remove_all_leading_action_markup(l):
     """
     Removes markup, but retains the @ for place peoplas
     """
-    return re.sub(r"^###\t(\S*)\t", "", l)
+    # return re.sub(r"^###\t(\S*)\t", "", l)
+
+    return re.sub(r"^###[\t\S\(>]*(\t)+", "", l)
+
+def remove_all_leading_pedigree_action_markup(l):
+    """
+    Removes markup, but retains the @ for place peoplas
+    """
+    #return re.sub(r"^###[\t\S\(>]*\t", "", l)
+    return re.sub(r"^###[\t\S\(>]*(\t)+", "", l)
 
 
 def remove_all_leading_relation_markup(l):
@@ -1581,6 +1666,58 @@ def extract_action_scope(l0):
     return scope
 
 
+def extract_pedigree_action_scope(l0):
+    """
+    Extract details of the scope of an action
+    """
+
+    m = re.search(action_scope_regex, l0)
+
+    scope_indicator = m.group(1)
+
+    if re.search("\(", scope_indicator):
+        scope = "target"
+    else:
+        scope = "both"
+
+    return scope
+
+
+def extract_pedigree_action_details(l0):
+    """
+    Parse details from a relation line.
+    Examples of action lines:
+    """
+
+    relation_depth = len(re.findall(peopla_relation_depth_regex, l0))
+
+    l1 = remove_all_leading_pedigree_action_markup(l0).strip()
+
+    # print(f"L0 = {l0}")
+    # print(f"RG = {peopla_relation_depth_regex}")
+    # print(f"L1 = {l1}")
+    # print(f"RD = {relation_depth}")
+
+    m = re.search(action_regex, l1)
+    action_text = m.group(1).rstrip()
+    inheritance_flag = False if m.group(2) is None else True
+
+    logger.debug(
+        f"Method for extracting action details from pedigree:\n"
+        + f" - pedigree depth is? '{relation_depth}'\n"
+        + f" - attribute_text is ? '{action_text}'\n"
+        + f" - inheritance flag provided? '{inheritance_flag}'"
+    )
+
+    pedigree_action_info_dictionary = { 
+        "pedigree_depth": relation_depth,
+        "action_text": action_text,
+        "inheritance_flag": inheritance_flag,
+    }
+
+    return pedigree_action_info_dictionary
+
+
 def extract_relation_details(l0):
     """
     Parse details from a relation line.
@@ -1588,11 +1725,6 @@ def extract_relation_details(l0):
     - ###	>	*SON*
     - ###	>	>	*DAUG*
     - ###	>	*FATHER*
-    Where the closed vocabulary is:
-    * SON
-    * DAUG
-    * FATHER
-    * MOTHER
     """
 
     l1 = remove_all_leading_relation_markup(l0)
@@ -1708,3 +1840,6 @@ def pad_with_none(l, n, pad=None):
 
 def get_pedigree_depth(l):
     return len(re.findall(peopla_relation_depth_regex, l))
+
+def count_indent(l):
+    return Counter(l)["\t"]
