@@ -25,6 +25,7 @@ from utils import (
     gender_inference_from_relation,
     update_breadcrumbs,
     pad_with_none,
+    get_pedigree_depth,
 )
 
 
@@ -394,3 +395,45 @@ def test_breadcrumb_updates(input_list, update_depth, update_object, expected_ou
 def test_pad_with_none(input_list, target_length, expected_output):
     observed_output = pad_with_none(input_list, target_length)
     assert observed_output == expected_output
+
+
+@pytest.mark.parametrize(
+    "input_list,target_length,expected_output",
+    # parameters are:
+    # (1) an input list
+    # (2) the level at which to update
+    # (3) what to update this level with
+    # (4) the expected result
+    [
+        # TEST: Basic
+        ([], 1, [None]),
+        ([None], 2, [None, None]),
+        (["A"], 1, ["A"]),
+        (["A"], 2, ["A", None]),
+    ],
+)
+def test_pad_with_none(input_list, target_length, expected_output):
+    observed_output = pad_with_none(input_list, target_length)
+    assert observed_output == expected_output
+
+
+@pytest.mark.parametrize(
+    "input_line,expected_depth",
+    # parameters are:
+    # (1) an input list
+    # (2) the level at which to update
+    # (3) what to update this level with
+    # (4) the expected result
+    [
+        # TEST: Basic
+        ("###	[X]", 0),
+        ("###	>	[X]", 1),
+        ("###	>	>	[X]", 2),
+        ("###	(>	[X]", 1),
+        ("###	(>	>	[X]", 2),
+        ("###	>	[>]", 1),
+    ],
+)
+def test_get_pedigree_depth(input_line, expected_depth):
+    observed_depth = get_pedigree_depth(input_line)
+    assert observed_depth == expected_depth
