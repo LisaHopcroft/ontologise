@@ -245,7 +245,7 @@ def test_peorel_evidence_recording(
         ("peopla_content_F9", "settings_basic.yaml", "A, B", "C, D", "Y", [16],),
     ],
 )
-def test_actiongroup_evidence_recording(
+def test_actiongroup_evidence_recording_single_targets(
     test_name,
     settings_file,
     peopla_source,
@@ -275,6 +275,92 @@ def test_actiongroup_evidence_recording(
             and p.source_peopla.name == peopla_source
             and p.target_peoplas.pop().name == peopla_target
         ):
+            assert p.evidence_reference == expected_evidence_list
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_source,expected_target_peoplas,expected_action_text,expected_evidence_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the source peopla
+    # (4) list of the multiple target peopla
+    # (5) the action text
+    # (6) list of line numbers for evidence
+    [
+        (
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 1 ActionGroups with multiple targets
+            "secondary_peopla_content_C",
+            "settings_basic.yaml",
+            "A, B",
+            ["D, E", "F, G"],
+            "J",
+            [11],
+        ),
+        (
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 1 ActionGroups with multiple targets plus
+        #          additional metadata
+            "secondary_peopla_content_D",
+            "settings_basic.yaml",
+            "A, B",
+            ["D, E", "F, G"],
+            "J",
+            [15],
+        ),
+        (
+        # TEST: Are the ActionGroups evidenced correctly
+        # Context: 1 ActionGroups with multiple targets plus
+        #          an intervening relation that could confuse
+        #          things
+            "secondary_peopla_content_E",
+            "settings_basic.yaml",
+            "A, B",
+            ["D, E", "F, G"],
+            "J",
+            [13],
+        ),
+    ],
+)
+def test_actiongroup_evidence_recording_multiple_targets(
+    test_name,
+    settings_file,
+    peopla_source,
+    expected_target_peoplas,
+    expected_action_text,
+    expected_evidence_list,
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    for p in test_doc.all_action_groups:
+        ### Print for information
+        print(p)
+        ### Collect global IDs
+        if (
+            p.type == expected_action_text
+            and p.source_peopla.name == peopla_source
+        ):
+            observed_target_peoplas = []
+            for tp in p.target_peoplas:
+                observed_target_peoplas.append(tp.name)
+
+            assert len(p.target_peoplas) == len(expected_target_peoplas)
+            assert sorted(observed_target_peoplas) == sorted(expected_target_peoplas)
             assert p.evidence_reference == expected_evidence_list
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
