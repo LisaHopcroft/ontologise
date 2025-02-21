@@ -1117,7 +1117,7 @@ class Document:
             # action_scope = extract_action_scope(line)
             action_scope = self.current_action_scope
 
-            line_content = re.sub(r"^###[\s\(]+", "", line)
+            line_content = re.sub(r"^###[\s]+", "", line)
             info = extract_attribute_information(line_content)
             logger.debug(f"Identified '{self.current_action}' / '{info}' ")
 
@@ -1271,7 +1271,7 @@ class Document:
             # action_scope = extract_action_scope(line)
             # action_scope = self.current_action_scope
 
-            line_content = re.sub(r"^###[\s\(>]+", "", line)
+            line_content = re.sub(r"^###[\s>]+", "", line)
             info = extract_attribute_information(line_content)
             logger.debug(f"Identified '{self.current_action}' / '{info}' ")
 
@@ -1614,14 +1614,14 @@ def remove_all_leading_action_markup(l):
     """
     # return re.sub(r"^###\t(\S*)\t", "", l)
 
-    return re.sub(r"^###[\t\S\(>]*(\t)+", "", l)
+    return re.sub(r"^###[\t\S>]*(\t)+", "", l)
 
 def remove_all_leading_pedigree_action_markup(l):
     """
     Removes markup, but retains the @ for place peoplas
     """
     #return re.sub(r"^###[\t\S\(>]*\t", "", l)
-    return re.sub(r"^###[\t\S\(>]*(\t)+", "", l)
+    return re.sub(r"^###[\t\S>]*(\t)+", "", l)
 
 
 def remove_all_leading_relation_markup(l):
