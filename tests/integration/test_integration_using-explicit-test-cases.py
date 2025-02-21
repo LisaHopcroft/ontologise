@@ -501,7 +501,7 @@ def test_actiongroup_evidence_recording_single_targets(
             "settings_basic.yaml",
             1,
             "A, B",
-            ["F, G"],
+            ["D, E", "F, G"],
             "J",
             [13],
         ),

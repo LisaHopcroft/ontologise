@@ -407,7 +407,9 @@ class Peopla:
         logger.debug(f"'{self.type}' == '{other.type}' ??\n")
         logger.debug(f"'{self.global_id}' == '{other.global_id}' ??\n")
         logger.debug(f"'{self.local_id}' == '{other.local_id}' ??\n")
-        logger.debug(f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n")
+        logger.debug(
+            f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n"
+        )
 
         if (
             self.name == other.name
@@ -459,6 +461,7 @@ class Document:
         self.current_target_peoplas = []
 
         self.current_pedigree_indent = 0
+        self.current_breadcrumb_depth = 0
         self.pedigree_breadcrumbs_source = []
         self.pedigree_breadcrumbs_target = []
 
@@ -512,7 +515,38 @@ class Document:
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
-                self.current_breadcrumb_depth = get_pedigree_depth(line)
+                ### Can skip this logic if it's an empty line
+
+                if not re.match(empty_line_regex, line):
+                    previous_breadcrumb_depth = self.current_breadcrumb_depth
+                    self.current_breadcrumb_depth = get_pedigree_depth(line)
+
+                    ### If we are moving back up the hierarchy, we want to restore
+                    ### our target peoplas to what they were (we may have lost them
+                    ### when processing information further into the hierarchy).
+
+                    if previous_breadcrumb_depth > self.current_breadcrumb_depth:
+                        logger.debug(
+                            f"Reversing up the hierarchy (from level {previous_breadcrumb_depth} to {self.current_breadcrumb_depth})" +
+                            f"Target peoplas will be restored from level {self.current_breadcrumb_depth} if they exist"
+                        )
+                        if (
+                            len(self.pedigree_breadcrumbs_target)
+                            >= self.current_breadcrumb_depth + 1
+                        ):
+                            logger.debug(
+                                f"Target peoplas DO exist at level {self.current_breadcrumb_depth} - restoring"
+                            )
+                            self.current_target_peoplas = self.pedigree_breadcrumbs_target[
+                                self.current_breadcrumb_depth
+                            ]
+                        else:
+                            logger.debug(
+                                f"No target peoplas exist at level {self.current_breadcrumb_depth} - setting to []"
+                            )
+                            self.current_target_peoplas = []
+
+                # input()
 
                 ### We want to capture the scope and then remove it from the line
                 ### so that we don't have to accommodate it in the parsing. Because
@@ -1286,6 +1320,30 @@ class Document:
 
             self.current_leaf_peopla = target_peopla
 
+            ### If we are staying at the same level of hierarchy,
+            ### we want to append to current_target_peoplas. However,
+            ### if we are moving up/down the hierarchy, we want to
+            ### reset the current_target_peoplas so that it only contains
+            ### the one current target peopla that has just been found.
+
+            # local_depth = len(re.findall(peopla_relation_depth_regex, line))
+            # current_hierarchy_level = ()
+            # previous_hierarchy_level = len( self.pedigree_breadcrumbs_source )
+            # print( f"local depth: {local_depth}")
+            # print( f"self breadcrumb depth: {self.current_breadcrumb_depth}")
+            # print( f"current calculated   : {current_hierarchy_level}")
+            # print( f"previous calculated  : {previous_hierarchy_level}")
+
+            # if ( current_hierarchy_level != previous_hierarchy_level ):
+            #     print( "RESET CURRENT_TARGET_PEOPLAS")
+            #     self.current_target_peoplas = []
+            # else:
+            #     print( "DO NOT RESET CURRENT_TARGET_PEOPLAS")
+
+            # print("++++++++++++++++++++++++++++++++++++++\n")
+
+            # input()
+
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
             new_target_peoplas = [target_peopla]
@@ -1550,6 +1608,28 @@ class Document:
                 self.pedigree_breadcrumbs_source.append(source_peopla)
                 self.pedigree_breadcrumbs_target = []
             else:
+                ### If we have moved further into the hierarchy than
+                ### the last time that the current_target_peoplas were
+                ### updated, then we want to reset the current_target_peoplas
+                ### otherwise we want to keep accumulating the target peoplas
+
+                # print( "++++++++++++++++++++++++++++++++++++++\n")
+                # print( f"This depth = {this_depth}" )
+                # print( "\n")
+                # print(
+                #     f"The length of the source breadcrumbs = {len( self.pedigree_breadcrumbs_source )}"
+                # )
+                # print( "\n")
+
+                # print( self.print_source_breadcrumbs() )
+
+                # if ( this_depth + 1 ) != len( self.pedigree_breadcrumbs_source ):
+                #     print( "RESET CURRENT_TARGET_PEOPLAS")
+                #     self.current_target_peoplas = []
+                # else:
+                #     print( "DO NOT RESET CURRENT_TARGET_PEOPLAS")
+                # print("++++++++++++++++++++++++++++++++++++++\n")
+
                 self.pedigree_breadcrumbs_source = update_breadcrumbs(
                     deepcopy(self.pedigree_breadcrumbs_source),
                     this_depth,
@@ -1563,6 +1643,10 @@ class Document:
 
                 self.pedigree_breadcrumbs_target = new_target_list
                 self.current_target_peoplas = []
+
+                # print( "++++++++++++++++++++++++++++++++++++++\n")
+
+                # input()
 
     def scan_for_header_lines(self, line):
         """
