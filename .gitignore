@@ -167,5 +167,8 @@ cython_debug/
 archive/*.zip
 archive/tests/*
 
+# Ignoring specific pytest results
+test-reports/specific_*
+
 # Stopping those annoying Mac files from being pushed
 .DS_Store
