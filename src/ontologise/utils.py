@@ -499,7 +499,7 @@ class Document:
                     self.scan_for_data_table_header(line_unscoped)
 
                 self.scan_for_header_lines(line_unscoped)
-                self.scan_for_peopla_lines(line)
+                self.scan_for_peopla_lines(line_unscoped)
 
                 ### It is possible for there to be blank lines inside a peopla
                 if not self.peopla_live:
@@ -1634,7 +1634,7 @@ def extract_peopla_details(l0):
     """
 
     l1 = remove_all_leading_peopla_markup(l0)
-
+    
     m = re.search(peopla_regex, l1)
 
     place_flag = False if m.group(1) is None else True
@@ -1892,7 +1892,7 @@ def obtain_and_remove_scope(l0):
 
     basic_markup_regex = "^###\t"
     basic_scope_regex = r"\("
-    leading_markup_regex = r"^(###[\(\t>]*)([\S\w\[@]{1})"
+    leading_markup_regex = r"^(###[\(\t>]*)(.*)$"
 
     l1 = l0
     scope = None
@@ -1901,12 +1901,15 @@ def obtain_and_remove_scope(l0):
 
         m = re.search(leading_markup_regex, l0)
         leading_markup_text = m.group(1)
+        trailing_content_text = m.group(2)
 
         if re.search(basic_scope_regex, leading_markup_text):
             scope = "leaf"
         else:
             scope = "full"
 
-        l1 = re.sub(basic_scope_regex, '', l0)
+        unscoped_leading_markup_text = re.sub(basic_scope_regex, "", leading_markup_text)
+
+        l1 = unscoped_leading_markup_text + trailing_content_text
 
     return ( [l1, scope] )

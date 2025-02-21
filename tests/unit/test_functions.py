@@ -563,6 +563,15 @@ def test_remove_all_leading_pedigree_action_markup(s_in, s_out_expected):
         ("###	(>	@X", "###	>	@X", "leaf"),
         ("###	>	>	@X", "###	>	>	@X", "full"),
         ("###	(>	>	@X", "###	>	>	@X", "leaf"),
+        ### If it's a line that contains a local ID, make sure that we're
+        ### not losing that information - only remove (s when they
+        ### are in the leading markup
+        ("###	X(i-1)", "###	X(i-1)", "full"),
+        ("###	[X](i-1)", "###	[X](i-1)", "full"),
+        ("###	@X(i-1)", "###	@X(i-1)", "full"),
+        ("###	(	X(i-1)", "###		X(i-1)", "leaf"),
+        ("###	(	[X](i-1)", "###		[X](i-1)", "leaf"),
+        ("###	(	@X(i-1)", "###		@X(i-1)", "leaf"),
         ### If it's a line that doesn't start with ###, send it back
         ### unaltered with scope set to None
         ("TEST", "TEST", None),
