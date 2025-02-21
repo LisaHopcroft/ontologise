@@ -207,6 +207,28 @@ class ActionGroup:
 
         return out_s
 
+    ### What needs to match for two ActionGroups objects to be considered the same?
+    def __eq__(self, other):
+        return_result = False
+
+        if (
+            self.type == other.type
+            and self.directed == other.directed
+            and self.source_peopla.name == other.source_peopla.name
+            and len(self.target_peoplas) == len(other.target_peoplas)
+        ):
+            
+            target_peopla_match_count = 0
+            for self_tp in self.target_peoplas:
+                for other_tp in self.target_peoplas:
+                    if self_tp.peopla_match( other_tp ):
+                        target_peopla_match_count += 1
+            
+            if target_peopla_match_count == len(self.target_peoplas):
+                return_result = True
+
+        return return_result
+    
     def print_description(self):
         s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         s_info = s_info + f" involving the following source Peoplas\n"
@@ -240,7 +262,6 @@ class ActionGroup:
         )
 
         self.attributes[attribute_text] = updated_attributes
-
 
 class Peorel:
     """

@@ -7,7 +7,7 @@ from collections import defaultdict, Counter
 
 sys.path.append("src/ontologise")
 
-from utils import Document, Peopla, Peorel, record_evidence
+from utils import Document, Peopla, Peorel, ActionGroup, record_evidence
 
 
 BASE_DIR = Path(__file__).parents[1]
@@ -144,8 +144,8 @@ def test_peopla_attributes_in_pedigrees(
     # (4) name the attribute of interest
     # (5) attribute dictionary of the attribute of interest
     [
-        # TEST: Are the peoplas extracted correctly
-        # Context: 1 peopla with attributes of attributes
+        # TEST: Are all the objects extracted correctly
+        # Context: A complex example
         (
             "complex_example_A",
             "settings_basic.yaml",
@@ -172,6 +172,71 @@ def test_peopla_attributes_in_pedigrees(
                     ),
                     16,
                 ),
+            ],
+        ),
+
+        # TEST: Are all the objects extracted correctly
+        # Context: A complex example (which should include an ActionGroup)
+        pytest.param(
+            "complex_example_B",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A", global_id="i-1"), 7),
+                record_evidence(Peopla("B", local_id="j-2"), 8),
+                record_evidence(Peopla("C"), 10),
+                record_evidence(Peopla("D", global_id="m-3"), 11),
+                record_evidence(Peopla("E", place_flag=True, global_id="o-4"), 16),
+                ### What Peorels are we expecting?
+                record_evidence(
+                    Peorel(Peopla("C"), Peopla("A", global_id="i-1"), "DAUG", 1), 10
+                ),
+                record_evidence(
+                    Peorel(Peopla("C"), Peopla("B", local_id="j-2"), "DAUG", 1), 10
+                ),
+                record_evidence(
+                    Peorel(
+                        Peopla("E", global_id="o-4"),
+                        Peopla("D", global_id="m-3"),
+                        "FATHER",
+                        2,
+                    ),
+                    16,
+                ),
+                ### What ActionGroups are we expecting?
+                record_evidence(
+                    ActionGroup(
+                        type="OCC",
+                        directed=False,
+                        source_peopla=Peopla("C"),
+                        target_peoplas=[Peopla("D")]
+                    ),
+                    12
+                )
+            ],
+            marks=pytest.mark.xfail(reason="Bug (see issue #36)")
+        ),
+        ### Not very complex, but will let me test whether ActionGroups
+        ### are being matched while we work on #88
+        (
+            "peopla_content_E2",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A, B", local_id="i-1"), 7),
+                record_evidence(Peopla("C, D"), 9),
+                ### What Peorels are we expecting?
+                ### None
+                ### What ActionGroups are we expecting?
+                record_evidence(
+                    ActionGroup(
+                        type="P",
+                        directed=True,
+                        source_peopla=Peopla("A, B"),
+                        target_peoplas=[Peopla("C, D")]
+                    ),
+                    10
+                )
             ],
         ),
     ],
@@ -203,10 +268,16 @@ def test_complex_examples(test_name, settings_file, expected_object_list):
     print(f"We have observed {len(test_doc.all_peorels)} peorels in the document")
     assert len(test_doc.all_peorels) == expected_object_type_counts["Peorel"]
 
+    print(f"Testing {expected_object_type_counts['ActionGroup']} action groups")
+    print(f"We have observed {len(test_doc.all_action_groups)} action groups")
+    assert len(test_doc.all_action_groups) == expected_object_type_counts["ActionGroup"]
+
     for expected_object in expected_object_list:
 
+        this_object_type = type(expected_object).__name__
+
         ### We need to check a Peopla
-        if type(expected_object).__name__ == "Peopla":
+        if this_object_type == "Peopla":
 
             ### We have to cycle through all the Peoplas because we
             ### we are using (temporarily) using a comparison method
@@ -221,11 +292,19 @@ def test_complex_examples(test_name, settings_file, expected_object_list):
                     total_objects_checked += 1
 
         ### We need to check a Peorel
-        elif type(expected_object).__name__ == "Peorel":
+        elif this_object_type == "Peorel":
 
             ### This is possible for Peorels because we have a __eq__
             ### function for this class
             assert expected_object in test_doc.all_peorels
+            total_objects_checked += 1
+        
+        ### We need to check an ActionGroup
+        elif this_object_type == "ActionGroup":
+
+            ### This is possible for Peorels because we have a __eq__
+            ### function for this class
+            assert expected_object in test_doc.all_action_groups
             total_objects_checked += 1
 
     print("============================================")
