@@ -426,6 +426,8 @@ class Document:
         self.relation_text = None
         self.relation_depth = 0
 
+        self.current_leaf_peopla = None
+
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
         #############################################################
@@ -604,6 +606,15 @@ class Document:
             else:
                 status_update = status_update + f"TARGET [{i}] is absent\n"
 
+        ### Leaf peopla -------------------------------------------------
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + "Current leaf Peoplas\n"
+        status_update = status_update + format(self.current_leaf_peopla) + "\n"
+
+        status_update = status_update + "------------------------------------\n"
+
         ### Peorels -------------------------------------------------
 
         status_update = (
@@ -698,6 +709,7 @@ class Document:
             self.shortcut_live = False
             self.relation_live = False
 
+            self.current_leaf_peopla = None
             self.current_relation_text = None
             self.current_relation_depth = 0
             self.current_breadcrumb_depth = 0
@@ -931,7 +943,7 @@ class Document:
             relation_peopla_is = self.record_peopla(relation_peopla_is_tmp)
             record_evidence(relation_peopla_is, self.current_line)
 
-            self.is_relation_peopla = relation_peopla_is
+            self.current_leaf_peopla = relation_peopla_is
 
             logger.debug(
                 f"Found the target of a relation action: '{relation_peopla_is.name}'"
@@ -1201,6 +1213,8 @@ class Document:
             target_peopla = self.record_peopla(target_peopla_tmp)
             record_evidence(target_peopla, self.current_line)
 
+            self.current_leaf_peopla = target_peopla
+
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
             new_target_peoplas = [target_peopla]
@@ -1223,7 +1237,7 @@ class Document:
         ):
             logger.debug("Found an attribute of an action IN A PEDIGREE")
             logger.debug(
-                f"This will be added to {self.is_relation_peopla.name} (the current pedigree target)"
+                f"This will be added to {self.current_leaf_peopla.name} (the current pedigree target)"
             )
 
             action_scope = extract_action_scope(line)
@@ -1232,10 +1246,10 @@ class Document:
             info = extract_attribute_information(line_content)
             logger.debug(f"Identified '{self.current_action}' / '{info}' ")
 
-            self.is_relation_peopla.update_attribute(self.current_action, info)
+            self.current_leaf_peopla.update_attribute(self.current_action, info)
 
             logger.debug(
-                f"Adding [{self.current_action}] attribute to {self.is_relation_peopla.name}"
+                f"Adding [{self.current_action}] attribute to {self.current_leaf_peopla.name}"
             )
 
             # input()
@@ -1266,9 +1280,9 @@ class Document:
             ### Peopla in the relation.
 
             logger.debug(
-                f"Adding [{action_details['action_text']}] attribute to pedigree object {self.is_relation_peopla.name}"
+                f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
             )
-            self.is_relation_peopla.update_attribute(
+            self.current_leaf_peopla.update_attribute(
                 self.current_action, inheritance_hash
             )
 
@@ -1370,6 +1384,8 @@ class Document:
 
             source_peopla = self.record_peopla(source_peopla_tmp)
             record_evidence(source_peopla, self.current_line)
+
+            self.current_leaf_peopla = source_peopla
 
             #########################################################
 
@@ -1494,6 +1510,10 @@ class Document:
         print(f"All Peoplas:")
         for i, p in enumerate(self.all_peoplas):
             logger.info(f"[{i}] " + str(p))
+
+        print("---------------------\n")
+        print(f"Current leaf Peoplas:")
+        logger.info(str(self.current_leaf_peopla))
 
         print("---------------------\n")
         print(f"All Peorels:")
