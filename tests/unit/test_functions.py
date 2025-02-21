@@ -30,6 +30,7 @@ from utils import (
     pad_with_none,
     get_pedigree_depth,
     count_indent,
+    obtain_and_remove_scope,
 )
 
 
@@ -537,3 +538,34 @@ def test_count_indent(input_line, expected_indent):
 def test_remove_all_leading_pedigree_action_markup(s_in, s_out_expected):
     s_out_observed = remove_all_leading_pedigree_action_markup(s_in)
     assert s_out_observed == s_out_expected
+
+
+@pytest.mark.parametrize(
+    "s_in, expected_s_out, expected_scope",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    # (3) the scope (leaf/full) as assessed by the presence/absence of (
+    [
+        # TEST: Basic
+        ("###	X", "###	X", "full"),
+        ("###	>	X", "###	>	X", "full"),
+        ("###	(>	X", "###	>	X", "leaf"),
+        ("###	>	>	X", "###	>	>	X", "full"),
+        ("###	(>	>	X", "###	>	>	X", "leaf"),
+        ("###	[X]", "###	[X]", "full"),
+        ("###	>	[X]", "###	>	[X]", "full"),
+        ("###	(>	[X]", "###	>	[X]", "leaf"),
+        ("###	>	>	[X]", "###	>	>	[X]", "full"),
+        ("###	(>	>	[X]", "###	>	>	[X]", "leaf"),
+        ("###	@X", "###	@X", "full"),
+        ("###	>	@X", "###	>	@X", "full"),
+        ("###	(>	@X", "###	>	@X", "leaf"),
+        ("###	>	>	@X", "###	>	>	@X", "full"),
+        ("###	(>	>	@X", "###	>	>	@X", "leaf"),
+    ],
+)
+def test_obtain_and_remove_scope(s_in, expected_s_out, expected_scope):
+    s_out = obtain_and_remove_scope(s_in)
+    assert s_out[0] == expected_s_out
+    assert s_out[1] == expected_scope

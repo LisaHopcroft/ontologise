@@ -427,7 +427,8 @@ class Document:
         self.relation_depth = 0
 
         self.current_leaf_peopla = None
-
+        self.current_action_scope = None
+        
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
         #############################################################
@@ -466,10 +467,16 @@ class Document:
 
         with open(self.file, "r") as d:
             for line in d:
+
                 self.current_line += 1
-                self.current_breadcrumb_depth = get_pedigree_depth(line)
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
+
+                self.current_breadcrumb_depth = get_pedigree_depth(line)
+
+                [ line_amended, self.current_action_scope ] = obtain_and_remove_scope(line)
+
+                logger.debug(f"Amending line to remove scope: {line_amended}")
 
                 if self.shortcut_live:
                     if not self.scan_for_shortcut_lines(line):
@@ -612,6 +619,11 @@ class Document:
 
         status_update = status_update + "Current leaf Peoplas\n"
         status_update = status_update + format(self.current_leaf_peopla) + "\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + "Current action scope\n"
+        status_update = status_update + self.action_scope + "\n"
 
         status_update = status_update + "------------------------------------\n"
 
@@ -1863,3 +1875,23 @@ def get_pedigree_depth(l):
 
 def count_indent(l):
     return Counter(l)["\t"]
+
+def obtain_and_remove_scope(l0):
+    """
+    Find out what the scope is and then remove it
+    """
+
+    basic_scope_regex = r"\("
+    leading_markup_regex = r"^(###[\(\t>]*)([\S\w\[@]{1})"
+    
+    m = re.search(leading_markup_regex, l0)
+    leading_markup_text = m.group(1)
+
+    if re.search("\(", leading_markup_text):
+        scope = "leaf"
+    else:
+        scope = "full"
+
+    l1 = re.sub(basic_scope_regex, '', l0)
+
+    return ( [l1, scope] )
