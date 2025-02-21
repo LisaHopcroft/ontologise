@@ -474,15 +474,15 @@ class Document:
 
                 self.current_breadcrumb_depth = get_pedigree_depth(line)
 
-                [ line_amended, self.current_action_scope ] = obtain_and_remove_scope(line)
+                [ line_unscoped, self.current_action_scope ] = obtain_and_remove_scope(line)
 
-                logger.debug(f"Amending line to remove scope: {line_amended}")
+                logger.debug(f"Amending line to remove scope: {line_unscoped}")
 
                 if self.shortcut_live:
-                    if not self.scan_for_shortcut_lines(line):
-                        self.scan_for_shortcut_definition(line)
+                    if not self.scan_for_shortcut_lines(line_unscoped):
+                        self.scan_for_shortcut_definition(line_unscoped)
                 else:
-                    self.scan_for_shortcut_lines(line)
+                    self.scan_for_shortcut_lines(line_unscoped)
 
                 if self.data_table_live:
                     self.scan_for_data_points(line)
@@ -490,9 +490,9 @@ class Document:
                     if self.peopla_live:
                         self.scan_for_peopla_attributes(line)
 
-                    self.scan_for_data_table_header(line)
+                    self.scan_for_data_table_header(line_unscoped)
 
-                self.scan_for_header_lines(line)
+                self.scan_for_header_lines(line_unscoped)
                 self.scan_for_peopla_lines(line)
 
                 ### It is possible for there to be blank lines inside a peopla
@@ -623,7 +623,10 @@ class Document:
         status_update = status_update + "------------------------------------\n"
 
         status_update = status_update + "Current action scope\n"
-        status_update = status_update + self.action_scope + "\n"
+        if self.current_action_scope:
+            status_update = status_update + self.current_action_scope + "\n"
+        else:
+            status_update = status_update + "No action scope identified"
 
         status_update = status_update + "------------------------------------\n"
 
