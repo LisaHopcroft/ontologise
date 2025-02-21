@@ -156,6 +156,22 @@ def test_peopla_attributes_in_pedigrees(
                 record_evidence(Peopla("C"), 10),
                 record_evidence(Peopla("D", global_id="m-3"), 11),
                 record_evidence(Peopla("E", place_flag=True, global_id="o-4"), 16),
+                ### What Peorels are we expecting?
+                record_evidence(
+                    Peorel(Peopla("C"), Peopla("A", global_id="i-1"), "DAUG", 1), 10
+                ),
+                record_evidence(
+                    Peorel(Peopla("C"), Peopla("B", local_id="j-2"), "DAUG", 1), 10
+                ),
+                record_evidence(
+                    Peorel(
+                        Peopla("E", global_id="o-4"),
+                        Peopla("D", global_id="m-3"),
+                        "FATHER",
+                        2,
+                    ),
+                    16,
+                ),
             ],
         ),
     ],
@@ -181,37 +197,38 @@ def test_complex_examples(test_name, settings_file, expected_object_list):
 
     print(f"Testing {expected_object_type_counts['Peopla']} peoplas")
     print(f"We have observed {len(test_doc.all_peoplas)} peoplas in the document")
-    assert( len(test_doc.all_peoplas) == expected_object_type_counts['Peopla'] )
+    assert len(test_doc.all_peoplas) == expected_object_type_counts["Peopla"]
 
+    print(f"Testing {expected_object_type_counts['Peorel']} peorels")
+    print(f"We have observed {len(test_doc.all_peorels)} peorels in the document")
+    assert len(test_doc.all_peorels) == expected_object_type_counts["Peorel"]
 
     for expected_object in expected_object_list:
 
         ### We need to check a Peopla
         if type(expected_object).__name__ == "Peopla":
 
-            # print("============================================")
-            # print("PEOPLA")
-            # print("============================================")
-
-            # assert expected_object in test_doc.all_peoplas
-            # total_objects_checked += 1
-
+            ### We have to cycle through all the Peoplas because we
+            ### we are using (temporarily) using a comparison method
+            ### rather than relying on a __eq__ function. I tried to
+            ### implement an __eq__ function but it disrupted the rest
+            ### of the parsing so we will use this for now.
 
             for observed_object in test_doc.all_peoplas:
-                # print("--- OBSERVED -----------------")
-                # print(observed_object)
-                # print("--- EXPECTED -----------------")
-                # print(expected_object)
-
                 if observed_object.name == expected_object.name:
-                    # print("THESE NAMES ARE THE SAME")
                     comparison_result = observed_object.peopla_match(expected_object)
-                    # print(comparison_result)
                     assert comparison_result
                     total_objects_checked += 1
 
-    print( "============================================" )
+        ### We need to check a Peorel
+        elif type(expected_object).__name__ == "Peorel":
 
+            ### This is possible for Peorels because we have a __eq__
+            ### function for this class
+            assert expected_object in test_doc.all_peorels
+            total_objects_checked += 1
+
+    print("============================================")
 
     assert total_objects_checked == len(expected_object_list)
 
@@ -509,7 +526,7 @@ def test_actiongroup_evidence_recording_multiple_targets(
     print(f"Settings : {settings_f}")
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
-    assert len(test_doc.all_action_groups)==expected_num_action_groups
+    assert len(test_doc.all_action_groups) == expected_num_action_groups
 
     all_passing = 0
 
@@ -517,10 +534,7 @@ def test_actiongroup_evidence_recording_multiple_targets(
         ### Print for information
         print(p)
 
-        if (
-            p.type == expected_action_text
-            and p.source_peopla.name == peopla_source
-        ):
+        if p.type == expected_action_text and p.source_peopla.name == peopla_source:
 
             observed_target_peoplas = []
             for tp in p.target_peoplas:
@@ -531,7 +545,7 @@ def test_actiongroup_evidence_recording_multiple_targets(
             assert p.evidence_reference == expected_evidence_list
 
             all_passing += 1
-    
+
     assert all_passing == expected_num_action_groups
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -1077,9 +1091,7 @@ def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
         (
             "peorel_content_B2",
             "settings_basic.yaml",
-            [
-                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
-            ],
+            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
         ),
         # TEST: Relation between source and target peoplas and a target relation
         (
@@ -1094,9 +1106,7 @@ def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
         (
             "peorel_content_B4",
             "settings_basic.yaml",
-            [
-                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
-            ],
+            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
         ),
         # TEST: Checking that relations are not duplicated
         (
@@ -1111,9 +1121,7 @@ def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
         (
             "peorel_content_B6",
             "settings_basic.yaml",
-            [
-                Peorel(Peopla("C"), Peopla("B"), "SON", 1),
-            ],
+            [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
         ),
         # TEST: Checking that relations are not duplicated
         (
