@@ -3,7 +3,7 @@ from pathlib import Path
 import pandas as pd
 from pandas import testing
 import sys
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 sys.path.append("src/ontologise")
 
@@ -150,15 +150,17 @@ def test_peopla_attributes_in_pedigrees(
             "complex_example_A",
             "settings_basic.yaml",
             [
-                record_evidence(Peopla("A", place_flag=False, local_id=None, global_id="i-1"),7),
-                
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A", global_id="i-1"), 7),
+                record_evidence(Peopla("B", local_id="j-2"), 8),
+                record_evidence(Peopla("C"), 10),
+                record_evidence(Peopla("D", global_id="m-3"), 11),
+                record_evidence(Peopla("E", place_flag=True, global_id="o-4"), 16),
             ],
         ),
     ],
 )
-def test_complex_examples(
-    test_name, settings_file, expected_object_list
-):
+def test_complex_examples(test_name, settings_file, expected_object_list):
 
     content_f = DATA_DIR / f"{test_name}.txt"
     settings_f = SETTINGS_DIR / settings_file
@@ -174,29 +176,37 @@ def test_complex_examples(
 
     total_objects_checked = 0
 
+    expected_object_types = [type(x).__name__ for x in expected_object_list]
+    expected_object_type_counts = Counter(expected_object_types)
+
+    print(f"Testing {expected_object_type_counts['Peopla']} peoplas")
+    print(f"We have observed {len(test_doc.all_peoplas)} peoplas in the document")
+    assert( len(test_doc.all_peoplas) == expected_object_type_counts['Peopla'] )
+
+
     for expected_object in expected_object_list:
 
         ### We need to check a Peopla
         if type(expected_object).__name__ == "Peopla":
 
-            print( "============================================" )
-            print( "PEOPLA" )
-            print( "============================================" )
+            # print("============================================")
+            # print("PEOPLA")
+            # print("============================================")
 
             # assert expected_object in test_doc.all_peoplas
             # total_objects_checked += 1
 
 
             for observed_object in test_doc.all_peoplas:
-                print( "--- OBSERVED -----------------" )
-                print( observed_object )
-                print( "--- EXPECTED -----------------" )
-                print( expected_object )
+                # print("--- OBSERVED -----------------")
+                # print(observed_object)
+                # print("--- EXPECTED -----------------")
+                # print(expected_object)
 
                 if observed_object.name == expected_object.name:
-                    print( "THESE NAMES ARE THE SAME" )
-                    comparison_result = observed_object.peopla_match( expected_object )
-                    print( comparison_result )
+                    # print("THESE NAMES ARE THE SAME")
+                    comparison_result = observed_object.peopla_match(expected_object)
+                    # print(comparison_result)
                     assert comparison_result
                     total_objects_checked += 1
 
