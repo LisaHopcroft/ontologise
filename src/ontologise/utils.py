@@ -1675,64 +1675,6 @@ def extract_peopla_details(l0):
     return peopla_info_dictionary
 
 
-def extract_relation_scope(l0):
-    """
-    Extract details of the scope of an action
-    This
-    """
-
-    m = re.search(peopla_relation_scope_regex, l0)
-
-    scope = None
-
-    if m is not None:
-        scope_indicator = m.group(1)
-
-        if scope_indicator == ">":
-            scope = "both"
-        elif scope_indicator == "(>":
-            scope = "target"
-
-    return scope
-
-
-def extract_action_scope(l0):
-    """
-    Extract details of the scope of an action
-    This 
-    """
-
-    m = re.search(action_scope_regex, l0)
-
-    scope_indicator = m.group(1)
-
-    if scope_indicator == "":
-        scope = "both"
-    elif scope_indicator == "(":
-        scope = "target"
-    else:
-        scope = None
-
-    return scope
-
-
-def extract_pedigree_action_scope(l0):
-    """
-    Extract details of the scope of an action
-    """
-
-    m = re.search(action_scope_regex, l0)
-
-    scope_indicator = m.group(1)
-
-    if re.search("\(", scope_indicator):
-        scope = "target"
-    else:
-        scope = "both"
-
-    return scope
-
-
 def extract_pedigree_action_details(l0):
     """
     Parse details from a relation line.

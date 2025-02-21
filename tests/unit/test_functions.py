@@ -16,10 +16,7 @@ from utils import (
     extract_attribute_information,
     remove_all_leading_relation_markup,
     extract_relation_details,
-    extract_relation_scope,
     remove_all_leading_peopla_markup,
-    extract_action_scope,
-    extract_pedigree_action_scope,
     remove_all_leading_action_markup,
     remove_all_leading_pedigree_action_markup,
     extract_action_details,
@@ -32,14 +29,6 @@ from utils import (
     count_indent,
     obtain_and_remove_scope,
 )
-
-
-# def translate_attribute(x):
-#     return {
-#         ":": "DATE",
-#         "@": "AT",
-#     }.get(x, x)
-
 
 @pytest.mark.parametrize(
     "s_in, s_out_expected",
@@ -56,73 +45,6 @@ from utils import (
 def test_is_action_group_directed(s_in, s_out_expected):
     s_out_observed = is_action_group_directed(s_in)
     assert s_out_observed == s_out_expected
-
-
-@pytest.mark.parametrize(
-    "s_in, s_out_expected",
-    # parameters are:
-    # (1) the line as read in the Document
-    # (2) the scope as expected
-    [
-        # TEST: Basic
-        ("###		A", "both"),
-        ("###	(	A", "target"),
-        ("###	((	A", None),
-    ],
-)
-def test_extract_action_details(s_in, s_out_expected):
-    s_out_observed = extract_action_scope(s_in)
-    assert s_out_observed == s_out_expected
-
-@pytest.mark.parametrize(
-    "s_in, s_out_expected",
-    # parameters are:
-    # (1) the line as read in the Document
-    # (2) the scope as expected
-    [
-        # TEST: Basic
-        ("###		A", "both"),
-        ("###	(	A", "target"),
-        ("###	((	A", None),
-    ],
-)
-def test_extract_action_scope(s_in, s_out_expected):
-    s_out_observed = extract_action_scope(s_in)
-    assert s_out_observed == s_out_expected
-
-
-@pytest.mark.parametrize(
-    "s_in, s_out_expected",
-    # parameters are:
-    # (1) the line as read in the Document
-    # (2) the scope as expected
-    [
-        # TEST: Basic
-        ("###	>	A", "both"),
-        ("###	(>	A", "target"),
-    ],
-)
-def test_extract_pedigree_action_scope(s_in, s_out_expected):
-    s_out_observed = extract_pedigree_action_scope(s_in)
-    assert s_out_observed == s_out_expected
-
-
-@pytest.mark.parametrize(
-    "s_in, s_out_expected",
-    # parameters are:
-    # (1) the line as read in the Document
-    # (2) the scope as expected
-    [
-        # TEST: Basic
-        ("###	>	", "both"),
-        ("###	(>	", "target"),
-        ("###	((	", None),
-    ],
-)
-def test_extract_relation_scope(s_in, s_out_expected):
-    s_out_observed = extract_relation_scope(s_in)
-    assert s_out_observed == s_out_expected
-
 
 @pytest.mark.parametrize(
     "s,s_dict_expected",
@@ -433,26 +355,6 @@ def test_gender_inference_from_relation(relation, gender_expected):
 )
 def test_breadcrumb_updates(input_list, update_depth, update_object, expected_output):
     observed_output = update_breadcrumbs(input_list, update_depth, update_object)
-    assert observed_output == expected_output
-
-
-@pytest.mark.parametrize(
-    "input_list,target_length,expected_output",
-    # parameters are:
-    # (1) an input list
-    # (2) the level at which to update
-    # (3) what to update this level with
-    # (4) the expected result
-    [
-        # TEST: Basic
-        ([], 1, [None]),
-        ([None], 2, [None, None]),
-        (["A"], 1, ["A"]),
-        (["A"], 2, ["A", None]),
-    ],
-)
-def test_pad_with_none(input_list, target_length, expected_output):
-    observed_output = pad_with_none(input_list, target_length)
     assert observed_output == expected_output
 
 

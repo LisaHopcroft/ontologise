@@ -15,10 +15,13 @@ ruff check src --output-format=github
 ruff check tests --output-format=github
 
 # Run tests
-pytest --rootdir=tests
+# pytest --rootdir=tests
 
 # Check coverage
-pytest --rootdir=tests --cov=src --cov-report term-missing
+# pytest --rootdir=tests --cov=src --cov-report term-missing
+
+# Generate coverage report
+python -m pytest --junitxml=test-reports/test-results.xml --cov=./ --cov-report=xml --cov-report=html
 
 # Generate requirements files
 pipreqs --savepath=requirements.in src/
