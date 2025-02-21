@@ -563,6 +563,12 @@ def test_remove_all_leading_pedigree_action_markup(s_in, s_out_expected):
         ("###	(>	@X", "###	>	@X", "leaf"),
         ("###	>	>	@X", "###	>	>	@X", "full"),
         ("###	(>	>	@X", "###	>	>	@X", "leaf"),
+        ### If it's a line that doesn't start with ###, send it back
+        ### unaltered with scope set to None
+        ("TEST", "TEST", None),
+        ("##    X", "##    X", None),
+        ("", "", None),
+        ("!", "!", None),
     ],
 )
 def test_obtain_and_remove_scope(s_in, expected_s_out, expected_scope):

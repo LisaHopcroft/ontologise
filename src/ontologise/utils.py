@@ -1881,17 +1881,23 @@ def obtain_and_remove_scope(l0):
     Find out what the scope is and then remove it
     """
 
+    basic_markup_regex = "^###\t"
     basic_scope_regex = r"\("
     leading_markup_regex = r"^(###[\(\t>]*)([\S\w\[@]{1})"
-    
-    m = re.search(leading_markup_regex, l0)
-    leading_markup_text = m.group(1)
 
-    if re.search("\(", leading_markup_text):
-        scope = "leaf"
-    else:
-        scope = "full"
+    l1 = l0
+    scope = None
 
-    l1 = re.sub(basic_scope_regex, '', l0)
+    if re.search(basic_markup_regex, l0):
+
+        m = re.search(leading_markup_regex, l0)
+        leading_markup_text = m.group(1)
+
+        if re.search(basic_scope_regex, leading_markup_text):
+            scope = "leaf"
+        else:
+            scope = "full"
+
+        l1 = re.sub(basic_scope_regex, '', l0)
 
     return ( [l1, scope] )
