@@ -474,7 +474,13 @@ class Document:
 
                 self.current_breadcrumb_depth = get_pedigree_depth(line)
 
-                [ line_unscoped, self.current_action_scope ] = obtain_and_remove_scope(line)
+                ### We want to capture the scope and then remove it from the line
+                ### so that we don't have to accommodate it in the parsing. Because
+                ### we can use brackets in tables for local IDs, we do not want to
+                ### do this when a data table is live.
+                line_unscoped = line
+                if not self.data_table_live:
+                    [ line_unscoped, self.current_action_scope ] = obtain_and_remove_scope(line)
 
                 logger.debug(f"Amending line to remove scope: {line_unscoped}")
 
@@ -485,7 +491,7 @@ class Document:
                     self.scan_for_shortcut_lines(line_unscoped)
 
                 if self.data_table_live:
-                    self.scan_for_data_points(line)
+                    self.scan_for_data_points(line_unscoped)
                 else:
                     if self.peopla_live:
                         self.scan_for_peopla_attributes(line)
