@@ -390,8 +390,6 @@ class Peopla:
 
             if "GENDER" in self.attributes:
 
-                print(self.attributes["GENDER"]["evidence"])
-
                 s_out = (
                     s_out
                     + f"...further information for gender evidence (if we have it):\n"
@@ -405,11 +403,11 @@ class Peopla:
     def peopla_match(self, other):
         return_result = False
 
-        print(f"'{self.name}' == '{other.name}' ??\n")
-        print(f"'{self.type}' == '{other.type}' ??\n")
-        print(f"'{self.global_id}' == '{other.global_id}' ??\n")
-        print(f"'{self.local_id}' == '{other.local_id}' ??\n")
-        print(f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n")
+        logger.debug(f"'{self.name}' == '{other.name}' ??\n")
+        logger.debug(f"'{self.type}' == '{other.type}' ??\n")
+        logger.debug(f"'{self.global_id}' == '{other.global_id}' ??\n")
+        logger.debug(f"'{self.local_id}' == '{other.local_id}' ??\n")
+        logger.debug(f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n")
 
         if (
             self.name == other.name
@@ -421,20 +419,6 @@ class Peopla:
             return_result = True
 
         return return_result
-
-    # ### What needs to match for two PEOPLA objects to be considered the same?
-    # def __eq__(self, other):
-    #     return_result = False
-
-    #     if (
-    #         self.name == other.name
-    #         and self.type == other.type
-    #         and self.global_id == other.global_id
-    #         and self.local_id == other.local_id
-    #     ):
-    #         return_result = True
-
-    #     return return_result
 
 
 class Document:
@@ -1047,15 +1031,15 @@ class Document:
                     self.current_breadcrumb_depth - 1
                 ]
 
-                print(
-                    f"*** The 'is' peopla is {relation_peopla_is.name}\n",
-                    f"*** The 'to' peopla will be the the source peopla (there is no target for this relation)\n",
-                    f"*** The current_source_peopla is {self.current_source_peopla.name}\n",
-                    f"*** The current_source_peopla (as breadcrumbs) is\n",
-                    self.print_source_breadcrumbs(),
-                    f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
-                    f"*** The relevant source peopla is {relevant_source_peopla.name}\n",
-                )
+                # print(
+                #     f"*** The 'is' peopla is {relation_peopla_is.name}\n",
+                #     f"*** The 'to' peopla will be the the source peopla (there is no target for this relation)\n",
+                #     f"*** The current_source_peopla is {self.current_source_peopla.name}\n",
+                #     f"*** The current_source_peopla (as breadcrumbs) is\n",
+                #     self.print_source_breadcrumbs(),
+                #     f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
+                #     f"*** The relevant source peopla is {relevant_source_peopla.name}\n",
+                # )
 
                 peorel_tmp = Peorel(
                     relation_peopla_is,
@@ -1091,16 +1075,16 @@ class Document:
                 for n, x in enumerate(self.current_target_peoplas):
                     tt = f"{tt}[{n}] {x.name}\n"
 
-                print(
-                    f"*** The 'is' peopla is {relation_peopla_is.name}\n",
-                    f"*** The 'to' peopla will be source AND target peopla\n",
-                    f"*** There are {len(self.current_target_peoplas)} current_target_peoplas\n",
-                    tt,
-                    f"*** The current_target_peopla (as breadcrumbs) is\n",
-                    self.print_target_breadcrumbs(),
-                    f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
-                    f"*** There are {len(relevant_to_peopla_list)} relevant target_peopla\n",
-                )
+                # print(
+                #     f"*** The 'is' peopla is {relation_peopla_is.name}\n",
+                #     f"*** The 'to' peopla will be source AND target peopla\n",
+                #     f"*** There are {len(self.current_target_peoplas)} current_target_peoplas\n",
+                #     tt,
+                #     f"*** The current_target_peopla (as breadcrumbs) is\n",
+                #     self.print_target_breadcrumbs(),
+                #     f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
+                #     f"*** There are {len(relevant_to_peopla_list)} relevant target_peopla\n",
+                # )
 
                 logger.debug("Current to_peopla_list (step 1) - the target peoplas")
                 logger.debug(relevant_to_peopla_list)
@@ -1129,14 +1113,14 @@ class Document:
                     )
                     logger.debug(relevant_to_peopla_list)
 
-                    print(
-                        f"*** The context indicated that the source people needed to be added as well\n",
-                        f"*** The current_source_peopla is {self.current_source_peopla.name}\n",
-                        f"*** The current_source_peopla (as breadcrumbs) is\n",
-                        self.print_source_breadcrumbs(),
-                        f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
-                        f"*** There are now {len(relevant_to_peopla_list)} relevant 'to' peopla\n",
-                    )
+                    # print(
+                    #     f"*** The context indicated that the source people needed to be added as well\n",
+                    #     f"*** The current_source_peopla is {self.current_source_peopla.name}\n",
+                    #     f"*** The current_source_peopla (as breadcrumbs) is\n",
+                    #     self.print_source_breadcrumbs(),
+                    #     f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
+                    #     f"*** There are now {len(relevant_to_peopla_list)} relevant 'to' peopla\n",
+                    # )
 
                 for this_to_peopla in set(relevant_to_peopla_list):
                     peorel_tmp = Peorel(
@@ -1348,7 +1332,6 @@ class Document:
         ):
             logger.debug("Found a peopla attribute INSIDE A PEDIGREE")
 
-            # action_scope = extract_pedigree_action_scope(line)
             action_scope = self.current_action_scope
             action_details = extract_pedigree_action_details(line)
 
@@ -1809,11 +1792,6 @@ def extract_pedigree_action_details(l0):
     relation_depth = len(re.findall(peopla_relation_depth_regex, l0))
 
     l1 = remove_all_leading_pedigree_action_markup(l0).strip()
-
-    # print(f"L0 = {l0}")
-    # print(f"RG = {peopla_relation_depth_regex}")
-    # print(f"L1 = {l1}")
-    # print(f"RD = {relation_depth}")
 
     m = re.search(action_regex, l1)
     action_text = m.group(1).rstrip()
