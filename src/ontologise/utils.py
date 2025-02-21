@@ -351,17 +351,17 @@ class Peopla:
         )
 
         if action_text in self.attribute_instances:
-            print( "This is an attribute that we've already seen for this Peopla" )
+            print("This is an attribute that we've already seen for this Peopla")
             self.attribute_instances[action_text] += 1
         else:
-            print( "This is a new attribute this Peopla" )
+            print("This is a new attribute this Peopla")
             self.attributes[action_text] = {}
             self.attribute_instances[action_text] = 1
 
         print(
-            f"Is this action already in the attribute dictionary?\n" +
-            f"---> in self.attributes? {action_text in self.attributes}\n" +
-            f"---> in self.attribute_instances? {action_text in self.attribute_instances}\n"
+            f"Is this action already in the attribute dictionary?\n"
+            + f"---> in self.attributes? {action_text in self.attributes}\n"
+            + f"---> in self.attribute_instances? {action_text in self.attribute_instances}\n"
             f"---> value in attribute_instances? {self.attribute_instances[action_text]}\n"
         )
 
@@ -375,13 +375,14 @@ class Peopla:
         #     logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
         #     self.attributes[action_text] = inheritance
 
+        self.attributes[action_text][
+            self.attribute_instances[action_text]
+        ] = inheritance
 
-        self.attributes[action_text][self.attribute_instances[action_text]] = inheritance
-
-        print( f"Adding the following dictionary to attributes:\n")
-        print( f">> This instance: {self.attribute_instances[action_text]}\n" )
-        print( f">> This Peopla's attributes:\n" )
-        print( log_pretty(self.attributes) )
+        print(f"Adding the following dictionary to attributes:\n")
+        print(f">> This instance: {self.attribute_instances[action_text]}\n")
+        print(f">> This Peopla's attributes:\n")
+        print(log_pretty(self.attributes))
         # input()
 
     def update_attribute(self, attribute_text, d):
@@ -389,6 +390,20 @@ class Peopla:
         logger.info(
             f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
         )
+
+        ### We will not have an attribute instance recorded if we
+        ### are looking at an inferred attribute (e.g., GENDER from
+        ### a gendered Peorel). If that is the case, we need to add
+        ### it. If it is already there, that will be because we've
+        ### found evidence elsewhere, so we should increment the
+        ### instance value.
+        # if attribute_text in self.attribute_instances:
+        #     # print( f">> Incrementing the instance count for {attribute_text}" )
+        #     # self.attribute_instances[attribute_text] += 1
+        # else:
+        if attribute_text not in self.attribute_instances:
+            print(">> Starting a new count for {attribute_text}")
+            self.attribute_instances[attribute_text] = 1
 
         this_instance = self.attribute_instances[attribute_text]
 
@@ -398,6 +413,12 @@ class Peopla:
         existing_attributes = {}
         if attribute_text in self.attributes:
             existing_attributes = self.attributes[attribute_text][this_instance]
+
+        ### If we haven't recorded this attribute before, we
+        ### need to add it to the attributes dictionary first
+        if attribute_text not in self.attributes:
+            self.attributes[attribute_text] = {}
+
         updated_attributes = {**existing_attributes, **d}
 
         # logger.debug(
@@ -407,6 +428,8 @@ class Peopla:
         # )
 
         self.attributes[attribute_text][this_instance] = updated_attributes
+
+        # input()
 
     def __str__(self):  # pragma: no cover
         s_out = f"{self.type} PEOPLA called {self.name}\n"
@@ -435,8 +458,9 @@ class Peopla:
                     + f"...further information for gender evidence (if we have it):\n"
                 )
 
-                for this_peorel_evidence in self.attributes["GENDER"]["evidence"]:
-                    s_out = s_out + format(this_peorel_evidence) + "\n"
+                for k, v in self.attributes["GENDER"].items():
+                    for i, this_peorel_evidence in enumerate(v["evidence"]):
+                        s_out = s_out + f"({i})" + format(this_peorel_evidence) + "\n"
 
         return s_out
 
@@ -567,8 +591,8 @@ class Document:
 
                     if previous_breadcrumb_depth > self.current_breadcrumb_depth:
                         logger.debug(
-                            f"Reversing up the hierarchy (from level {previous_breadcrumb_depth} to {self.current_breadcrumb_depth})" +
-                            f"Target peoplas will be restored from level {self.current_breadcrumb_depth} if they exist"
+                            f"Reversing up the hierarchy (from level {previous_breadcrumb_depth} to {self.current_breadcrumb_depth})"
+                            + f"Target peoplas will be restored from level {self.current_breadcrumb_depth} if they exist"
                         )
                         if (
                             len(self.pedigree_breadcrumbs_target)
@@ -2106,9 +2130,10 @@ def obtain_and_remove_scope(l0):
 
     return [l1, scope]
 
+
 def merge_attributes(existing_dict, new_dict):
 
-    all_keys = sorted(set( list(existing_dict.keys()) + list(new_dict.keys()) ))
+    all_keys = sorted(set(list(existing_dict.keys()) + list(new_dict.keys())))
 
     merged_dict = {}
 
@@ -2130,14 +2155,15 @@ def merge_attributes(existing_dict, new_dict):
     # https://stackoverflow.com/questions/26910708/merging-dictionary-value-lists-in-python
     # merged_dict = {k: v + new_dict[k] for k, v in existing_dict.items()}
 
-    return( merged_dict )
+    return merged_dict
+
 
 # Recursive function to flatten list
-def flatten(a):  
-    res = []  
-    for x in a:  
-        if isinstance(x, list):  
-            res.extend(flatten(x))  # Recursively flatten nested lists  
-        else:  
-            res.append(x)  # Append individual elements  
-    return res  
+def flatten(a):
+    res = []
+    for x in a:
+        if isinstance(x, list):
+            res.extend(flatten(x))  # Recursively flatten nested lists
+        else:
+            res.append(x)  # Append individual elements
+    return res

@@ -33,12 +33,11 @@ def generate_test_doc(name, settings):
     return test_doc
 
 
-
-
 # -----------------------------------------------------------------
 # Integration test cases: peopla content, attributes of attributes
 # -----------------------------------------------------------------
 # -
+
 
 @pytest.mark.parametrize(
     "test_name,settings_file,peopla_name,attribute,expected_attribute_dictionary",
@@ -52,14 +51,27 @@ def generate_test_doc(name, settings):
         # TEST: Are the peoplas extracted correctly
         # Context: 1 peopla with attributes of attributes
         (
-            "accumulating_attributes_A",
+            "accumulating_attributes_A1",
             "settings_basic.yaml",
             "A",
             "X",
             {
-                1: {'DATE': '1800-01-01', 'AT': 'S1'},
-                2: {'DATE': '1800-02-02', 'AT': 'S2'},
-                3: {'AT': 'S3'}
+                1: {"DATE": "1800-01-01", "AT": "S1"},
+                2: {"DATE": "1800-02-02", "AT": "S2"},
+                3: {"AT": "S3"},
+            },
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_A2",
+            "settings_basic.yaml",
+            "A",
+            "X",
+            {
+                1: {"AT": "S1"},
+                2: {"DATE": "1800-02-02", "AT": "S2"},
+                3: {"DATE": "1800-03-03", "AT": "S3"},
             },
         ),
     ],
@@ -74,6 +86,102 @@ def test_peopla_accumulating_attributes(
         print(p)
         if p.name == peopla_name:
             assert p.attributes[attribute] == expected_attribute_dictionary
+
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content, attributes of attributes
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_source_name,peopla_target_name,attribute,evidence,expected_attribute_dictionary",
+    ### This test will only work where there is a single target peopla
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_B1",
+            "settings_basic.yaml",
+            "A",
+            "B",
+            "X",
+            "12",
+            {"DATE": "1800-01-01", "AT": "S1"},
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_B1",
+            "settings_basic.yaml",
+            "A",
+            "B",
+            "X",
+            "15",
+            {"DATE": "1800-02-02", "AT": "S2"},
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_B1",
+            "settings_basic.yaml",
+            "A",
+            "B",
+            "X",
+            "18",
+            {"AT": "S3"},
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_B2",
+            "settings_basic.yaml",
+            "A",
+            "B",
+            "X",
+            "12",
+            {"AT": "S1"},
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_B2",
+            "settings_basic.yaml",
+            "A",
+            "B",
+            "X",
+            "18",
+            {"DATE": "1800-03-03", "AT": "S3"},
+        ),
+    ],
+)
+def test_actiongroup_accumulating_attributes(
+    test_name,
+    settings_file,
+    peopla_source_name,
+    peopla_target_name,
+    attribute,
+    evidence,
+    expected_attribute_dictionary,
+):
+
+    test_doc = generate_test_doc(test_name, settings_file)
+
+    for ag in test_doc.all_action_groups:
+        print(ag)
+        if (
+            ag.source_peopla.name == peopla_source_name
+            and ag.target_peoplas[0].name == peopla_target_name
+            and ag.type == attribute
+            and ag.evidence_reference == [evidence]
+        ):
+            assert ag.attributes[attribute] == expected_attribute_dictionary
 
 
 # -----------------------------------------------------------------
@@ -98,7 +206,7 @@ def test_peopla_accumulating_attributes(
             "settings_basic.yaml",
             "A, B",
             "C",
-            {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"},
+            {1: {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"}},
         ),
     ],
 )
@@ -136,7 +244,7 @@ def test_peopla_attributes_of_attributes(
             "settings_basic.yaml",
             "C, D",
             "E",
-            {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"},
+            {1: {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"}},
         ),
         # TEST: Are the peoplas extracted correctly
         # Context: 1 peopla with attributes of attributes
@@ -145,7 +253,7 @@ def test_peopla_attributes_of_attributes(
             "settings_basic.yaml",
             "C, D",
             "E",
-            {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"},
+            {1: {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"}},
         ),
     ],
 )
@@ -419,7 +527,7 @@ def test_complex_examples(test_name, settings_file, expected_object_list):
         # TEST: Are all the objects extracted correctly
         # Context: A complex example
         (
-            "accumulating_attributes_A",
+            "accumulating_attributes_A1",
             "settings_basic.yaml",
             [
                 ### What Peoplas are we expecting?
@@ -435,16 +543,16 @@ def test_complex_examples(test_name, settings_file, expected_object_list):
                             source_peopla=Peopla("C"),
                             target_peoplas=[Peopla("D")],
                         ),
-                        15
+                        15,
                     ),
-                    21
+                    21,
                 ),
             ],
         ),
         # TEST: Are all the objects extracted correctly
         # Context: A complex example
         (
-            "accumulating_attributes_B",
+            "accumulating_attributes_B1",
             "settings_basic.yaml",
             [
                 ### What Peoplas are we expecting?
@@ -464,15 +572,17 @@ def test_complex_examples(test_name, settings_file, expected_object_list):
                             source_peopla=Peopla("C"),
                             target_peoplas=[Peopla("D")],
                         ),
-                        15
+                        15,
                     ),
-                    21
+                    21,
                 ),
             ],
         ),
     ],
 )
-def test_complex_examples_with_attributes(test_name, settings_file, expected_object_list):
+def test_complex_examples_with_attributes(
+    test_name, settings_file, expected_object_list
+):
 
     test_doc = generate_test_doc(test_name, settings_file)
 
@@ -939,7 +1049,7 @@ def test_action_group_content_with_inheritance(
         (
             "peopla_content_E3",
             "settings_basic.yaml",
-            {"C, D": {"action": "X", "attributes": {"AT": "P, Q"}}},
+            {"C, D": {"action": "X", "attributes": {1: {"AT": "P, Q"}}}},
             [
                 {
                     "source": "A, B",
@@ -1218,10 +1328,10 @@ def test_gender_inference_from_relations(
     for this_peopla in test_doc.all_peoplas:
 
         if this_peopla.name == peopla_name:
-            observed_gender = this_peopla.attributes["GENDER"]["value"]
+            observed_gender = this_peopla.attributes["GENDER"][1]["value"]
             assert observed_gender == expected_gender
 
-            gender_evidence = this_peopla.attributes["GENDER"]["evidence"].pop()
+            gender_evidence = this_peopla.attributes["GENDER"][1]["evidence"].pop()
             assert gender_evidence.peopla_to.name == expected_peorel_to
             assert gender_evidence.relation_text == expected_peorel_relation
 
@@ -1271,10 +1381,10 @@ def test_gender_evidence_is_correct(
     for this_peopla in test_doc.all_peoplas:
 
         if this_peopla.name == peopla_name:
-            observed_gender = this_peopla.attributes["GENDER"]["value"]
+            observed_gender = this_peopla.attributes["GENDER"][1]["value"]
             assert observed_gender == expected_gender
 
-            observed_evidence_list = this_peopla.attributes["GENDER"]["evidence"]
+            observed_evidence_list = this_peopla.attributes["GENDER"][1]["evidence"]
             observed_num_evidences = len(observed_evidence_list)
             assert observed_num_evidences == expected_num_evidence
 

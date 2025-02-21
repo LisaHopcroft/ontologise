@@ -513,8 +513,9 @@ def test_obtain_and_remove_scope(s_in, expected_s_out, expected_scope):
     ],
 )
 def test_merge_attributes(existing_dict, new_dict, expected_output):
-    s_out = merge_attributes(existing_dict,new_dict)
+    s_out = merge_attributes(existing_dict, new_dict)
     assert s_out == expected_output
+
 
 @pytest.mark.parametrize(
     "list_in, expected_output",
