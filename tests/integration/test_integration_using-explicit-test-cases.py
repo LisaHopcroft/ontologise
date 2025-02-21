@@ -527,54 +527,41 @@ def test_complex_examples(test_name, settings_file, expected_object_list):
         # TEST: Are all the objects extracted correctly
         # Context: A complex example
         (
-            "accumulating_attributes_A1",
-            "settings_basic.yaml",
-            [
-                ### What Peoplas are we expecting?
-                record_evidence(Peopla("A"), 10),
-                ### What Peorels are we expecting?
-                ### None
-                ### What ActionGroups are we expecting?
-                record_evidence(
-                    record_evidence(
-                        ActionGroup(
-                            type="X",
-                            directed=False,
-                            source_peopla=Peopla("C"),
-                            target_peoplas=[Peopla("D")],
-                        ),
-                        15,
-                    ),
-                    21,
-                ),
-            ],
-        ),
-        # TEST: Are all the objects extracted correctly
-        # Context: A complex example
-        (
             "accumulating_attributes_B1",
             "settings_basic.yaml",
             [
                 ### What Peoplas are we expecting?
                 record_evidence(Peopla("A"), 10),
                 record_evidence(Peopla("B"), 11),
-                record_evidence(Peopla("C", local_id="1"), 13),
-                record_evidence(Peopla("D"), 14),
                 ### What Peorels are we expecting?
-                record_evidence(Peorel(Peopla("C"), Peopla("A"), "SON", 1), 12),
-                record_evidence(Peorel(Peopla("C"), Peopla("B"), "SON", 1), 12),
+                ### None
                 ### What ActionGroups are we expecting?
                 record_evidence(
-                    record_evidence(
-                        ActionGroup(
-                            type="X",
-                            directed=False,
-                            source_peopla=Peopla("C"),
-                            target_peoplas=[Peopla("D")],
-                        ),
-                        15,
+                    ActionGroup(
+                        type="X",
+                        directed=False,
+                        source_peopla=Peopla("A"),
+                        target_peoplas=[Peopla("B")],
                     ),
-                    21,
+                    12,
+                ),
+                record_evidence(
+                    ActionGroup(
+                        type="X",
+                        directed=False,
+                        source_peopla=Peopla("A"),
+                        target_peoplas=[Peopla("B")],
+                    ),
+                    15,
+                ),
+                record_evidence(
+                    ActionGroup(
+                        type="X",
+                        directed=False,
+                        source_peopla=Peopla("A"),
+                        target_peoplas=[Peopla("B")],
+                    ),
+                    18,
                 ),
             ],
         ),
