@@ -33,6 +33,49 @@ def generate_test_doc(name, settings):
     return test_doc
 
 
+
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content, attributes of attributes
+# -----------------------------------------------------------------
+# -
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name,attribute,expected_attribute_dictionary",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_A",
+            "settings_basic.yaml",
+            "A",
+            "X",
+            {
+                1: {'DATE': '1800-01-01', 'AT': 'S1'},
+                2: {'DATE': '1800-02-02', 'AT': 'S2'},
+                3: {'AT': 'S3'}
+            },
+        ),
+    ],
+)
+def test_peopla_accumulating_attributes(
+    test_name, settings_file, peopla_name, attribute, expected_attribute_dictionary
+):
+
+    test_doc = generate_test_doc(test_name, settings_file)
+
+    for p in test_doc.all_peoplas:
+        print(p)
+        if p.name == peopla_name:
+            assert p.attributes[attribute] == expected_attribute_dictionary
+
+
 # -----------------------------------------------------------------
 # Integration test cases: peopla content, attributes of attributes
 # -----------------------------------------------------------------
@@ -221,6 +264,215 @@ def test_peopla_attributes_in_pedigrees(
     ],
 )
 def test_complex_examples(test_name, settings_file, expected_object_list):
+
+    test_doc = generate_test_doc(test_name, settings_file)
+
+    total_objects_checked = 0
+
+    expected_object_types = [type(x).__name__ for x in expected_object_list]
+    expected_object_type_counts = Counter(expected_object_types)
+
+    print(f"Testing {expected_object_type_counts['Peopla']} peoplas")
+    print(f"We have observed {len(test_doc.all_peoplas)} peoplas in the document")
+    assert len(test_doc.all_peoplas) == expected_object_type_counts["Peopla"]
+
+    print(f"Testing {expected_object_type_counts['Peorel']} peorels")
+    print(f"We have observed {len(test_doc.all_peorels)} peorels in the document")
+    assert len(test_doc.all_peorels) == expected_object_type_counts["Peorel"]
+
+    print(f"Testing {expected_object_type_counts['ActionGroup']} action groups")
+    print(f"We have observed {len(test_doc.all_action_groups)} action groups")
+    assert len(test_doc.all_action_groups) == expected_object_type_counts["ActionGroup"]
+
+    for expected_object in expected_object_list:
+
+        this_object_type = type(expected_object).__name__
+
+        ### We need to check a Peopla
+        if this_object_type == "Peopla":
+
+            ### We have to cycle through all the Peoplas because we
+            ### we are using (temporarily) using a comparison method
+            ### rather than relying on a __eq__ function. I tried to
+            ### implement an __eq__ function but it disrupted the rest
+            ### of the parsing so we will use this for now.
+
+            for observed_object in test_doc.all_peoplas:
+                if observed_object.name == expected_object.name:
+                    comparison_result = observed_object.peopla_match(expected_object)
+                    assert comparison_result
+                    total_objects_checked += 1
+
+        ### We need to check a Peorel
+        elif this_object_type == "Peorel":
+
+            ### This is possible for Peorels because we have a __eq__
+            ### function for this class
+            assert expected_object in test_doc.all_peorels
+            total_objects_checked += 1
+
+        ### We need to check an ActionGroup
+        elif this_object_type == "ActionGroup":
+
+            ### This is possible for Peorels because we have a __eq__
+            ### function for this class
+            assert expected_object in test_doc.all_action_groups
+            total_objects_checked += 1
+
+    print("============================================")
+
+    assert total_objects_checked == len(expected_object_list)
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_object_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # # TEST: Are all the objects extracted correctly
+        # # Context: A complex example
+        # (
+        #     "complex_example_A",
+        #     "settings_basic.yaml",
+        #     [
+        #         ### What Peoplas are we expecting?
+        #         record_evidence(Peopla("A", global_id="i-1"), 7),
+        #         record_evidence(Peopla("B", local_id="j-2"), 8),
+        #         record_evidence(Peopla("C"), 10),
+        #         record_evidence(Peopla("D", global_id="m-3"), 11),
+        #         record_evidence(Peopla("E", place_flag=True, global_id="o-4"), 16),
+        #         ### What Peorels are we expecting?
+        #         record_evidence(
+        #             Peorel(Peopla("C"), Peopla("A", global_id="i-1"), "DAUG", 1), 10
+        #         ),
+        #         record_evidence(
+        #             Peorel(Peopla("C"), Peopla("B", local_id="j-2"), "DAUG", 1), 10
+        #         ),
+        #         record_evidence(
+        #             Peorel(
+        #                 Peopla("E", global_id="o-4"),
+        #                 Peopla("D", global_id="m-3"),
+        #                 "FATHER",
+        #                 2,
+        #             ),
+        #             16,
+        #         ),
+        #     ],
+        # ),
+        # # TEST: Are all the objects extracted correctly
+        # # Context: A complex example (includes an ActionGroup)
+        # (
+        #     "complex_example_B",
+        #     "settings_basic.yaml",
+        #     [
+        #         ### What Peoplas are we expecting?
+        #         record_evidence(Peopla("A", global_id="i-1"), 7),
+        #         record_evidence(Peopla("B", local_id="j-2"), 8),
+        #         record_evidence(Peopla("C"), 10),
+        #         record_evidence(Peopla("D", global_id="m-3"), 11),
+        #         ### What Peorels are we expecting?
+        #         record_evidence(
+        #             Peorel(Peopla("C"), Peopla("A", global_id="i-1"), "DAUG", 1), 10
+        #         ),
+        #         record_evidence(
+        #             Peorel(Peopla("C"), Peopla("B", local_id="j-2"), "DAUG", 1), 10
+        #         ),
+        #         ### What ActionGroups are we expecting?
+        #         record_evidence(
+        #             ActionGroup(
+        #                 type="OCC",
+        #                 directed=False,
+        #                 source_peopla=Peopla("C"),
+        #                 target_peoplas=[Peopla("D")],
+        #             ),
+        #             12,
+        #         ),
+        #     ],
+        # ),
+        # ### Not very complex, but will let me test whether ActionGroups
+        # ### are being matched while we work on #88
+        # (
+        #     "peopla_content_E2",
+        #     "settings_basic.yaml",
+        #     [
+        #         ### What Peoplas are we expecting?
+        #         record_evidence(Peopla("A, B", local_id="i-1"), 7),
+        #         record_evidence(Peopla("C, D"), 9),
+        #         ### What Peorels are we expecting?
+        #         ### None
+        #         ### What ActionGroups are we expecting?
+        #         record_evidence(
+        #             ActionGroup(
+        #                 type="P",
+        #                 directed=True,
+        #                 source_peopla=Peopla("A, B"),
+        #                 target_peoplas=[Peopla("C, D")],
+        #             ),
+        #             10,
+        #         ),
+        #     ],
+        # ),
+        # TEST: Are all the objects extracted correctly
+        # Context: A complex example
+        (
+            "accumulating_attributes_A",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A"), 10),
+                ### What Peorels are we expecting?
+                ### None
+                ### What ActionGroups are we expecting?
+                record_evidence(
+                    record_evidence(
+                        ActionGroup(
+                            type="X",
+                            directed=False,
+                            source_peopla=Peopla("C"),
+                            target_peoplas=[Peopla("D")],
+                        ),
+                        15
+                    ),
+                    21
+                ),
+            ],
+        ),
+        # TEST: Are all the objects extracted correctly
+        # Context: A complex example
+        (
+            "accumulating_attributes_B",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A"), 10),
+                record_evidence(Peopla("B"), 11),
+                record_evidence(Peopla("C", local_id="1"), 13),
+                record_evidence(Peopla("D"), 14),
+                ### What Peorels are we expecting?
+                record_evidence(Peorel(Peopla("C"), Peopla("A"), "SON", 1), 12),
+                record_evidence(Peorel(Peopla("C"), Peopla("B"), "SON", 1), 12),
+                ### What ActionGroups are we expecting?
+                record_evidence(
+                    record_evidence(
+                        ActionGroup(
+                            type="X",
+                            directed=False,
+                            source_peopla=Peopla("C"),
+                            target_peoplas=[Peopla("D")],
+                        ),
+                        15
+                    ),
+                    21
+                ),
+            ],
+        ),
+    ],
+)
+def test_complex_examples_with_attributes(test_name, settings_file, expected_object_list):
 
     test_doc = generate_test_doc(test_name, settings_file)
 

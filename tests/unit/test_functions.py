@@ -28,6 +28,8 @@ from utils import (
     get_pedigree_depth,
     count_indent,
     obtain_and_remove_scope,
+    merge_attributes,
+    flatten,
 )
 
 
@@ -487,3 +489,47 @@ def test_obtain_and_remove_scope(s_in, expected_s_out, expected_scope):
     s_out = obtain_and_remove_scope(s_in)
     assert s_out[0] == expected_s_out
     assert s_out[1] == expected_scope
+
+
+@pytest.mark.parametrize(
+    "existing_dict, new_dict, expected_output",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    # (3) the scope (leaf/full) as assessed by the presence/absence of (
+    [
+        # TEST: Basic, with numbers
+        ({"A": 1}, {"A": 1}, {"A": [1]}),
+        ({"A": 1}, {"A": 2}, {"A": [1, 2]}),
+        ({"A": [1]}, {"A": [2]}, {"A": [1, 2]}),
+        ({"A": 1}, {"A": 2, "B": 3}, {"A": [1, 2], "B": [3]}),
+        ({"A": 1}, {"B": 3}, {"A": [1], "B": [3]}),
+        ({}, {"A": 1}, {"A": [1]}),
+        ({"A": 1}, {}, {"A": [1]}),
+        ({"A": [1, 2]}, {"A": 3}, {"A": [1, 2, 3]}),
+        ({"A": [1, 2]}, {"A": [3]}, {"A": [1, 2, 3]}),
+        ({"A": [1, 2]}, {"B": 3}, {"A": [1, 2], "B": [3]}),
+        ({"A": [1, 2]}, {"B": [3]}, {"A": [1, 2], "B": [3]}),
+    ],
+)
+def test_merge_attributes(existing_dict, new_dict, expected_output):
+    s_out = merge_attributes(existing_dict,new_dict)
+    assert s_out == expected_output
+
+@pytest.mark.parametrize(
+    "list_in, expected_output",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    # (3) the scope (leaf/full) as assessed by the presence/absence of (
+    [
+        # TEST: Basic, with numbers
+        ([1], [1]),
+        ([[1]], [1]),
+        ([[1, 2]], [1, 2]),
+        ([[1, 2], 3], [1, 2, 3]),
+    ],
+)
+def test_flatten(list_in, expected_output):
+    s_out = flatten(list_in)
+    assert s_out == expected_output

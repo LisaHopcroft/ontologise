@@ -7,6 +7,7 @@ import pandas as pd
 from copy import deepcopy
 import pprint
 import math
+from itertools import chain
 
 
 PROJECT_NAME = "Ontologise"
@@ -333,6 +334,9 @@ class Peopla:
         self.global_id = global_id
         self.local_id = local_id
 
+        ### Keeping track of attribute instances
+        self.attribute_instances = {}
+
         ### Evidence reference (line number from original file)
         self.evidence_reference = []
 
@@ -345,9 +349,40 @@ class Peopla:
         logger.info(
             f"NEW Adding attribute to PEOPLA object {self.name}: ({action_text})"
         )
-        logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
 
-        self.attributes[action_text] = inheritance
+        if action_text in self.attribute_instances:
+            print( "This is an attribute that we've already seen for this Peopla" )
+            self.attribute_instances[action_text] += 1
+        else:
+            print( "This is a new attribute this Peopla" )
+            self.attributes[action_text] = {}
+            self.attribute_instances[action_text] = 1
+
+        print(
+            f"Is this action already in the attribute dictionary?\n" +
+            f"---> in self.attributes? {action_text in self.attributes}\n" +
+            f"---> in self.attribute_instances? {action_text in self.attribute_instances}\n"
+            f"---> value in attribute_instances? {self.attribute_instances[action_text]}\n"
+        )
+
+        # if action_text in self.attributes:
+        #     logger.debug(f"This action already exists in the attributes")
+        #     self.attributes[action_text] = merge_attributes(
+        #         deepcopy(self.attributes[action_text]),
+        #         inheritance
+        #     )
+        # else:
+        #     logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
+        #     self.attributes[action_text] = inheritance
+
+
+        self.attributes[action_text][self.attribute_instances[action_text]] = inheritance
+
+        print( f"Adding the following dictionary to attributes:\n")
+        print( f">> This instance: {self.attribute_instances[action_text]}\n" )
+        print( f">> This Peopla's attributes:\n" )
+        print( log_pretty(self.attributes) )
+        # input()
 
     def update_attribute(self, attribute_text, d):
 
@@ -355,18 +390,23 @@ class Peopla:
             f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
         )
 
+        this_instance = self.attribute_instances[attribute_text]
+
+        # print( f">> This Peopla's attributes (when updating):\n" )
+        # print( log_pretty(self.attributes) )
+
         existing_attributes = {}
         if attribute_text in self.attributes:
-            existing_attributes = self.attributes[attribute_text]
+            existing_attributes = self.attributes[attribute_text][this_instance]
         updated_attributes = {**existing_attributes, **d}
 
-        logger.debug(
-            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-            f"This is what needs to be added: {log_pretty(d)}"
-            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        )
+        # logger.debug(
+        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+        #     f"This is what needs to be added: {log_pretty(d)}"
+        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        # )
 
-        self.attributes[attribute_text] = updated_attributes
+        self.attributes[attribute_text][this_instance] = updated_attributes
 
     def __str__(self):  # pragma: no cover
         s_out = f"{self.type} PEOPLA called {self.name}\n"
@@ -2065,3 +2105,39 @@ def obtain_and_remove_scope(l0):
         l1 = unscoped_leading_markup_text + trailing_content_text
 
     return [l1, scope]
+
+def merge_attributes(existing_dict, new_dict):
+
+    all_keys = sorted(set( list(existing_dict.keys()) + list(new_dict.keys()) ))
+
+    merged_dict = {}
+
+    for k in all_keys:
+        merged_v = []
+        if k in existing_dict:
+            merged_v.append(existing_dict[k])
+        if k in new_dict:
+            merged_v.append(new_dict[k])
+
+        if any(isinstance(v, list) for v in merged_v):
+            # print( f"This is a nested list\n")
+            # merged_v = list(chain(*merged_v))
+            # merged_v = [x for sublist in merged_v for x in sublist]
+            merged_v = flatten(merged_v)
+
+        merged_dict[k] = sorted(set(merged_v))
+
+    # https://stackoverflow.com/questions/26910708/merging-dictionary-value-lists-in-python
+    # merged_dict = {k: v + new_dict[k] for k, v in existing_dict.items()}
+
+    return( merged_dict )
+
+# Recursive function to flatten list
+def flatten(a):  
+    res = []  
+    for x in a:  
+        if isinstance(x, list):  
+            res.extend(flatten(x))  # Recursively flatten nested lists  
+        else:  
+            res.append(x)  # Append individual elements  
+    return res  
