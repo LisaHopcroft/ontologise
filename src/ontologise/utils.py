@@ -380,6 +380,40 @@ class Peopla:
 
         return s_out
 
+    def peopla_match( self, other ):
+        return_result = False
+
+        print( f"'{self.name}' == '{other.name}' ??\n")
+        print( f"'{self.type}' == '{other.type}' ??\n")
+        print( f"'{self.global_id}' == '{other.global_id}' ??\n")
+        print( f"'{self.local_id}' == '{other.local_id}' ??\n")
+        print( f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n")
+        
+        if (
+            self.name == other.name
+            and self.type == other.type
+            and self.global_id == other.global_id
+            and self.local_id == other.local_id
+            and self.evidence_reference == other.evidence_reference
+        ):
+            return_result = True
+
+        return return_result
+
+    # ### What needs to match for two PEOPLA objects to be considered the same?
+    # def __eq__(self, other):
+    #     return_result = False
+
+    #     if (
+    #         self.name == other.name
+    #         and self.type == other.type
+    #         and self.global_id == other.global_id
+    #         and self.local_id == other.local_id
+    #     ):
+    #         return_result = True
+
+    #     return return_result        
+
 
 class Document:
     """
@@ -1797,6 +1831,16 @@ def record_evidence(object, line_number):
     existing_list = object.evidence_reference
     existing_list.append(line_number)
     object.evidence_reference = sorted(set(existing_list))
+    ### This is included so that we can use this function in testing
+    ### We don't catch this output normally
+    return(object)
+
+
+def record_evidence_for_testing(object, line_number):
+    existing_list = object.evidence_reference
+    existing_list.append(line_number)
+    object.evidence_reference = sorted(set(existing_list))
+    return( object )
 
 
 def update_breadcrumbs(existing_list, update_depth, update_object, label=""):

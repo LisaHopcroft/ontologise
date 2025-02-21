@@ -7,7 +7,7 @@ from collections import defaultdict
 
 sys.path.append("src/ontologise")
 
-from utils import Document, Peopla, Peorel
+from utils import Document, Peopla, Peorel, record_evidence
 
 
 BASE_DIR = Path(__file__).parents[1]
@@ -125,6 +125,85 @@ def test_peopla_attributes_in_pedigrees(
         ### Collect global IDs
         if p.name == peopla_name:
             assert p.attributes[attribute] == attribute_dictionary
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content, attributes of attributes
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_object_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "complex_example_A",
+            "settings_basic.yaml",
+            [
+                record_evidence(Peopla("A", place_flag=False, local_id=None, global_id="i-1"),7),
+                
+            ],
+        ),
+    ],
+)
+def test_complex_examples(
+    test_name, settings_file, expected_object_list
+):
+
+    content_f = DATA_DIR / f"{test_name}.txt"
+    settings_f = SETTINGS_DIR / settings_file
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {test_name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    total_objects_checked = 0
+
+    for expected_object in expected_object_list:
+
+        ### We need to check a Peopla
+        if type(expected_object).__name__ == "Peopla":
+
+            print( "============================================" )
+            print( "PEOPLA" )
+            print( "============================================" )
+
+            # assert expected_object in test_doc.all_peoplas
+            # total_objects_checked += 1
+
+
+            for observed_object in test_doc.all_peoplas:
+                print( "--- OBSERVED -----------------" )
+                print( observed_object )
+                print( "--- EXPECTED -----------------" )
+                print( expected_object )
+
+                if observed_object.name == expected_object.name:
+                    print( "THESE NAMES ARE THE SAME" )
+                    comparison_result = observed_object.peopla_match( expected_object )
+                    print( comparison_result )
+                    assert comparison_result
+                    total_objects_checked += 1
+
+    print( "============================================" )
+
+
+    assert total_objects_checked == len(expected_object_list)
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
