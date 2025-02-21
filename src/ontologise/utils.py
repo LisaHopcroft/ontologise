@@ -494,7 +494,7 @@ class Document:
                     self.scan_for_data_points(line_unscoped)
                 else:
                     if self.peopla_live:
-                        self.scan_for_peopla_attributes(line)
+                        self.scan_for_peopla_attributes(line_unscoped)
 
                     self.scan_for_data_table_header(line_unscoped)
 
@@ -928,8 +928,7 @@ class Document:
 
         logger.debug(f"Looking for peopla attributes in {line}")
         logger.debug(f"Current pedigree indent {self.current_pedigree_indent}")
-
-        # input()
+        logger.debug(f"Current action scope {self.current_action_scope}")
 
         if re.match(peopla_relation_line_regex, line):
             logger.debug("Found a peopla relationship")
@@ -1015,7 +1014,8 @@ class Document:
             ### to the target Peopla(s) only or to the source AND target peoplas
             else:
 
-                relation_scope = extract_relation_scope(line)
+                # relation_scope = extract_relation_scope(line)
+                relation_scope = self.current_action_scope
 
                 logger.debug(
                     f"The context tells us that the 'to' peopla for this peorel is something to do with the target peopla"
@@ -1046,7 +1046,8 @@ class Document:
                 logger.debug("Current to_peopla_list (step 1) - the target peoplas")
                 logger.debug(relevant_to_peopla_list)
 
-                if relation_scope == "target":
+                # if relation_scope == "target":
+                if relation_scope == "leaf":
                     logger.debug(
                         f"This information is only relevant for the target peopla"
                     )
@@ -1113,7 +1114,8 @@ class Document:
                 f"This will be in relation to the {self.current_action} action"
             )
 
-            action_scope = extract_action_scope(line)
+            # action_scope = extract_action_scope(line)
+            action_scope = self.current_action_scope
 
             line_content = re.sub(r"^###[\s\(]+", "", line)
             info = extract_attribute_information(line_content)
@@ -1121,7 +1123,8 @@ class Document:
 
             if self.peopla_action_group_live:
 
-                if action_scope == "both":
+                # if action_scope == "both":
+                if action_scope == "full":
                     ### This is an attribute for an action that occurs between
                     ### members of an action group. We need to update the action
                     ### group to have this attribute. So:
@@ -1132,7 +1135,7 @@ class Document:
                         self.current_action, info
                     )
 
-                elif action_scope == "target":
+                elif action_scope == "leaf":
                     ### This is only relevant for the LAST target peoplas
                     ### We need to add an attribute to a peopla
 
@@ -1155,7 +1158,8 @@ class Document:
         elif re.match(peopla_attribute_regex, line):
             logger.debug("Found a peopla attribute")
 
-            action_scope = extract_action_scope(line)
+            # action_scope = extract_action_scope(line)
+            action_scope = self.current_action_scope
             action_details = extract_action_details(line)
 
             self.current_action = action_details["action_text"]
@@ -1172,7 +1176,9 @@ class Document:
 
             ### What we have found here is an action of an action group
             if self.peopla_action_group_live:
-                if action_scope == "both":
+                # if action_scope == "both":
+                if action_scope == "full":
+                
                     ### This is a description of an action between an action group
                     ### We need to make a action_group
 
@@ -1191,7 +1197,8 @@ class Document:
 
                     self.all_action_groups = self.all_action_groups + [ag]
 
-                elif action_scope == "target":
+                # elif action_scope == "target":
+                elif action_scope == "leaf":
                     ### This is only relevant for the LAST target peoplas
                     ### We need to add an attribute to a peopla
 
@@ -1261,7 +1268,8 @@ class Document:
                 f"This will be added to {self.current_leaf_peopla.name} (the current pedigree target)"
             )
 
-            action_scope = extract_action_scope(line)
+            # action_scope = extract_action_scope(line)
+            # action_scope = self.current_action_scope
 
             line_content = re.sub(r"^###[\s\(>]+", "", line)
             info = extract_attribute_information(line_content)
@@ -1281,7 +1289,8 @@ class Document:
         ):
             logger.debug("Found a peopla attribute INSIDE A PEDIGREE")
 
-            action_scope = extract_pedigree_action_scope(line)
+            # action_scope = extract_pedigree_action_scope(line)
+            action_scope = self.current_action_scope
             action_details = extract_pedigree_action_details(line)
 
             self.current_action = action_details["action_text"]
@@ -1634,7 +1643,7 @@ def extract_peopla_details(l0):
     """
 
     l1 = remove_all_leading_peopla_markup(l0)
-    
+
     m = re.search(peopla_regex, l1)
 
     place_flag = False if m.group(1) is None else True
