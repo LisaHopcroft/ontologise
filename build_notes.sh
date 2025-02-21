@@ -15,10 +15,16 @@ ruff check src --output-format=github
 ruff check tests --output-format=github
 
 # Run tests
-pytest --rootdir=tests
+# pytest --rootdir=tests
 
 # Check coverage
-pytest --rootdir=tests --cov=src --cov-report term-missing
+# pytest --rootdir=tests --cov=src --cov-report term-missing
+
+# Generate coverage report
+# python -m pytest --junitxml=test-reports/test-results.xml --cov=./ --cov-report=xml --cov-report=html --html=test-reports/full_test_run.html
+python -m pytest --cov=./ --cov-report=html --html=test-reports/full_test_run.html
+# To run a specific tests and show the results of that in the html report
+pytest tests/integration/test_integration_using-explicit-test-cases.py::test_complex_examples --html=test-reports/specific_test.html
 
 # Generate requirements files
 pipreqs --savepath=requirements.in src/

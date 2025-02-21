@@ -1,11 +1,12 @@
 import re
 import os
 import yaml
-from collections import defaultdict
+from collections import defaultdict, Counter
 import logging
 import pandas as pd
 from copy import deepcopy
 import pprint
+import math
 
 
 PROJECT_NAME = "Ontologise"
@@ -21,15 +22,17 @@ shortcut_line_regex = r"^###\t\^\d+:$"
 shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
 peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
-peopla_attribute_regex = r"^###\t(\()?\t[^\*]+\*?$"
-peopla_relation_line_regex = r"^###\t(\()?(>\t)+\*(.*)\*$"
+peopla_attribute_regex = r"^###\t\t[^\*]+\*?$"
+peopla_pedigree_attribute_regex = r"^###\t(>\t)+[^\*]+\*?$"
+peopla_relation_line_regex = r"^###\t(>\t)+\*(.*)\*$"
 peopla_relation_depth_regex = r">\t"
 peopla_relation_string_regex = r"\*(.*)\*"
-peopla_relation_target_regex = r"^###\t(\()?(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
-peopla_relation_scope_regex = r"^###\t(\(?>).*$"
+peopla_relation_target_regex = r"^###\t(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
+peopla_relation_scope_regex = r"^###\t(>).*$"
 
 action_regex = r"^([^\*]+)(\*)?$"
-action_attribute_regex = r"^###\t(\()?\t\t[^\*]+\*?$"
+action_attribute_regex = r"^###\t\t\t[^\*]+\*?$"
+pedigree_action_attribute_regex = r"^###\t[\t<]+(\t)+[^\*]+\*?$"
 action_group_regex = r"^###\t(>\t)*(vs|w/).*$"
 action_group_vs_regex = r"^###\t(>\t)*vs\[.*$"
 action_group_w_regex = r"^###\t(>\t)*w\/\[.*$"
@@ -169,7 +172,7 @@ class ActionGroup:
     """
 
     def __init__(
-        self, type, directed=False, source_peopla=[], target_peoplas=[], attributes={}
+        self, type, directed=False, source_peopla=None, target_peoplas=[], attributes={}
     ):
 
         self.type = type
@@ -203,6 +206,28 @@ class ActionGroup:
             out_s = out_s + f"   {n+1}. {line_number}"
 
         return out_s
+
+    ### What needs to match for two ActionGroups objects to be considered the same?
+    def __eq__(self, other):
+        return_result = False
+
+        if (
+            self.type == other.type
+            and self.directed == other.directed
+            and self.source_peopla.name == other.source_peopla.name
+            and len(self.target_peoplas) == len(other.target_peoplas)
+        ):
+
+            target_peopla_match_count = 0
+            for self_tp in self.target_peoplas:
+                for other_tp in self.target_peoplas:
+                    if self_tp.peopla_match(other_tp):
+                        target_peopla_match_count += 1
+
+            if target_peopla_match_count == len(self.target_peoplas):
+                return_result = True
+
+        return return_result
 
     def print_description(self):
         s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
@@ -365,8 +390,6 @@ class Peopla:
 
             if "GENDER" in self.attributes:
 
-                print(self.attributes["GENDER"]["evidence"])
-
                 s_out = (
                     s_out
                     + f"...further information for gender evidence (if we have it):\n"
@@ -376,6 +399,28 @@ class Peopla:
                     s_out = s_out + format(this_peorel_evidence) + "\n"
 
         return s_out
+
+    def peopla_match(self, other):
+        return_result = False
+
+        logger.debug(f"'{self.name}' == '{other.name}' ??\n")
+        logger.debug(f"'{self.type}' == '{other.type}' ??\n")
+        logger.debug(f"'{self.global_id}' == '{other.global_id}' ??\n")
+        logger.debug(f"'{self.local_id}' == '{other.local_id}' ??\n")
+        logger.debug(
+            f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n"
+        )
+
+        if (
+            self.name == other.name
+            and self.type == other.type
+            and self.global_id == other.global_id
+            and self.local_id == other.local_id
+            and self.evidence_reference == other.evidence_reference
+        ):
+            return_result = True
+
+        return return_result
 
 
 class Document:
@@ -415,12 +460,17 @@ class Document:
         self.current_source_peopla = None
         self.current_target_peoplas = []
 
+        self.current_pedigree_indent = 0
+        self.current_breadcrumb_depth = 0
         self.pedigree_breadcrumbs_source = []
         self.pedigree_breadcrumbs_target = []
 
         self.relation_live = False
         self.relation_text = None
         self.relation_depth = 0
+
+        self.current_leaf_peopla = None
+        self.current_action_scope = None
 
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
@@ -460,27 +510,73 @@ class Document:
 
         with open(self.file, "r") as d:
             for line in d:
+
                 self.current_line += 1
-                self.current_breadcrumb_depth = get_pedigree_depth(line)
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
+                ### Can skip this logic if it's an empty line
+
+                if not re.match(empty_line_regex, line):
+                    previous_breadcrumb_depth = self.current_breadcrumb_depth
+                    self.current_breadcrumb_depth = get_pedigree_depth(line)
+
+                    ### If we are moving back up the hierarchy, we want to restore
+                    ### our target peoplas to what they were (we may have lost them
+                    ### when processing information further into the hierarchy).
+
+                    if previous_breadcrumb_depth > self.current_breadcrumb_depth:
+                        logger.debug(
+                            f"Reversing up the hierarchy (from level {previous_breadcrumb_depth} to {self.current_breadcrumb_depth})" +
+                            f"Target peoplas will be restored from level {self.current_breadcrumb_depth} if they exist"
+                        )
+                        if (
+                            len(self.pedigree_breadcrumbs_target)
+                            >= self.current_breadcrumb_depth + 1
+                        ):
+                            logger.debug(
+                                f"Target peoplas DO exist at level {self.current_breadcrumb_depth} - restoring"
+                            )
+                            self.current_target_peoplas = self.pedigree_breadcrumbs_target[
+                                self.current_breadcrumb_depth
+                            ]
+                        else:
+                            logger.debug(
+                                f"No target peoplas exist at level {self.current_breadcrumb_depth} - setting to []"
+                            )
+                            self.current_target_peoplas = []
+
+                # input()
+
+                ### We want to capture the scope and then remove it from the line
+                ### so that we don't have to accommodate it in the parsing. Because
+                ### we can use brackets in tables for local IDs, we do not want to
+                ### do this when a data table is live.
+                line_unscoped = line
+                if not self.data_table_live:
+                    [
+                        line_unscoped,
+                        self.current_action_scope,
+                    ] = obtain_and_remove_scope(line)
+
+                logger.debug(f"Amending line to remove scope: {line_unscoped}")
+
                 if self.shortcut_live:
-                    if not self.scan_for_shortcut_lines(line):
-                        self.scan_for_shortcut_definition(line)
+                    if not self.scan_for_shortcut_lines(line_unscoped):
+                        self.scan_for_shortcut_definition(line_unscoped)
                 else:
-                    self.scan_for_shortcut_lines(line)
+                    self.scan_for_shortcut_lines(line_unscoped)
 
                 if self.data_table_live:
-                    self.scan_for_data_points(line)
+                    self.scan_for_data_points(line_unscoped)
                 else:
                     if self.peopla_live:
-                        self.scan_for_peopla_attributes(line)
+                        self.scan_for_peopla_attributes(line_unscoped)
 
-                    self.scan_for_data_table_header(line)
+                    self.scan_for_data_table_header(line_unscoped)
 
-                self.scan_for_header_lines(line)
-                self.scan_for_peopla_lines(line)
+                self.scan_for_header_lines(line_unscoped)
+                self.scan_for_peopla_lines(line_unscoped)
 
                 ### It is possible for there to be blank lines inside a peopla
                 if not self.peopla_live:
@@ -600,6 +696,23 @@ class Document:
             else:
                 status_update = status_update + f"TARGET [{i}] is absent\n"
 
+        ### Leaf peopla -------------------------------------------------
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + "Current leaf Peoplas\n"
+        status_update = status_update + format(self.current_leaf_peopla) + "\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + "Current action scope\n"
+        if self.current_action_scope:
+            status_update = status_update + self.current_action_scope + "\n"
+        else:
+            status_update = status_update + "No action scope identified"
+
+        status_update = status_update + "------------------------------------\n"
+
         ### Peorels -------------------------------------------------
 
         status_update = (
@@ -694,9 +807,11 @@ class Document:
             self.shortcut_live = False
             self.relation_live = False
 
+            self.current_leaf_peopla = None
             self.current_relation_text = None
             self.current_relation_depth = 0
             self.current_breadcrumb_depth = 0
+            self.current_pedigree_indent = math.inf
 
     def scan_for_shortcut_lines(self, line):
         """
@@ -889,6 +1004,8 @@ class Document:
     def scan_for_peopla_attributes(self, line):
 
         logger.debug(f"Looking for peopla attributes in {line}")
+        logger.debug(f"Current pedigree indent {self.current_pedigree_indent}")
+        logger.debug(f"Current action scope {self.current_action_scope}")
 
         if re.match(peopla_relation_line_regex, line):
             logger.debug("Found a peopla relationship")
@@ -923,6 +1040,8 @@ class Document:
             relation_peopla_is = self.record_peopla(relation_peopla_is_tmp)
             record_evidence(relation_peopla_is, self.current_line)
 
+            self.current_leaf_peopla = relation_peopla_is
+
             logger.debug(
                 f"Found the target of a relation action: '{relation_peopla_is.name}'"
             )
@@ -946,15 +1065,15 @@ class Document:
                     self.current_breadcrumb_depth - 1
                 ]
 
-                print(
-                    f"*** The 'is' peopla is {relation_peopla_is.name}\n",
-                    f"*** The 'to' peopla will be the the source peopla (there is no target for this relation)\n",
-                    f"*** The current_source_peopla is {self.current_source_peopla.name}\n",
-                    f"*** The current_source_peopla (as breadcrumbs) is\n",
-                    self.print_source_breadcrumbs(),
-                    f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
-                    f"*** The relevant source peopla is {relevant_source_peopla.name}\n",
-                )
+                # print(
+                #     f"*** The 'is' peopla is {relation_peopla_is.name}\n",
+                #     f"*** The 'to' peopla will be the the source peopla (there is no target for this relation)\n",
+                #     f"*** The current_source_peopla is {self.current_source_peopla.name}\n",
+                #     f"*** The current_source_peopla (as breadcrumbs) is\n",
+                #     self.print_source_breadcrumbs(),
+                #     f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
+                #     f"*** The relevant source peopla is {relevant_source_peopla.name}\n",
+                # )
 
                 peorel_tmp = Peorel(
                     relation_peopla_is,
@@ -972,7 +1091,8 @@ class Document:
             ### to the target Peopla(s) only or to the source AND target peoplas
             else:
 
-                relation_scope = extract_relation_scope(line)
+                # relation_scope = extract_relation_scope(line)
+                relation_scope = self.current_action_scope
 
                 logger.debug(
                     f"The context tells us that the 'to' peopla for this peorel is something to do with the target peopla"
@@ -989,21 +1109,22 @@ class Document:
                 for n, x in enumerate(self.current_target_peoplas):
                     tt = f"{tt}[{n}] {x.name}\n"
 
-                print(
-                    f"*** The 'is' peopla is {relation_peopla_is.name}\n",
-                    f"*** The 'to' peopla will be source AND target peopla\n",
-                    f"*** There are {len(self.current_target_peoplas)} current_target_peoplas\n",
-                    tt,
-                    f"*** The current_target_peopla (as breadcrumbs) is\n",
-                    self.print_target_breadcrumbs(),
-                    f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
-                    f"*** There are {len(relevant_to_peopla_list)} relevant target_peopla\n",
-                )
+                # print(
+                #     f"*** The 'is' peopla is {relation_peopla_is.name}\n",
+                #     f"*** The 'to' peopla will be source AND target peopla\n",
+                #     f"*** There are {len(self.current_target_peoplas)} current_target_peoplas\n",
+                #     tt,
+                #     f"*** The current_target_peopla (as breadcrumbs) is\n",
+                #     self.print_target_breadcrumbs(),
+                #     f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
+                #     f"*** There are {len(relevant_to_peopla_list)} relevant target_peopla\n",
+                # )
 
                 logger.debug("Current to_peopla_list (step 1) - the target peoplas")
                 logger.debug(relevant_to_peopla_list)
 
-                if relation_scope == "target":
+                # if relation_scope == "target":
+                if relation_scope == "leaf":
                     logger.debug(
                         f"This information is only relevant for the target peopla"
                     )
@@ -1026,14 +1147,14 @@ class Document:
                     )
                     logger.debug(relevant_to_peopla_list)
 
-                    print(
-                        f"*** The context indicated that the source people needed to be added as well\n",
-                        f"*** The current_source_peopla is {self.current_source_peopla.name}\n",
-                        f"*** The current_source_peopla (as breadcrumbs) is\n",
-                        self.print_source_breadcrumbs(),
-                        f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
-                        f"*** There are now {len(relevant_to_peopla_list)} relevant 'to' peopla\n",
-                    )
+                    # print(
+                    #     f"*** The context indicated that the source people needed to be added as well\n",
+                    #     f"*** The current_source_peopla is {self.current_source_peopla.name}\n",
+                    #     f"*** The current_source_peopla (as breadcrumbs) is\n",
+                    #     self.print_source_breadcrumbs(),
+                    #     f"*** The current breadcrumb depth is {self.current_breadcrumb_depth}\n",
+                    #     f"*** There are now {len(relevant_to_peopla_list)} relevant 'to' peopla\n",
+                    # )
 
                 for this_to_peopla in set(relevant_to_peopla_list):
                     peorel_tmp = Peorel(
@@ -1062,6 +1183,7 @@ class Document:
             self.relation_live = False
             self.current_relation_text = None
             self.current_relation_depth = 0
+            self.current_pedigree_indent = math.inf
 
         elif re.match(action_attribute_regex, line):
             logger.debug("Found an attribute of an action")
@@ -1069,15 +1191,17 @@ class Document:
                 f"This will be in relation to the {self.current_action} action"
             )
 
-            action_scope = extract_action_scope(line)
+            # action_scope = extract_action_scope(line)
+            action_scope = self.current_action_scope
 
-            line_content = re.sub(r"^###[\s\(]+", "", line)
+            line_content = re.sub(r"^###[\s]+", "", line)
             info = extract_attribute_information(line_content)
             logger.debug(f"Identified '{self.current_action}' / '{info}' ")
 
             if self.peopla_action_group_live:
 
-                if action_scope == "both":
+                # if action_scope == "both":
+                if action_scope == "full":
                     ### This is an attribute for an action that occurs between
                     ### members of an action group. We need to update the action
                     ### group to have this attribute. So:
@@ -1088,7 +1212,7 @@ class Document:
                         self.current_action, info
                     )
 
-                elif action_scope == "target":
+                elif action_scope == "leaf":
                     ### This is only relevant for the LAST target peoplas
                     ### We need to add an attribute to a peopla
 
@@ -1111,7 +1235,8 @@ class Document:
         elif re.match(peopla_attribute_regex, line):
             logger.debug("Found a peopla attribute")
 
-            action_scope = extract_action_scope(line)
+            # action_scope = extract_action_scope(line)
+            action_scope = self.current_action_scope
             action_details = extract_action_details(line)
 
             self.current_action = action_details["action_text"]
@@ -1128,7 +1253,9 @@ class Document:
 
             ### What we have found here is an action of an action group
             if self.peopla_action_group_live:
-                if action_scope == "both":
+                # if action_scope == "both":
+                if action_scope == "full":
+
                     ### This is a description of an action between an action group
                     ### We need to make a action_group
 
@@ -1147,7 +1274,8 @@ class Document:
 
                     self.all_action_groups = self.all_action_groups + [ag]
 
-                elif action_scope == "target":
+                # elif action_scope == "target":
+                elif action_scope == "leaf":
                     ### This is only relevant for the LAST target peoplas
                     ### We need to add an attribute to a peopla
 
@@ -1190,6 +1318,32 @@ class Document:
             target_peopla = self.record_peopla(target_peopla_tmp)
             record_evidence(target_peopla, self.current_line)
 
+            self.current_leaf_peopla = target_peopla
+
+            ### If we are staying at the same level of hierarchy,
+            ### we want to append to current_target_peoplas. However,
+            ### if we are moving up/down the hierarchy, we want to
+            ### reset the current_target_peoplas so that it only contains
+            ### the one current target peopla that has just been found.
+
+            # local_depth = len(re.findall(peopla_relation_depth_regex, line))
+            # current_hierarchy_level = ()
+            # previous_hierarchy_level = len( self.pedigree_breadcrumbs_source )
+            # print( f"local depth: {local_depth}")
+            # print( f"self breadcrumb depth: {self.current_breadcrumb_depth}")
+            # print( f"current calculated   : {current_hierarchy_level}")
+            # print( f"previous calculated  : {previous_hierarchy_level}")
+
+            # if ( current_hierarchy_level != previous_hierarchy_level ):
+            #     print( "RESET CURRENT_TARGET_PEOPLAS")
+            #     self.current_target_peoplas = []
+            # else:
+            #     print( "DO NOT RESET CURRENT_TARGET_PEOPLAS")
+
+            # print("++++++++++++++++++++++++++++++++++++++\n")
+
+            # input()
+
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
             new_target_peoplas = [target_peopla]
@@ -1205,6 +1359,136 @@ class Document:
             ### Open an action group
             self.peopla_action_group_live = True
             self.peopla_action_group_directed = direction_flag
+
+        elif (
+            re.match(peopla_pedigree_attribute_regex, line)
+            and count_indent(line) > self.current_pedigree_indent
+        ):
+            logger.debug("Found an attribute of an action IN A PEDIGREE")
+            logger.debug(
+                f"This will be added to {self.current_leaf_peopla.name} (the current pedigree target)"
+            )
+
+            # action_scope = extract_action_scope(line)
+            # action_scope = self.current_action_scope
+
+            line_content = re.sub(r"^###[\s>]+", "", line)
+            info = extract_attribute_information(line_content)
+            logger.debug(f"Identified '{self.current_action}' / '{info}' ")
+
+            self.current_leaf_peopla.update_attribute(self.current_action, info)
+
+            logger.debug(
+                f"Adding [{self.current_action}] attribute to {self.current_leaf_peopla.name}"
+            )
+
+            # input()
+
+        elif (
+            re.match(peopla_pedigree_attribute_regex, line)
+            and count_indent(line) <= self.current_pedigree_indent
+        ):
+            logger.debug("Found a peopla attribute INSIDE A PEDIGREE")
+
+            action_scope = self.current_action_scope
+            action_details = extract_pedigree_action_details(line)
+
+            self.current_action = action_details["action_text"]
+            self.current_pedigree_indent = count_indent(line)
+
+            logger.debug(f"The action scope is {action_scope}")
+            logger.debug(
+                f"Identified '{action_details['action_text']}' / '{action_details['inheritance_flag']} / '{action_details['pedigree_depth']}'"
+            )
+
+            inheritance_hash = {}
+            if action_details["inheritance_flag"]:
+                inheritance_hash = self.header
+                inheritance_hash.pop("TITLE")
+
+            if self.relation_live:
+                ### If there is an action within a pedigree and there is no
+                ### target group that is live, it is relevant ONLY for the 'is'
+                ### Peopla in the relation.
+
+                logger.debug(
+                    f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
+                )
+                self.current_leaf_peopla.update_attribute(
+                    self.current_action, inheritance_hash
+                )
+
+            elif self.peopla_action_group_live:
+
+                action_scope = self.current_action_scope
+
+                # if action_scope == "both":
+                if action_scope == "full":
+
+                    relevant_source_peopla = self.pedigree_breadcrumbs_source[
+                        (self.current_breadcrumb_depth)
+                    ]
+
+                    ag = ActionGroup(
+                        action_details["action_text"],
+                        directed=self.peopla_action_group_directed,
+                        source_peopla=relevant_source_peopla,  # self.current_source_peopla,
+                        target_peoplas=self.current_target_peoplas,
+                        attributes=inheritance_hash,
+                    )
+                    record_evidence(ag, self.current_line)
+
+                    o = ag.print_description()
+                    logger.info(o["info"])
+                    logger.debug(o["debug"])
+
+                    self.all_action_groups = self.all_action_groups + [ag]
+
+                    ### This is an attribute for an action that occurs between
+                    ### members of an action group. We need to update the action
+                    ### group to have this attribute. So:
+                    ### 1. Find the action group
+                    ### 2. Add the attributes
+
+                    # self.all_action_groups[-1].update_attribute(
+                    #     self.current_action, info
+                    # )
+
+                elif action_scope == "leaf":
+                    ### This is only relevant for the LAST target peoplas
+                    ### We need to add an attribute to a peopla
+
+                    # print( self.current_target_peoplas )
+                    # print( len(self.current_target_peoplas) )
+                    # input()
+
+                    if len(self.current_target_peoplas) > 0:
+
+                        self.current_target_peoplas[-1].update_attribute(
+                            self.current_action, inheritance_hash
+                        )
+
+                        logger.debug(
+                            f"Adding [{self.current_action}] attribute to {self.current_target_peoplas[-1].name}"
+                        )
+                    else:
+
+                        logger.debug(
+                            f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
+                        )
+                        self.current_leaf_peopla.update_attribute(
+                            self.current_action, inheritance_hash
+                        )
+
+            ### Then as we encounter attribute of attribute lines that are inside a
+            ### we will update these same Peoplas with those attributes of attributes
+
+            ### All updating of attributes will be done by the update_attribute() function
+
+            ### Note that self.current_pedigree_peoplas will need to be set to [] at the
+            ### appropriate point - probably when we encounter a source Peopla???
+
+            # input()
 
     def record_peopla(self, p):
 
@@ -1295,6 +1579,8 @@ class Document:
             source_peopla = self.record_peopla(source_peopla_tmp)
             record_evidence(source_peopla, self.current_line)
 
+            self.current_leaf_peopla = source_peopla
+
             #########################################################
 
             ### If we're making a new Peopla object and we're at the top level,
@@ -1322,6 +1608,28 @@ class Document:
                 self.pedigree_breadcrumbs_source.append(source_peopla)
                 self.pedigree_breadcrumbs_target = []
             else:
+                ### If we have moved further into the hierarchy than
+                ### the last time that the current_target_peoplas were
+                ### updated, then we want to reset the current_target_peoplas
+                ### otherwise we want to keep accumulating the target peoplas
+
+                # print( "++++++++++++++++++++++++++++++++++++++\n")
+                # print( f"This depth = {this_depth}" )
+                # print( "\n")
+                # print(
+                #     f"The length of the source breadcrumbs = {len( self.pedigree_breadcrumbs_source )}"
+                # )
+                # print( "\n")
+
+                # print( self.print_source_breadcrumbs() )
+
+                # if ( this_depth + 1 ) != len( self.pedigree_breadcrumbs_source ):
+                #     print( "RESET CURRENT_TARGET_PEOPLAS")
+                #     self.current_target_peoplas = []
+                # else:
+                #     print( "DO NOT RESET CURRENT_TARGET_PEOPLAS")
+                # print("++++++++++++++++++++++++++++++++++++++\n")
+
                 self.pedigree_breadcrumbs_source = update_breadcrumbs(
                     deepcopy(self.pedigree_breadcrumbs_source),
                     this_depth,
@@ -1334,6 +1642,11 @@ class Document:
                 ]
 
                 self.pedigree_breadcrumbs_target = new_target_list
+                self.current_target_peoplas = []
+
+                # print( "++++++++++++++++++++++++++++++++++++++\n")
+
+                # input()
 
     def scan_for_header_lines(self, line):
         """
@@ -1420,6 +1733,10 @@ class Document:
             logger.info(f"[{i}] " + str(p))
 
         print("---------------------\n")
+        print(f"Current leaf Peoplas:")
+        logger.info(str(self.current_leaf_peopla))
+
+        print("---------------------\n")
         print(f"All Peorels:")
         for i, p in enumerate(self.all_peorels):
             logger.info(f"[{i}] " + str(p))
@@ -1486,7 +1803,17 @@ def remove_all_leading_action_markup(l):
     """
     Removes markup, but retains the @ for place peoplas
     """
-    return re.sub(r"^###\t(\S*)\t", "", l)
+    # return re.sub(r"^###\t(\S*)\t", "", l)
+
+    return re.sub(r"^###[\t\S>]*(\t)+", "", l)
+
+
+def remove_all_leading_pedigree_action_markup(l):
+    """
+    Removes markup, but retains the @ for place peoplas
+    """
+    # return re.sub(r"^###[\t\S\(>]*\t", "", l)
+    return re.sub(r"^###[\t\S>]*(\t)+", "", l)
 
 
 def remove_all_leading_relation_markup(l):
@@ -1540,45 +1867,34 @@ def extract_peopla_details(l0):
     return peopla_info_dictionary
 
 
-def extract_relation_scope(l0):
+def extract_pedigree_action_details(l0):
     """
-    Extract details of the scope of an action
-    This
-    """
-
-    m = re.search(peopla_relation_scope_regex, l0)
-
-    scope = None
-
-    if m is not None:
-        scope_indicator = m.group(1)
-
-        if scope_indicator == ">":
-            scope = "both"
-        elif scope_indicator == "(>":
-            scope = "target"
-
-    return scope
-
-
-def extract_action_scope(l0):
-    """
-    Extract details of the scope of an action
-    This 
+    Parse details from a relation line.
+    Examples of action lines:
     """
 
-    m = re.search(action_scope_regex, l0)
+    relation_depth = len(re.findall(peopla_relation_depth_regex, l0))
 
-    scope_indicator = m.group(1)
+    l1 = remove_all_leading_pedigree_action_markup(l0).strip()
 
-    if scope_indicator == "":
-        scope = "both"
-    elif scope_indicator == "(":
-        scope = "target"
-    else:
-        scope = None
+    m = re.search(action_regex, l1)
+    action_text = m.group(1).rstrip()
+    inheritance_flag = False if m.group(2) is None else True
 
-    return scope
+    logger.debug(
+        f"Method for extracting action details from pedigree:\n"
+        + f" - pedigree depth is? '{relation_depth}'\n"
+        + f" - attribute_text is ? '{action_text}'\n"
+        + f" - inheritance flag provided? '{inheritance_flag}'"
+    )
+
+    pedigree_action_info_dictionary = {
+        "pedigree_depth": relation_depth,
+        "action_text": action_text,
+        "inheritance_flag": inheritance_flag,
+    }
+
+    return pedigree_action_info_dictionary
 
 
 def extract_relation_details(l0):
@@ -1588,11 +1904,6 @@ def extract_relation_details(l0):
     - ###	>	*SON*
     - ###	>	>	*DAUG*
     - ###	>	*FATHER*
-    Where the closed vocabulary is:
-    * SON
-    * DAUG
-    * FATHER
-    * MOTHER
     """
 
     l1 = remove_all_leading_relation_markup(l0)
@@ -1673,6 +1984,16 @@ def record_evidence(object, line_number):
     existing_list = object.evidence_reference
     existing_list.append(line_number)
     object.evidence_reference = sorted(set(existing_list))
+    ### This is included so that we can use this function in testing
+    ### We don't catch this output normally
+    return object
+
+
+def record_evidence_for_testing(object, line_number):
+    existing_list = object.evidence_reference
+    existing_list.append(line_number)
+    object.evidence_reference = sorted(set(existing_list))
+    return object
 
 
 def update_breadcrumbs(existing_list, update_depth, update_object, label=""):
@@ -1708,3 +2029,39 @@ def pad_with_none(l, n, pad=None):
 
 def get_pedigree_depth(l):
     return len(re.findall(peopla_relation_depth_regex, l))
+
+
+def count_indent(l):
+    return Counter(l)["\t"]
+
+
+def obtain_and_remove_scope(l0):
+    """
+    Find out what the scope is and then remove it
+    """
+
+    basic_markup_regex = "^###\t"
+    basic_scope_regex = r"\("
+    leading_markup_regex = r"^(###[\(\t>]*)(.*)$"
+
+    l1 = l0
+    scope = None
+
+    if re.search(basic_markup_regex, l0):
+
+        m = re.search(leading_markup_regex, l0)
+        leading_markup_text = m.group(1)
+        trailing_content_text = m.group(2)
+
+        if re.search(basic_scope_regex, leading_markup_text):
+            scope = "leaf"
+        else:
+            scope = "full"
+
+        unscoped_leading_markup_text = re.sub(
+            basic_scope_regex, "", leading_markup_text
+        )
+
+        l1 = unscoped_leading_markup_text + trailing_content_text
+
+    return [l1, scope]

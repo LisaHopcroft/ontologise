@@ -3,17 +3,34 @@ from pathlib import Path
 import pandas as pd
 from pandas import testing
 import sys
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 sys.path.append("src/ontologise")
 
-from utils import Document, Peopla, Peorel
+from utils import Document, Peopla, Peorel, ActionGroup, record_evidence
 
 
 BASE_DIR = Path(__file__).parents[1]
 DATA_DIR = BASE_DIR / "integration" / "content" / "input"
 SETTINGS_DIR = BASE_DIR / "integration" / "content" / "settings"
 EXPECTED_DIR = BASE_DIR / "integration" / "content" / "expected"
+
+
+def generate_test_doc(name, settings):
+
+    content_f = DATA_DIR / f"{name}.txt"
+    settings_f = SETTINGS_DIR / settings
+
+    test_doc = Document(content_f, settings_f)
+    test_doc.read_document()
+
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    print(f"Test name: {name}")
+    print(f"File name: {content_f}")
+    print(f"Settings : {settings_f}")
+    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    return test_doc
 
 
 # -----------------------------------------------------------------
@@ -46,17 +63,54 @@ def test_peopla_attributes_of_attributes(
     test_name, settings_file, peopla_name, attribute, attribute_dictionary
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
+    test_doc = generate_test_doc(test_name, settings_file)
 
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
+    for p in test_doc.all_peoplas:
+        print(p)
+        if p.name == peopla_name:
+            assert p.attributes[attribute] == attribute_dictionary
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content, attributes of attributes
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name,attribute,attribute_dictionary",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "pedigree_attributes_A",
+            "settings_basic.yaml",
+            "C, D",
+            "E",
+            {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"},
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "pedigree_attributes_B",
+            "settings_basic.yaml",
+            "C, D",
+            "E",
+            {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"},
+        ),
+    ],
+)
+def test_peopla_attributes_in_pedigrees(
+    test_name, settings_file, peopla_name, attribute, attribute_dictionary
+):
+
+    test_doc = generate_test_doc(test_name, settings_file)
 
     for p in test_doc.all_peoplas:
         ### Print for information
@@ -65,7 +119,166 @@ def test_peopla_attributes_of_attributes(
         if p.name == peopla_name:
             assert p.attributes[attribute] == attribute_dictionary
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content, attributes of attributes
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
+    "test_name,settings_file,expected_object_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are all the objects extracted correctly
+        # Context: A complex example
+        (
+            "complex_example_A",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A", global_id="i-1"), 7),
+                record_evidence(Peopla("B", local_id="j-2"), 8),
+                record_evidence(Peopla("C"), 10),
+                record_evidence(Peopla("D", global_id="m-3"), 11),
+                record_evidence(Peopla("E", place_flag=True, global_id="o-4"), 16),
+                ### What Peorels are we expecting?
+                record_evidence(
+                    Peorel(Peopla("C"), Peopla("A", global_id="i-1"), "DAUG", 1), 10
+                ),
+                record_evidence(
+                    Peorel(Peopla("C"), Peopla("B", local_id="j-2"), "DAUG", 1), 10
+                ),
+                record_evidence(
+                    Peorel(
+                        Peopla("E", global_id="o-4"),
+                        Peopla("D", global_id="m-3"),
+                        "FATHER",
+                        2,
+                    ),
+                    16,
+                ),
+            ],
+        ),
+        # TEST: Are all the objects extracted correctly
+        # Context: A complex example (includes an ActionGroup)
+        (
+            "complex_example_B",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A", global_id="i-1"), 7),
+                record_evidence(Peopla("B", local_id="j-2"), 8),
+                record_evidence(Peopla("C"), 10),
+                record_evidence(Peopla("D", global_id="m-3"), 11),
+                ### What Peorels are we expecting?
+                record_evidence(
+                    Peorel(Peopla("C"), Peopla("A", global_id="i-1"), "DAUG", 1), 10
+                ),
+                record_evidence(
+                    Peorel(Peopla("C"), Peopla("B", local_id="j-2"), "DAUG", 1), 10
+                ),
+                ### What ActionGroups are we expecting?
+                record_evidence(
+                    ActionGroup(
+                        type="OCC",
+                        directed=False,
+                        source_peopla=Peopla("C"),
+                        target_peoplas=[Peopla("D")],
+                    ),
+                    12,
+                ),
+            ],
+        ),
+        ### Not very complex, but will let me test whether ActionGroups
+        ### are being matched while we work on #88
+        (
+            "peopla_content_E2",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A, B", local_id="i-1"), 7),
+                record_evidence(Peopla("C, D"), 9),
+                ### What Peorels are we expecting?
+                ### None
+                ### What ActionGroups are we expecting?
+                record_evidence(
+                    ActionGroup(
+                        type="P",
+                        directed=True,
+                        source_peopla=Peopla("A, B"),
+                        target_peoplas=[Peopla("C, D")],
+                    ),
+                    10,
+                ),
+            ],
+        ),
+    ],
+)
+def test_complex_examples(test_name, settings_file, expected_object_list):
+
+    test_doc = generate_test_doc(test_name, settings_file)
+
+    total_objects_checked = 0
+
+    expected_object_types = [type(x).__name__ for x in expected_object_list]
+    expected_object_type_counts = Counter(expected_object_types)
+
+    print(f"Testing {expected_object_type_counts['Peopla']} peoplas")
+    print(f"We have observed {len(test_doc.all_peoplas)} peoplas in the document")
+    assert len(test_doc.all_peoplas) == expected_object_type_counts["Peopla"]
+
+    print(f"Testing {expected_object_type_counts['Peorel']} peorels")
+    print(f"We have observed {len(test_doc.all_peorels)} peorels in the document")
+    assert len(test_doc.all_peorels) == expected_object_type_counts["Peorel"]
+
+    print(f"Testing {expected_object_type_counts['ActionGroup']} action groups")
+    print(f"We have observed {len(test_doc.all_action_groups)} action groups")
+    assert len(test_doc.all_action_groups) == expected_object_type_counts["ActionGroup"]
+
+    for expected_object in expected_object_list:
+
+        this_object_type = type(expected_object).__name__
+
+        ### We need to check a Peopla
+        if this_object_type == "Peopla":
+
+            ### We have to cycle through all the Peoplas because we
+            ### we are using (temporarily) using a comparison method
+            ### rather than relying on a __eq__ function. I tried to
+            ### implement an __eq__ function but it disrupted the rest
+            ### of the parsing so we will use this for now.
+
+            for observed_object in test_doc.all_peoplas:
+                if observed_object.name == expected_object.name:
+                    comparison_result = observed_object.peopla_match(expected_object)
+                    assert comparison_result
+                    total_objects_checked += 1
+
+        ### We need to check a Peorel
+        elif this_object_type == "Peorel":
+
+            ### This is possible for Peorels because we have a __eq__
+            ### function for this class
+            assert expected_object in test_doc.all_peorels
+            total_objects_checked += 1
+
+        ### We need to check an ActionGroup
+        elif this_object_type == "ActionGroup":
+
+            ### This is possible for Peorels because we have a __eq__
+            ### function for this class
+            assert expected_object in test_doc.all_action_groups
+            total_objects_checked += 1
+
+    print("============================================")
+
+    assert total_objects_checked == len(expected_object_list)
 
 
 # -----------------------------------------------------------------
@@ -100,17 +313,7 @@ def test_peopla_evidence_recording(
     test_name, settings_file, peopla_name, expected_evidence_list
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     for p in test_doc.all_peoplas:
         ### Print for information
@@ -118,8 +321,6 @@ def test_peopla_evidence_recording(
         ### Collect global IDs
         if p.name == peopla_name:
             assert p.evidence_reference == expected_evidence_list
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -159,17 +360,7 @@ def test_peorel_evidence_recording(
     expected_evidence_list,
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     for p in test_doc.all_peorels:
         ### Print for information
@@ -181,8 +372,6 @@ def test_peorel_evidence_recording(
             and p.relation_text == peopla_relation
         ):
             assert p.evidence_reference == expected_evidence_list
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -254,17 +443,7 @@ def test_actiongroup_evidence_recording_single_targets(
     expected_evidence_list,
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     for p in test_doc.all_action_groups:
         ### Print for information
@@ -277,11 +456,9 @@ def test_actiongroup_evidence_recording_single_targets(
         ):
             assert p.evidence_reference == expected_evidence_list
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-
 
 @pytest.mark.parametrize(
-    "test_name,settings_file,peopla_source,expected_target_peoplas,expected_action_text,expected_evidence_list",
+    "test_name,settings_file,expected_num_action_groups,peopla_source,expected_target_peoplas,expected_action_text,expected_evidence_list",
     # parameters are:
     # (1) content file
     # (2) settings file
@@ -293,8 +470,11 @@ def test_actiongroup_evidence_recording_single_targets(
         (
             # TEST: Are the ActionGroups evidenced correctly
             # Context: 1 ActionGroups with multiple targets
+            # TEST: Are the ActionGroups evidenced correctly
+            # Context: 1 ActionGroups with multiple targets
             "secondary_peopla_content_C",
             "settings_basic.yaml",
+            1,
             "A, B",
             ["D, E", "F, G"],
             "J",
@@ -306,6 +486,7 @@ def test_actiongroup_evidence_recording_single_targets(
             #          additional metadata
             "secondary_peopla_content_D",
             "settings_basic.yaml",
+            1,
             "A, B",
             ["D, E", "F, G"],
             "J",
@@ -318,6 +499,7 @@ def test_actiongroup_evidence_recording_single_targets(
             #          things
             "secondary_peopla_content_E",
             "settings_basic.yaml",
+            1,
             "A, B",
             ["D, E", "F, G"],
             "J",
@@ -328,38 +510,36 @@ def test_actiongroup_evidence_recording_single_targets(
 def test_actiongroup_evidence_recording_multiple_targets(
     test_name,
     settings_file,
+    expected_num_action_groups,
     peopla_source,
     expected_target_peoplas,
     expected_action_text,
     expected_evidence_list,
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
+    test_doc = generate_test_doc(test_name, settings_file)
 
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
+    assert len(test_doc.all_action_groups) == expected_num_action_groups
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    all_passing = 0
 
     for p in test_doc.all_action_groups:
         ### Print for information
         print(p)
-        ### Collect global IDs
+
         if p.type == expected_action_text and p.source_peopla.name == peopla_source:
+
             observed_target_peoplas = []
             for tp in p.target_peoplas:
                 observed_target_peoplas.append(tp.name)
 
-            assert len(p.target_peoplas) == len(expected_target_peoplas)
+            assert len(observed_target_peoplas) == len(expected_target_peoplas)
             assert sorted(observed_target_peoplas) == sorted(expected_target_peoplas)
             assert p.evidence_reference == expected_evidence_list
 
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+            all_passing += 1
+
+    assert all_passing == expected_num_action_groups
 
 
 @pytest.mark.parametrize(
@@ -378,17 +558,7 @@ def test_actiongroup_evidence_recording_multiple_targets(
 )
 def test_split_peopla_attributes(test_name, settings_file, peopla_name, action_list):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     for p in test_doc.all_peoplas:
         ### Print for information
@@ -398,67 +568,6 @@ def test_split_peopla_attributes(test_name, settings_file, peopla_name, action_l
             assert list(p.attributes.keys()).sort() == action_list.sort()
 
     print("++++++++++++++++++++++++++++++++++++++++++++++++")
-
-
-# @pytest.mark.parametrize(
-#     "test_name,settings_file,secondary_peopla_name,attribute,attribute_dictionary,primary_peopla_name",
-#     # parameters are:
-#     # (1) content file
-#     # (2) settings file
-#     # (3) name of the secondary peopla of interest
-#     # (4) name the attribute of interest
-#     # (5) attribute dictionary of the attribute of interest
-#     # (3) name of the primary peopla of interest (who should not have the same attributes)
-#     [
-#         # TEST: Are the peoplas extracted correctly
-#         # Context: 1 peopla with attributes of attributes
-#         (
-#             "secondary_peopla_content_B",
-#             "settings_basic.yaml",
-#             "D, E",
-#             "F",
-#             {"AT": "J", "DATE": "I", "G": "H",},
-#             "A, B",
-#         ),
-#     ],
-# )
-# def test_secondary_peopla_attributes_of_attributes(
-#     test_name,
-#     settings_file,
-#     secondary_peopla_name,
-#     attribute,
-#     attribute_dictionary,
-#     primary_peopla_name,
-# ):
-
-#     content_f = DATA_DIR / f"{test_name}.txt"
-#     settings_f = SETTINGS_DIR / settings_file
-
-#     test_doc = Document(content_f, settings_f)
-#     test_doc.read_document()
-
-#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
-#     print(f"Test name: {test_name}")
-#     print(f"File name: {content_f}")
-#     print(f"Settings : {settings_f}")
-#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
-
-#     ### The given attribute should only exist for the secondary Peopla
-#     for p in test_doc.peoplas_primary:
-#         ### Print for information
-#         p.print_peopla()
-#         ### Collect global IDs
-#         if p.name == primary_peopla_name:
-#             assert attribute not in p.attributes
-
-#     for p in test_doc.peoplas_secondary:
-#         ### Print for information
-#         p.print_peopla()
-#         ### Collect global IDs
-#         if p.name == secondary_peopla_name:
-#             assert p.attributes[attribute] == attribute_dictionary
-
-#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -492,17 +601,7 @@ def test_action_group_content_simple(
     test_name, settings_file, source_peopla, expected_action_group_info
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     observed_dictionary = {}
 
@@ -519,8 +618,6 @@ def test_action_group_content_simple(
 
     assert len(test_doc.all_action_groups) == len(expected_action_group_info)
     assert observed_dictionary == expected_action_group_info
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 @pytest.mark.parametrize(
@@ -552,17 +649,7 @@ def test_action_group_content_with_inheritance(
     expected_inherited_attributes,
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     observed_peopla_actions = None
     observed_action_group_actions = {}
@@ -583,8 +670,6 @@ def test_action_group_content_with_inheritance(
     assert observed_peopla_actions.sort() == expected_peopla_actions.sort()
     assert observed_action_group_actions == expected_action_group_actions
     assert observed_inherited_attributes == expected_inherited_attributes
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 @pytest.mark.parametrize(
@@ -618,17 +703,7 @@ def test_complex_action_group_content(
     test_name, settings_file, expected_peopla_info, expected_action_group_info
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     observed_peopla_info = {}
 
@@ -653,8 +728,6 @@ def test_complex_action_group_content(
 
     assert observed_peopla_info == expected_peopla_info
     assert observed_action_group_info == expected_action_group_info
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -686,17 +759,7 @@ def test_peopla_content(
     test_name, settings_file, expected_num_peoplas, expected_global_ids
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     observed_global_ids = []
     for p in test_doc.all_peoplas:
@@ -707,8 +770,6 @@ def test_peopla_content(
 
     assert len(test_doc.all_peoplas) == expected_num_peoplas
     assert observed_global_ids == expected_global_ids
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 @pytest.mark.parametrize(
@@ -742,17 +803,7 @@ def test_peopla_content(
 )
 def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     for p in test_doc.all_peoplas:
         ### Print for information
@@ -760,74 +811,6 @@ def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):
         ### Collect global IDs
 
     assert len(test_doc.all_peoplas) == expected_num_peoplas
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-
-
-# -----------------------------------------------------------------
-# Integration test cases: one to one primary and secondary peoplas
-# -----------------------------------------------------------------
-# Note that these tests ONLY cover one to one action_groups between
-# primary and secondary Peoplas. That is, if there is more than one
-# secondary Peopla for a primary Peopla then this test will fail.
-# -
-
-
-# @pytest.mark.parametrize(
-#     "test_name,settings_file,expected_primary_peoplas_names,expected_secondary_peoplas_names,action_group_key",
-#     # parameters are:
-#     # (1) content file
-#     # (2) settings file
-#     # (3) the expected names of the primary peoplas
-#     # (4) the expected names of the secondary peoplas
-#     # (5) the attribute that defines the action_group between the two
-#     [
-#         # TEST: Are the peoplas extracted correctly
-#         # Context: 1 primary peopla and 1 secondary peopla, related by J
-#         ("secondary_peopla_content_A", "settings_basic.yaml", ["A, B"], ["D, E"], "J",),
-#         # TEST: Are the peoplas extracted correctly
-#         # Context: 1 primary peopla and 1 secondary peopla (with additional attributes), related by J
-#         ("secondary_peopla_content_B", "settings_basic.yaml", ["A, B"], ["D, E"], "J",),
-#     ],
-# )
-# def test_secondary_peopla_content(
-#     test_name,
-#     settings_file,
-#     expected_primary_peoplas_names,
-#     expected_secondary_peoplas_names,
-#     action_group_key,
-# ):
-
-#     content_f = DATA_DIR / f"{test_name}.txt"
-#     settings_f = SETTINGS_DIR / settings_file
-
-#     test_doc = Document(content_f, settings_f)
-#     test_doc.read_document()
-
-#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
-#     print(f"Test name: {test_name}")
-#     print(f"File name: {content_f}")
-#     print(f"Settings : {settings_f}")
-#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
-
-#     for (i, this_peopla) in enumerate(test_doc.peoplas_primary):
-#         this_peopla.print_peopla()
-#         assert this_peopla.name == expected_primary_peoplas_names[i]
-#         assert action_group_key in this_peopla.attributes
-#         assert type(this_peopla.attributes[action_group_key]["with"]) is Peopla
-#         assert (
-#             this_peopla.attributes[action_group_key]["with"].name
-#             == expected_secondary_peoplas_names[i]
-#         )
-
-#     for (i, this_peopla) in enumerate(test_doc.peoplas_secondary):
-#         this_peopla.print_peopla()
-#         assert this_peopla.name == expected_secondary_peoplas_names[i]
-
-#     assert len(test_doc.peoplas_primary) == len(expected_primary_peoplas_names)
-#     assert len(test_doc.peoplas_secondary) == len(expected_secondary_peoplas_names)
-
-#     print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -861,24 +844,12 @@ def test_repeated_peoplas(test_name, settings_file, expected_num_peoplas):
 )
 def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     assert len(test_doc.all_peorels) == len(expected_peorels)
 
     for this_expected_peorel in expected_peorels:
         assert this_expected_peorel in test_doc.all_peorels
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 @pytest.mark.parametrize(
@@ -934,28 +905,25 @@ def test_peopla_peorel_parsing(test_name, settings_file, expected_peorels):
             "settings_basic.yaml",
             [Peorel(Peopla("C"), Peopla("B"), "SON", 1),],
         ),
+        # TEST: Checking that relations are not duplicated
+        (
+            "secondary_peopla_content_F",
+            "settings_basic.yaml",
+            [
+                Peorel(Peopla("M"), Peopla("F, G"), "X", 1),
+                Peorel(Peopla("M"), Peopla("A, B"), "X", 1),
+            ],
+        ),
     ],
 )
 def test_actiongroup_peorel_parsing(test_name, settings_file, expected_peorels):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     assert len(test_doc.all_peorels) == len(expected_peorels)
 
     for this_expected_peorel in expected_peorels:
         assert this_expected_peorel in test_doc.all_peorels
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -993,17 +961,7 @@ def test_gender_inference_from_relations(
     expected_peorel_relation,
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     for this_peopla in test_doc.all_peoplas:
 
@@ -1014,8 +972,6 @@ def test_gender_inference_from_relations(
             gender_evidence = this_peopla.attributes["GENDER"]["evidence"].pop()
             assert gender_evidence.peopla_to.name == expected_peorel_to
             assert gender_evidence.relation_text == expected_peorel_relation
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -1058,17 +1014,7 @@ def test_gender_evidence_is_correct(
     expected_line_reference,
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     for this_peopla in test_doc.all_peoplas:
 
@@ -1086,8 +1032,6 @@ def test_gender_evidence_is_correct(
                     this_evidence_peorel.evidence_reference.pop()
                     == expected_line_reference
                 )
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -1134,22 +1078,10 @@ def test_gender_evidence_is_correct(
 )
 def test_nested_pedigree_num_relations(test_name, settings_file, expected_num_peorel):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     observed_num_peorel = len(test_doc.all_peorels)
     assert observed_num_peorel == expected_num_peorel
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 @pytest.mark.parametrize(
@@ -1285,17 +1217,7 @@ def test_nested_pedigree_relations_that_should_be_recorded(
     expected_line_reference,
 ):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
-
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
+    test_doc = generate_test_doc(test_name, settings_file)
 
     observed_relations_dict = defaultdict(dict)
 
@@ -1328,8 +1250,6 @@ def test_nested_pedigree_relations_that_should_be_recorded(
         observed_relations_dict[peopla_name_is][peopla_name_to]["evidence"]
         == expected_line_reference
     )
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
 
 # -----------------------------------------------------------------
@@ -1648,23 +1568,8 @@ table_shortcuts_multiple_H_expected = pd.DataFrame(
 )
 def test_datapoint_extraction(test_name, settings_file, expected_df):
 
-    content_f = DATA_DIR / f"{test_name}.txt"
-    settings_f = SETTINGS_DIR / settings_file
+    test_doc = generate_test_doc(test_name, settings_file)
 
-    test_doc = Document(content_f, settings_f)
-    test_doc.read_document()
     observed_df = test_doc.data_points_df
-
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(f"Test name: {test_name}")
-    print(f"File name: {content_f}")
-    print(f"Settings : {settings_f}")
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print("OBSERVED\n")
-    print(observed_df)
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
-    print("EXPECTED\n")
-    print(expected_df)
-    print("++++++++++++++++++++++++++++++++++++++++++++++++")
 
     testing.assert_frame_equal(observed_df, expected_df)

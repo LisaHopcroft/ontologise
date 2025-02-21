@@ -16,24 +16,19 @@ from utils import (
     extract_attribute_information,
     remove_all_leading_relation_markup,
     extract_relation_details,
-    extract_relation_scope,
     remove_all_leading_peopla_markup,
-    extract_action_scope,
     remove_all_leading_action_markup,
+    remove_all_leading_pedigree_action_markup,
     extract_action_details,
+    extract_pedigree_action_details,
     is_action_group_directed,
     gender_inference_from_relation,
     update_breadcrumbs,
     pad_with_none,
     get_pedigree_depth,
+    count_indent,
+    obtain_and_remove_scope,
 )
-
-
-# def translate_attribute(x):
-#     return {
-#         ":": "DATE",
-#         "@": "AT",
-#     }.get(x, x)
 
 
 @pytest.mark.parametrize(
@@ -50,57 +45,6 @@ from utils import (
 )
 def test_is_action_group_directed(s_in, s_out_expected):
     s_out_observed = is_action_group_directed(s_in)
-    assert s_out_observed == s_out_expected
-
-
-@pytest.mark.parametrize(
-    "s_in, s_out_expected",
-    # parameters are:
-    # (1) the line as read in the Document
-    # (2) the scope as expected
-    [
-        # TEST: Basic
-        ("###		A", "both"),
-        ("###	(	A", "target"),
-        ("###	((	A", None),
-    ],
-)
-def test_extract_action_details(s_in, s_out_expected):
-    s_out_observed = extract_action_scope(s_in)
-    assert s_out_observed == s_out_expected
-
-
-@pytest.mark.parametrize(
-    "s_in, s_out_expected",
-    # parameters are:
-    # (1) the line as read in the Document
-    # (2) the scope as expected
-    [
-        # TEST: Basic
-        ("###		A", "both"),
-        ("###	(	A", "target"),
-        ("###	((	A", None),
-    ],
-)
-def test_extract_action_scope(s_in, s_out_expected):
-    s_out_observed = extract_action_scope(s_in)
-    assert s_out_observed == s_out_expected
-
-
-@pytest.mark.parametrize(
-    "s_in, s_out_expected",
-    # parameters are:
-    # (1) the line as read in the Document
-    # (2) the scope as expected
-    [
-        # TEST: Basic
-        ("###	>	", "both"),
-        ("###	(>	", "target"),
-        ("###	((	", None),
-    ],
-)
-def test_extract_relation_scope(s_in, s_out_expected):
-    s_out_observed = extract_relation_scope(s_in)
     assert s_out_observed == s_out_expected
 
 
@@ -129,6 +73,36 @@ def test_extract_action_details(s, s_dict_expected):
 
 
 @pytest.mark.parametrize(
+    "s,s_dict_expected",
+    # parameters are:
+    # (1) the attribute string (with leading ### and white space removed)
+    # (2) the dictionary created from that string
+    # - @[SCO, REN, LWH, Johnshill] (belongs to, e.g., OF)
+    # - :[1762-06] (belongs to, e.g., BORN)
+    # - :[1810-11->1818] (belongs to, e.g., EDUCATED)
+    # - :[1819-12->] (belongs to, e.g., HEALTH)
+    # - :[1820->]~ (belongs to, e.g., RESIDED)
+    # - CONDITION[Typhus fever] (belongs to, e.g., HEALTH)
+    # - ROLE[Clerk] (belongs to, e.g., OCC)
+    # - DUR[1 yr] (belongs to, e.g., OCC)
+    [
+        # TEST:
+        (
+            "###	>		E",
+            {"pedigree_depth": 1, "action_text": "E", "inheritance_flag": False},
+        ),
+        (
+            "###	>		E*",
+            {"pedigree_depth": 1, "action_text": "E", "inheritance_flag": True},
+        ),
+    ],
+)
+def test_extract_pedigree_action_details(s, s_dict_expected):
+    s_dict_observed = extract_pedigree_action_details(s)
+    assert s_dict_observed == s_dict_expected
+
+
+@pytest.mark.parametrize(
     "s_in, s_out_expected",
     # parameters are:
     # (1) the line as read in the Document
@@ -136,7 +110,15 @@ def test_extract_action_details(s, s_dict_expected):
     [
         # TEST: Basic
         ("###	(	X", "X"),
-        ("###		Y", "Y"),
+        ("###		X", "X"),
+        ("###	>	(	X", "X"),
+        ("###	>	>		X", "X"),
+        ("###	>	(>		X", "X"),
+        ("###	(	@X", "@X"),
+        ("###		@X", "@X"),
+        ("###	>	(	@X", "@X"),
+        ("###	>	>		@X", "@X"),
+        ("###	>	(>		@X", "@X"),
     ],
 )
 def test_remove_all_leading_action_markup(s_in, s_out_expected):
@@ -398,26 +380,6 @@ def test_pad_with_none(input_list, target_length, expected_output):
 
 
 @pytest.mark.parametrize(
-    "input_list,target_length,expected_output",
-    # parameters are:
-    # (1) an input list
-    # (2) the level at which to update
-    # (3) what to update this level with
-    # (4) the expected result
-    [
-        # TEST: Basic
-        ([], 1, [None]),
-        ([None], 2, [None, None]),
-        (["A"], 1, ["A"]),
-        (["A"], 2, ["A", None]),
-    ],
-)
-def test_pad_with_none(input_list, target_length, expected_output):
-    observed_output = pad_with_none(input_list, target_length)
-    assert observed_output == expected_output
-
-
-@pytest.mark.parametrize(
     "input_line,expected_depth",
     # parameters are:
     # (1) an input list
@@ -437,3 +399,91 @@ def test_pad_with_none(input_list, target_length, expected_output):
 def test_get_pedigree_depth(input_line, expected_depth):
     observed_depth = get_pedigree_depth(input_line)
     assert observed_depth == expected_depth
+
+
+@pytest.mark.parametrize(
+    "input_line,expected_indent",
+    # parameters are:
+    # (1) an input list
+    # (2) the level at which to update
+    # (3) what to update this level with
+    # (4) the expected result
+    [
+        # TEST: Basic
+        ("###		[X]", 2),
+        ("###	>	[X]", 2),
+        ("###			[X]", 3),
+        ("###	>		[X]", 3),
+        ("###	>	>	[X]", 3),
+        ("###	(	[X]", 2),
+        ("###	(>	[X]", 2),
+        ("###	(	(	[X]", 3),
+        ("###	(>		[X]", 3),
+        ("###	(>	(>	[X]", 3),
+    ],
+)
+def test_count_indent(input_line, expected_indent):
+    observed_indent = count_indent(input_line)
+    assert observed_indent == expected_indent
+
+
+@pytest.mark.parametrize(
+    "s_in, s_out_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    [
+        # TEST: Basic
+        ("###	>		E", "E"),
+        ("###	>	>		E", "E"),
+    ],
+)
+def test_remove_all_leading_pedigree_action_markup(s_in, s_out_expected):
+    s_out_observed = remove_all_leading_pedigree_action_markup(s_in)
+    assert s_out_observed == s_out_expected
+
+
+@pytest.mark.parametrize(
+    "s_in, expected_s_out, expected_scope",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    # (3) the scope (leaf/full) as assessed by the presence/absence of (
+    [
+        # TEST: Basic
+        ("###	X", "###	X", "full"),
+        ("###	>	X", "###	>	X", "full"),
+        ("###	(>	X", "###	>	X", "leaf"),
+        ("###	>	>	X", "###	>	>	X", "full"),
+        ("###	(>	>	X", "###	>	>	X", "leaf"),
+        ("###	[X]", "###	[X]", "full"),
+        ("###	>	[X]", "###	>	[X]", "full"),
+        ("###	(>	[X]", "###	>	[X]", "leaf"),
+        ("###	>	>	[X]", "###	>	>	[X]", "full"),
+        ("###	(>	>	[X]", "###	>	>	[X]", "leaf"),
+        ("###	@X", "###	@X", "full"),
+        ("###	>	@X", "###	>	@X", "full"),
+        ("###	(>	@X", "###	>	@X", "leaf"),
+        ("###	>	>	@X", "###	>	>	@X", "full"),
+        ("###	(>	>	@X", "###	>	>	@X", "leaf"),
+        ### If it's a line that contains a local ID, make sure that we're
+        ### not losing that information - only remove (s when they
+        ### are in the leading markup
+        ("###	X(i-1)", "###	X(i-1)", "full"),
+        ("###	[X](i-1)", "###	[X](i-1)", "full"),
+        ("###	@X(i-1)", "###	@X(i-1)", "full"),
+        ("###	(	X(i-1)", "###		X(i-1)", "leaf"),
+        ("###	(	[X](i-1)", "###		[X](i-1)", "leaf"),
+        ("###	(	@X(i-1)", "###		@X(i-1)", "leaf"),
+        ### If it's a line that doesn't start with ###, send it back
+        ### unaltered with scope set to None
+        ("TEST", "TEST", None),
+        ("##    X", "##    X", None),
+        ("", "", None),
+        ("!", "!", None),
+    ],
+)
+def test_obtain_and_remove_scope(s_in, expected_s_out, expected_scope):
+    s_out = obtain_and_remove_scope(s_in)
+    assert s_out[0] == expected_s_out
+    assert s_out[1] == expected_scope
