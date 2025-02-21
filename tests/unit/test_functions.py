@@ -30,6 +30,7 @@ from utils import (
     obtain_and_remove_scope,
 )
 
+
 @pytest.mark.parametrize(
     "s_in, s_out_expected",
     # parameters are:
@@ -45,6 +46,7 @@ from utils import (
 def test_is_action_group_directed(s_in, s_out_expected):
     s_out_observed = is_action_group_directed(s_in)
     assert s_out_observed == s_out_expected
+
 
 @pytest.mark.parametrize(
     "s,s_dict_expected",
@@ -117,7 +119,6 @@ def test_extract_pedigree_action_details(s, s_dict_expected):
         ("###	>	(	@X", "@X"),
         ("###	>	>		@X", "@X"),
         ("###	>	(>		@X", "@X"),
-
     ],
 )
 def test_remove_all_leading_action_markup(s_in, s_out_expected):
