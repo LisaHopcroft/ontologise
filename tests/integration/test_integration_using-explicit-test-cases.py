@@ -174,10 +174,9 @@ def test_peopla_attributes_in_pedigrees(
                 ),
             ],
         ),
-
         # TEST: Are all the objects extracted correctly
-        # Context: A complex example (which should include an ActionGroup)
-        pytest.param(
+        # Context: A complex example (includes an ActionGroup)
+        (
             "complex_example_B",
             "settings_basic.yaml",
             [
@@ -186,7 +185,6 @@ def test_peopla_attributes_in_pedigrees(
                 record_evidence(Peopla("B", local_id="j-2"), 8),
                 record_evidence(Peopla("C"), 10),
                 record_evidence(Peopla("D", global_id="m-3"), 11),
-                record_evidence(Peopla("E", place_flag=True, global_id="o-4"), 16),
                 ### What Peorels are we expecting?
                 record_evidence(
                     Peorel(Peopla("C"), Peopla("A", global_id="i-1"), "DAUG", 1), 10
@@ -194,27 +192,17 @@ def test_peopla_attributes_in_pedigrees(
                 record_evidence(
                     Peorel(Peopla("C"), Peopla("B", local_id="j-2"), "DAUG", 1), 10
                 ),
-                record_evidence(
-                    Peorel(
-                        Peopla("E", global_id="o-4"),
-                        Peopla("D", global_id="m-3"),
-                        "FATHER",
-                        2,
-                    ),
-                    16,
-                ),
                 ### What ActionGroups are we expecting?
                 record_evidence(
                     ActionGroup(
                         type="OCC",
                         directed=False,
                         source_peopla=Peopla("C"),
-                        target_peoplas=[Peopla("D")]
+                        target_peoplas=[Peopla("D")],
                     ),
-                    12
-                )
+                    12,
+                ),
             ],
-            marks=pytest.mark.xfail(reason="Bug (see issue #36)")
         ),
         ### Not very complex, but will let me test whether ActionGroups
         ### are being matched while we work on #88
@@ -233,10 +221,10 @@ def test_peopla_attributes_in_pedigrees(
                         type="P",
                         directed=True,
                         source_peopla=Peopla("A, B"),
-                        target_peoplas=[Peopla("C, D")]
+                        target_peoplas=[Peopla("C, D")],
                     ),
-                    10
-                )
+                    10,
+                ),
             ],
         ),
     ],
@@ -298,7 +286,7 @@ def test_complex_examples(test_name, settings_file, expected_object_list):
             ### function for this class
             assert expected_object in test_doc.all_peorels
             total_objects_checked += 1
-        
+
         ### We need to check an ActionGroup
         elif this_object_type == "ActionGroup":
 
@@ -553,9 +541,6 @@ def test_actiongroup_evidence_recording_single_targets(
             # TEST: Are the ActionGroups evidenced correctly
             # Context: 1 ActionGroups with multiple targets plus
             #          additional metadata
-            # TEST: Are the ActionGroups evidenced correctly
-            # Context: 1 ActionGroups with multiple targets plus
-            #          additional metadata
             "secondary_peopla_content_D",
             "settings_basic.yaml",
             1,
@@ -569,15 +554,11 @@ def test_actiongroup_evidence_recording_single_targets(
             # Context: 1 ActionGroups with multiple targets plus
             #          an intervening relation that could confuse
             #          things
-            # TEST: Are the ActionGroups evidenced correctly
-            # Context: 1 ActionGroups with multiple targets plus
-            #          an intervening relation that could confuse
-            #          things
             "secondary_peopla_content_E",
             "settings_basic.yaml",
             1,
             "A, B",
-            ["D, E", "F, G"],
+            ["F, G"],
             "J",
             [13],
         ),

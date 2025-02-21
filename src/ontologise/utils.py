@@ -31,7 +31,7 @@ peopla_relation_target_regex = r"^###\t(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_relation_scope_regex = r"^###\t(>).*$"
 
 action_regex = r"^([^\*]+)(\*)?$"
-action_attribute_regex          = r"^###\t\t\t[^\*]+\*?$"
+action_attribute_regex = r"^###\t\t\t[^\*]+\*?$"
 pedigree_action_attribute_regex = r"^###\t[\t<]+(\t)+[^\*]+\*?$"
 action_group_regex = r"^###\t(>\t)*(vs|w/).*$"
 action_group_vs_regex = r"^###\t(>\t)*vs\[.*$"
@@ -172,7 +172,7 @@ class ActionGroup:
     """
 
     def __init__(
-        self, type, directed=False, source_peopla=[], target_peoplas=[], attributes={}
+        self, type, directed=False, source_peopla=None, target_peoplas=[], attributes={}
     ):
 
         self.type = type
@@ -217,18 +217,18 @@ class ActionGroup:
             and self.source_peopla.name == other.source_peopla.name
             and len(self.target_peoplas) == len(other.target_peoplas)
         ):
-            
+
             target_peopla_match_count = 0
             for self_tp in self.target_peoplas:
                 for other_tp in self.target_peoplas:
-                    if self_tp.peopla_match( other_tp ):
+                    if self_tp.peopla_match(other_tp):
                         target_peopla_match_count += 1
-            
+
             if target_peopla_match_count == len(self.target_peoplas):
                 return_result = True
 
         return return_result
-    
+
     def print_description(self):
         s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         s_info = s_info + f" involving the following source Peoplas\n"
@@ -262,6 +262,7 @@ class ActionGroup:
         )
 
         self.attributes[attribute_text] = updated_attributes
+
 
 class Peorel:
     """
@@ -401,15 +402,15 @@ class Peopla:
 
         return s_out
 
-    def peopla_match( self, other ):
+    def peopla_match(self, other):
         return_result = False
 
-        print( f"'{self.name}' == '{other.name}' ??\n")
-        print( f"'{self.type}' == '{other.type}' ??\n")
-        print( f"'{self.global_id}' == '{other.global_id}' ??\n")
-        print( f"'{self.local_id}' == '{other.local_id}' ??\n")
-        print( f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n")
-        
+        print(f"'{self.name}' == '{other.name}' ??\n")
+        print(f"'{self.type}' == '{other.type}' ??\n")
+        print(f"'{self.global_id}' == '{other.global_id}' ??\n")
+        print(f"'{self.local_id}' == '{other.local_id}' ??\n")
+        print(f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n")
+
         if (
             self.name == other.name
             and self.type == other.type
@@ -433,7 +434,7 @@ class Peopla:
     #     ):
     #         return_result = True
 
-    #     return return_result        
+    #     return return_result
 
 
 class Document:
@@ -483,7 +484,7 @@ class Document:
 
         self.current_leaf_peopla = None
         self.current_action_scope = None
-        
+
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
         #############################################################
@@ -535,7 +536,10 @@ class Document:
                 ### do this when a data table is live.
                 line_unscoped = line
                 if not self.data_table_live:
-                    [ line_unscoped, self.current_action_scope ] = obtain_and_remove_scope(line)
+                    [
+                        line_unscoped,
+                        self.current_action_scope,
+                    ] = obtain_and_remove_scope(line)
 
                 logger.debug(f"Amending line to remove scope: {line_unscoped}")
 
@@ -1233,7 +1237,7 @@ class Document:
             if self.peopla_action_group_live:
                 # if action_scope == "both":
                 if action_scope == "full":
-                
+
                     ### This is a description of an action between an action group
                     ### We need to make a action_group
 
@@ -1361,15 +1365,79 @@ class Document:
                 inheritance_hash = self.header
                 inheritance_hash.pop("TITLE")
 
-            ### If there is an action within a pedigree, it is relevant ONLY for the 'is'
-            ### Peopla in the relation.
+            if self.relation_live:
+                ### If there is an action within a pedigree and there is no
+                ### target group that is live, it is relevant ONLY for the 'is'
+                ### Peopla in the relation.
 
-            logger.debug(
-                f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
-            )
-            self.current_leaf_peopla.update_attribute(
-                self.current_action, inheritance_hash
-            )
+                logger.debug(
+                    f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
+                )
+                self.current_leaf_peopla.update_attribute(
+                    self.current_action, inheritance_hash
+                )
+
+            elif self.peopla_action_group_live:
+
+                action_scope = self.current_action_scope
+
+                # if action_scope == "both":
+                if action_scope == "full":
+
+                    relevant_source_peopla = self.pedigree_breadcrumbs_source[
+                        (self.current_breadcrumb_depth)
+                    ]
+
+                    ag = ActionGroup(
+                        action_details["action_text"],
+                        directed=self.peopla_action_group_directed,
+                        source_peopla=relevant_source_peopla,  # self.current_source_peopla,
+                        target_peoplas=self.current_target_peoplas,
+                        attributes=inheritance_hash,
+                    )
+                    record_evidence(ag, self.current_line)
+
+                    o = ag.print_description()
+                    logger.info(o["info"])
+                    logger.debug(o["debug"])
+
+                    self.all_action_groups = self.all_action_groups + [ag]
+
+                    ### This is an attribute for an action that occurs between
+                    ### members of an action group. We need to update the action
+                    ### group to have this attribute. So:
+                    ### 1. Find the action group
+                    ### 2. Add the attributes
+
+                    # self.all_action_groups[-1].update_attribute(
+                    #     self.current_action, info
+                    # )
+
+                elif action_scope == "leaf":
+                    ### This is only relevant for the LAST target peoplas
+                    ### We need to add an attribute to a peopla
+
+                    # print( self.current_target_peoplas )
+                    # print( len(self.current_target_peoplas) )
+                    # input()
+
+                    if len(self.current_target_peoplas) > 0:
+
+                        self.current_target_peoplas[-1].update_attribute(
+                            self.current_action, inheritance_hash
+                        )
+
+                        logger.debug(
+                            f"Adding [{self.current_action}] attribute to {self.current_target_peoplas[-1].name}"
+                        )
+                    else:
+
+                        logger.debug(
+                            f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
+                        )
+                        self.current_leaf_peopla.update_attribute(
+                            self.current_action, inheritance_hash
+                        )
 
             ### Then as we encounter attribute of attribute lines that are inside a
             ### we will update these same Peoplas with those attributes of attributes
@@ -1511,6 +1579,7 @@ class Document:
                 ]
 
                 self.pedigree_breadcrumbs_target = new_target_list
+                self.current_target_peoplas = []
 
     def scan_for_header_lines(self, line):
         """
@@ -1671,11 +1740,12 @@ def remove_all_leading_action_markup(l):
 
     return re.sub(r"^###[\t\S>]*(\t)+", "", l)
 
+
 def remove_all_leading_pedigree_action_markup(l):
     """
     Removes markup, but retains the @ for place peoplas
     """
-    #return re.sub(r"^###[\t\S\(>]*\t", "", l)
+    # return re.sub(r"^###[\t\S\(>]*\t", "", l)
     return re.sub(r"^###[\t\S>]*(\t)+", "", l)
 
 
@@ -1756,7 +1826,7 @@ def extract_pedigree_action_details(l0):
         + f" - inheritance flag provided? '{inheritance_flag}'"
     )
 
-    pedigree_action_info_dictionary = { 
+    pedigree_action_info_dictionary = {
         "pedigree_depth": relation_depth,
         "action_text": action_text,
         "inheritance_flag": inheritance_flag,
@@ -1854,14 +1924,14 @@ def record_evidence(object, line_number):
     object.evidence_reference = sorted(set(existing_list))
     ### This is included so that we can use this function in testing
     ### We don't catch this output normally
-    return(object)
+    return object
 
 
 def record_evidence_for_testing(object, line_number):
     existing_list = object.evidence_reference
     existing_list.append(line_number)
     object.evidence_reference = sorted(set(existing_list))
-    return( object )
+    return object
 
 
 def update_breadcrumbs(existing_list, update_depth, update_object, label=""):
@@ -1898,8 +1968,10 @@ def pad_with_none(l, n, pad=None):
 def get_pedigree_depth(l):
     return len(re.findall(peopla_relation_depth_regex, l))
 
+
 def count_indent(l):
     return Counter(l)["\t"]
+
 
 def obtain_and_remove_scope(l0):
     """
@@ -1924,8 +1996,10 @@ def obtain_and_remove_scope(l0):
         else:
             scope = "full"
 
-        unscoped_leading_markup_text = re.sub(basic_scope_regex, "", leading_markup_text)
+        unscoped_leading_markup_text = re.sub(
+            basic_scope_regex, "", leading_markup_text
+        )
 
         l1 = unscoped_leading_markup_text + trailing_content_text
 
-    return ( [l1, scope] )
+    return [l1, scope]
