@@ -212,6 +212,10 @@ class ActionGroup:
     def __eq__(self, other):
         return_result = False
 
+        for self_p in self.target_peoplas:
+            if self_p not in other.target_peoplas:
+                return False
+
         if (
             self.type == other.type
             and self.directed == other.directed
