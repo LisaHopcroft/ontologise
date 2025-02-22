@@ -1327,20 +1327,21 @@ class Document:
                     ### This is a description of an action between an action group
                     ### We need to make a action_group
 
-                    ag = ActionGroup(
+                    ag_tmp = ActionGroup(
                         action_details["action_text"],
                         directed=self.peopla_action_group_directed,
                         source_peopla=self.current_source_peopla,
                         target_peoplas=self.current_target_peoplas,
                         attributes=inheritance_hash,
                     )
+
+                    # self.all_action_groups = self.all_action_groups + [ag]
+                    ag = self.record_action_group(ag_tmp)
                     record_evidence(ag, self.current_line)
 
                     o = ag.print_description()
                     logger.info(o["info"])
                     logger.debug(o["debug"])
-
-                    self.all_action_groups = self.all_action_groups + [ag]
 
                 # elif action_scope == "target":
                 elif action_scope == "leaf":
@@ -1497,20 +1498,21 @@ class Document:
                         (self.current_breadcrumb_depth)
                     ]
 
-                    ag = ActionGroup(
+                    ag_tmp = ActionGroup(
                         action_details["action_text"],
                         directed=self.peopla_action_group_directed,
                         source_peopla=relevant_source_peopla,  # self.current_source_peopla,
                         target_peoplas=self.current_target_peoplas,
                         attributes=inheritance_hash,
                     )
+                    # self.all_action_groups = self.all_action_groups + [ag]
+
+                    ag = self.record_action_group(ag_tmp)
                     record_evidence(ag, self.current_line)
 
                     o = ag.print_description()
                     logger.info(o["info"])
                     logger.debug(o["debug"])
-
-                    self.all_action_groups = self.all_action_groups + [ag]
 
                     ### This is an attribute for an action that occurs between
                     ### members of an action group. We need to update the action
@@ -1578,6 +1580,27 @@ class Document:
             logger.debug(f"We have already seen this peopla ({p.name})")
 
         return peopla_ref
+
+    def record_action_group(self, ag):
+
+        action_group_ref = ag
+        already_recorded = False
+
+        for this_ag in self.all_action_groups:
+            if this_ag == ag:
+                already_recorded = True
+                action_group_ref = this_ag
+                break
+
+        if not already_recorded:
+            logger.debug(
+                f"This is a new Action Group that should be recorded ({ag.type})"
+            )
+            self.all_action_groups = self.all_action_groups + [action_group_ref]
+        else:
+            logger.debug(f"We have already seen this Action Group ({ag.type})")
+
+        return action_group_ref
 
     def print_source_breadcrumbs(self):
         n = len(self.pedigree_breadcrumbs_target)
