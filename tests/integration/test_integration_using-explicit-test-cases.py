@@ -299,8 +299,8 @@ def test_peopla_attributes_of_attributes(
     # (4) name the attribute of interest
     # (5) attribute dictionary of the attribute of interest
     [
-        # TEST: Are all the objects extracted correctly
-        # Context: A complex example (includes an ActionGroup)
+        # TEST: Are all the objects extracted correctly when
+        #       relations markup is missing
         (
             "missing_relations_example_A",
             "settings_basic.yaml",
@@ -345,6 +345,55 @@ def test_peopla_attributes_of_attributes(
                         target_peoplas=[Peopla("G")],
                     ),
                     24,
+                ),
+            ],
+        ),
+        # TEST: Are all the objects extracted correctly when
+        #       relations markup is missing
+        (
+            "missing_relations_example_B",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A"), 10),
+                record_evidence(Peopla("B"), 11),
+                record_evidence(record_evidence(Peopla("C", local_id="1"), 13), 18),
+                record_evidence(Peopla("D"), 14),
+                record_evidence(Peopla("E"), 19),
+                record_evidence(Peopla("F"), 24),
+                record_evidence(Peopla("G"), 25),
+                ### What Peorels are we expecting?
+                record_evidence(Peorel(Peopla("C"), Peopla("A"), "SON", 1), 13),
+                record_evidence(Peorel(Peopla("C"), Peopla("B"), "SON", 1), 13),
+                record_evidence(Peorel(Peopla("F"), Peopla("A"), "DAUG", 1), 24),
+                record_evidence(Peorel(Peopla("F"), Peopla("B"), "DAUG", 1), 24),
+                ### What ActionGroups are we expecting?
+                record_evidence(
+                    ActionGroup(
+                        type="X",
+                        directed=True,
+                        source_peopla=Peopla("C"),
+                        target_peoplas=[Peopla("D")],
+                    ),
+                    15,
+                ),
+                record_evidence(
+                    ActionGroup(
+                        type="X",
+                        directed=True,
+                        source_peopla=Peopla("C"),
+                        target_peoplas=[Peopla("E")],
+                    ),
+                    20,
+                ),
+                record_evidence(
+                    ActionGroup(
+                        type="X",
+                        directed=True,
+                        source_peopla=Peopla("F"),
+                        target_peoplas=[Peopla("G")],
+                    ),
+                    26,
                 ),
             ],
         ),

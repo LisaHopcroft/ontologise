@@ -735,29 +735,36 @@ class Document:
                 self.current_line += 1
 
                 previous_build_map = deepcopy(self.current_build_map)
-                self.current_build_map = build_map(line)
+                current_build_map = build_map(line)
 
-                self.describe_transition(previous_build_map)
+                if current_build_map["content"]:
+                    self.current_build_map = build_map(line)
+                    self.describe_transition(previous_build_map)
 
-                ### We are comparing two lines of content
-                if all(
-                    [previous_build_map["content"], self.current_build_map["content"]]
-                ):
-                    ### We have moved back up the hierarchy
-                    if (
-                        (
-                            self.current_build_map["indent_count"]
-                            < previous_build_map["indent_count"]
-                        )
-                        or (
-                            self.current_build_map["tab_count"]
-                            < previous_build_map["tab_count"]
-                        )
-                    ) and (self.current_build_map["peopla"]):
-                        self.missing_relation_flag = True
-                        print("I have identified a missing relation\n")
-                        self.relation_live = False
-                        self.peopla_action_group_live = False
+                    ### We are comparing two lines of content
+                    if all(
+                        [
+                            previous_build_map["content"],
+                            self.current_build_map["content"],
+                        ]
+                    ):
+                        ### We have moved back up the hierarchy
+                        if (
+                            (
+                                self.current_build_map["indent_count"]
+                                < previous_build_map["indent_count"]
+                            )
+                            or
+                            (
+                                self.current_build_map["tab_count"]
+                                < previous_build_map["tab_count"]
+                            )
+                            and (self.current_build_map["peopla"])
+                            and (self.current_build_map["indent_count"] > 0)):
+                                self.missing_relation_flag = True
+                                print("I have identified a missing relation\n")
+                                self.relation_live = False
+                                self.peopla_action_group_live = False
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
@@ -1953,6 +1960,7 @@ class Document:
                 self.peopla_action_group_live = False
                 self.relation_live = False
                 self.relation_depth = 0
+                self.missing_relation_flag = False
 
                 ### (3) reset the source/target breadcrumbs
                 self.pedigree_breadcrumbs_source = []
@@ -2108,7 +2116,7 @@ class Document:
         return self.header[flag]
 
 
-def extract_attribute_information(l):
+def extract_attribute_information(l0):
     """
     Parse details from an attribute line.
     Examples of attribute lines:
@@ -2121,14 +2129,23 @@ def extract_attribute_information(l):
     - ROLE[Clerk] (belongs to, e.g., OCC)
     - DUR[1 yr] (belongs to, e.g., OCC)
     """
+    l1 = expand_attribute(l0)
 
-    m = re.search(r"^(.*)\[(.*)\](~)?$", l)
+    m = re.search(r"^(.*)\[(.*)\](~)?$", l1)
+    
     key = translate_attribute(m.group(1))
     approx_flag = False if m.group(3) is None else True
     value = f"approx. {m.group(2)}" if approx_flag else m.group(2)
 
     return {key: value}
 
+def expand_attribute(l):
+    if l == "BIRTH":
+        return "AGED[BIRTH]"
+    elif l == "INF":
+        return "AGED[INFANCY]"
+    else:
+        return l
 
 ### This is what we could do with Python 3.10
 # def translate(x):
@@ -2192,8 +2209,8 @@ def extract_peopla_details(l0):
     place_flag = False if m.group(1) is None else True
     with_flag = False if m.group(2) is None else True
     content = m.group(3)
-    local_id = None if m.group(4) is None else re.sub("[\(\)]", "", m.group(4))
-    global_id = None if m.group(5) is None else re.sub("[\{\}]", "", m.group(5))
+    local_id = None if m.group(4) is None else re.sub(r"[\(\)]", "", m.group(4))
+    global_id = None if m.group(5) is None else re.sub(r"[\{\}]", "", m.group(5))
     inheritance_flag = False if m.group(6) is None else True
 
     logger.debug(
