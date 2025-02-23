@@ -735,29 +735,36 @@ class Document:
                 self.current_line += 1
 
                 previous_build_map = deepcopy(self.current_build_map)
-                self.current_build_map = build_map(line)
+                current_build_map = build_map(line)
 
-                self.describe_transition(previous_build_map)
+                if current_build_map["content"]:
+                    self.current_build_map = build_map(line)
+                    self.describe_transition(previous_build_map)
 
-                ### We are comparing two lines of content
-                if all(
-                    [previous_build_map["content"], self.current_build_map["content"]]
-                ):
-                    ### We have moved back up the hierarchy
-                    if (
-                        (
-                            self.current_build_map["indent_count"]
-                            < previous_build_map["indent_count"]
-                        )
-                        or (
-                            self.current_build_map["tab_count"]
-                            < previous_build_map["tab_count"]
-                        )
-                    ) and (self.current_build_map["peopla"]):
-                        self.missing_relation_flag = True
-                        print("I have identified a missing relation\n")
-                        self.relation_live = False
-                        self.peopla_action_group_live = False
+                    ### We are comparing two lines of content
+                    if all(
+                        [
+                            previous_build_map["content"],
+                            self.current_build_map["content"],
+                        ]
+                    ):
+                        ### We have moved back up the hierarchy
+                        if (
+                            (
+                                self.current_build_map["indent_count"]
+                                < previous_build_map["indent_count"]
+                            )
+                            or
+                            (
+                                self.current_build_map["tab_count"]
+                                < previous_build_map["tab_count"]
+                            )
+                            and (self.current_build_map["peopla"])
+                            and (self.current_build_map["indent_count"] > 0)):
+                                self.missing_relation_flag = True
+                                print("I have identified a missing relation\n")
+                                self.relation_live = False
+                                self.peopla_action_group_live = False
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
@@ -1953,6 +1960,7 @@ class Document:
                 self.peopla_action_group_live = False
                 self.relation_live = False
                 self.relation_depth = 0
+                self.missing_relation_flag = False
 
                 ### (3) reset the source/target breadcrumbs
                 self.pedigree_breadcrumbs_source = []
