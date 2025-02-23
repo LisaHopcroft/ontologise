@@ -291,6 +291,153 @@ def test_peopla_attributes_of_attributes(
 
 
 @pytest.mark.parametrize(
+    "test_name,settings_file,expected_object_list",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are all the objects extracted correctly
+        # Context: A complex example (includes an ActionGroup)
+        (
+            "missing_relations_example_A",
+            "settings_basic.yaml",
+            [
+                ### What Peoplas are we expecting?
+                record_evidence(Peopla("A"), 10),
+                record_evidence(Peopla("B"), 11),
+                record_evidence(record_evidence(Peopla("C", local_id="1"), 13), 17),
+                record_evidence(Peopla("D"), 14),
+                record_evidence(Peopla("E"), 18),
+                record_evidence(Peopla("F"), 22),
+                record_evidence(Peopla("G"), 23),
+                ### What Peorels are we expecting?
+                record_evidence(Peorel(Peopla("C"), Peopla("A"), "SON", 1), 13),
+                record_evidence(Peorel(Peopla("C"), Peopla("B"), "SON", 1), 13),
+                record_evidence(Peorel(Peopla("F"), Peopla("A"), "DAUG", 1), 22),
+                record_evidence(Peorel(Peopla("F"), Peopla("B"), "DAUG", 1), 22),
+                ### What ActionGroups are we expecting?
+                record_evidence(
+                    ActionGroup(
+                        type="X",
+                        directed=True,
+                        source_peopla=Peopla("C"),
+                        target_peoplas=[Peopla("D")],
+                    ),
+                    15,
+                ),
+                record_evidence(
+                    ActionGroup(
+                        type="X",
+                        directed=True,
+                        source_peopla=Peopla("C"),
+                        target_peoplas=[Peopla("E")],
+                    ),
+                    19,
+                ),
+                record_evidence(
+                    ActionGroup(
+                        type="X",
+                        directed=True,
+                        source_peopla=Peopla("F"),
+                        target_peoplas=[Peopla("G")],
+                    ),
+                    24,
+                ),
+            ],
+        ),
+    ],
+)
+def test_missing_relations(test_name, settings_file, expected_object_list):
+
+    test_doc = generate_test_doc(test_name, settings_file)
+
+    total_objects_checked = 0
+
+    expected_object_types = [type(x).__name__ for x in expected_object_list]
+    expected_object_type_counts = Counter(expected_object_types)
+
+    print(f"Testing {expected_object_type_counts['Peopla']} peoplas")
+    print(f"We have observed {len(test_doc.all_peoplas)} peoplas in the document")
+    assert len(test_doc.all_peoplas) == expected_object_type_counts["Peopla"]
+
+    print(f"Testing {expected_object_type_counts['Peorel']} peorels")
+    print(f"We have observed {len(test_doc.all_peorels)} peorels in the document")
+    assert len(test_doc.all_peorels) == expected_object_type_counts["Peorel"]
+
+    print(f"Testing {expected_object_type_counts['ActionGroup']} action groups")
+    print(f"We have observed {len(test_doc.all_action_groups)} action groups")
+    assert len(test_doc.all_action_groups) == expected_object_type_counts["ActionGroup"]
+
+    for expected_object in expected_object_list:
+
+        this_object_type = type(expected_object).__name__
+
+        ### We need to check a Peopla
+        if this_object_type == "Peopla":
+
+            ### We have to cycle through all the Peoplas because we
+            ### we are using (temporarily) using a comparison method
+            ### rather than relying on a __eq__ function. I tried to
+            ### implement an __eq__ function but it disrupted the rest
+            ### of the parsing so we will use this for now.
+
+            for observed_object in test_doc.all_peoplas:
+                if observed_object.name == expected_object.name and (
+                    observed_object.local_id == expected_object.local_id
+                    or observed_object.global_id == expected_object.global_id
+                ):
+
+                    comparison_result = observed_object.peopla_match(expected_object)
+                    assert comparison_result
+                    total_objects_checked += 1
+
+        ### We need to check a Peorel
+        elif this_object_type == "Peorel":
+
+            ### This is possible for Peorels because we have a __eq__
+            ### function for this class
+
+            for n, observed_object in enumerate(test_doc.all_peorels):
+
+                if observed_object == expected_object:
+                    assert True
+                    total_objects_checked += 1
+
+        ### We need to check an ActionGroup
+        elif this_object_type == "ActionGroup":
+
+            # ### This is possible for Peorels because we have a __eq__
+            # ### function for this class
+            # assert expected_object in test_doc.all_action_groups
+            # total_objects_checked += 1
+
+            for observed_object in test_doc.all_action_groups:
+                if (
+                    expected_object.type == observed_object.type
+                    and expected_object.directed == observed_object.directed
+                    and expected_object.source_peopla.name
+                    == observed_object.source_peopla.name
+                    and len(expected_object.target_peoplas)
+                    == len(observed_object.target_peoplas)
+                ):
+                    assert True
+                    total_objects_checked += 1
+
+    print("============================================")
+
+    assert total_objects_checked == len(expected_object_list)
+
+
+# -----------------------------------------------------------------
+# Integration test cases: peopla content, attributes of attributes
+# -----------------------------------------------------------------
+# -
+
+
+@pytest.mark.parametrize(
     "test_name,settings_file,peopla_name,attribute,attribute_dictionary",
     # parameters are:
     # (1) content file

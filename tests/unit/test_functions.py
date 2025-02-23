@@ -33,6 +33,7 @@ from utils import (
     obtain_and_remove_scope,
     merge_attributes,
     flatten,
+    build_map,
 )
 
 
@@ -51,6 +52,379 @@ from utils import (
 def test_is_action_group_directed(s_in, s_out_expected):
     s_out_observed = is_action_group_directed(s_in)
     assert s_out_observed == s_out_expected
+
+
+def generate_action_or_attribute_build_map(
+    indent_val=0, tab_val=0, peopla_val=False, shortcut_def_val=False
+):
+    return {
+        "empty": False,
+        "ignore": False,
+        "header": False,
+        "content": True,
+        "shortcut": False,
+        # Actions/attributes have the same format as a
+        # shortcut definition, only the context will tell us
+        # the difference, so we need a way to pass this information
+        # to this dictionary for testing
+        "shortcut_def": shortcut_def_val,
+        # Actions/attributes can have the same format as a
+        # Peopla definition, only the context will tell us
+        # the difference, so we need a way to pass this information
+        # to this dictionary for testing
+        "peopla": peopla_val,
+        "relation": False,
+        "action_group": False,
+        "indent_count": indent_val,
+        "tab_count": tab_val,
+    }
+
+
+@pytest.mark.parametrize(
+    "s,map_expected",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the content map as expected
+    [
+        # --- THINGS TO IGNORE --------------------------------------
+        # TEST: Empty (no text)
+        ("", {"empty": True, "ignore": False, "header": False, "content": False,},),
+        # TEST: Empty (tab)
+        ("	", {"empty": True, "ignore": False, "header": False, "content": False,},),
+        # TEST: ignore (via !)
+        ("! X", {"empty": False, "ignore": True, "header": False, "content": False,},),
+        # TEST: ignore (via !) with following ###
+        (
+            "! ### [X]",
+            {"empty": False, "ignore": True, "header": False, "content": False,},
+        ),
+        # TEST: markup separator - all values false
+        (
+            "------------",
+            {"empty": False, "ignore": False, "header": False, "content": False,},
+        ),
+        # TEST: markup separator - all values false
+        (
+            "------------",
+            {"empty": False, "ignore": False, "header": False, "content": False,},
+        ),
+        # --- THINGS TO PARSE ---------------------------------------
+        # Header text
+        (
+            "##X:	Y",
+            {"empty": False, "ignore": False, "header": True, "content": False,},
+        ),
+        # Shortcut
+        (
+            "###		^1:",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": True,
+                "shortcut_def": False,
+                "peopla": False,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 0,
+                "tab_count": 1,
+            },
+        ),
+        # Shortcut definition - without !
+        (
+            "###		X*",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": True,
+                "peopla": False,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 0,
+                "tab_count": 1,
+            },
+        ),
+        # Shortcut definition - with !
+        (
+            "###		!X",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": True,
+                "peopla": False,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 0,
+                "tab_count": 1,
+            },
+        ),
+        # Peopla - person
+        (
+            "###	[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 0,
+                "tab_count": 0,
+            },
+        ),
+        # Peopla - person with 1 tab
+        (
+            "###		[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 0,
+                "tab_count": 1,
+            },
+        ),
+        # Peopla - person with tabs
+        (
+            "###	>	[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 1,
+                "tab_count": 1,
+            },
+        ),
+        # Peopla - person with tabs
+        (
+            "###	>		[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 1,
+                "tab_count": 2,
+            },
+        ),
+        # Peopla - person with tabs
+        (
+            "###	>	>	[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 2,
+                "tab_count": 2,
+            },
+        ),
+        # Peopla - person with tabs
+        (
+            "###	(>	[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 1,
+                "tab_count": 1,
+            },
+        ),
+        # Peopla - person with tabs
+        (
+            "###	(>		[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 1,
+                "tab_count": 2,
+            },
+        ),
+        # Peopla - person with tabs and scope
+        (
+            "###	(>	>	[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 2,
+                "tab_count": 2,
+            },
+        ),
+        # Peopla: place
+        (
+            "###	@[X]",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": True,
+                "relation": False,
+                "action_group": False,
+                "indent_count": 0,
+                "tab_count": 0,
+            },
+        ),
+        # Relation
+        (
+            "###	*X*",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": False,
+                "relation": True,
+                "action_group": False,
+                "indent_count": 0,
+                "tab_count": 0,
+            },
+        ),
+        # Action Group
+        (
+            "###	vs[X](i-1){j-1}",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": False,
+                "relation": False,
+                "action_group": True,
+                "indent_count": 0,
+                "tab_count": 0,
+            },
+        ),
+        # Action Group
+        (
+            "###	w/[X](i-1){j-1}",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": False,
+                "relation": False,
+                "action_group": True,
+                "indent_count": 0,
+                "tab_count": 0,
+            },
+        ),
+        # Action Group
+        (
+            "###	>	w/[X](i-1){j-1}",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": False,
+                "relation": False,
+                "action_group": True,
+                "indent_count": 1,
+                "tab_count": 1,
+            },
+        ),
+        # Action Group
+        (
+            "###	>		w/[X](i-1){j-1}",
+            {
+                "empty": False,
+                "ignore": False,
+                "header": False,
+                "content": True,
+                "shortcut": False,
+                "shortcut_def": False,
+                "peopla": False,
+                "relation": False,
+                "action_group": True,
+                "indent_count": 1,
+                "tab_count": 2,
+            },
+        ),
+        # An action or an attribute line
+        # (this could also be interpreted as a shortcut
+        # definition line, only the context will tell us
+        # which one it is)
+        (
+            "###	>		X",
+            generate_action_or_attribute_build_map(1, 2, shortcut_def_val=True),
+        ),
+        # An action or an attribute line
+        ("###	>			:[YYYY-MM-DD]", generate_action_or_attribute_build_map(1, 3),),
+        # An action or an attribute line
+        ("###	>	>		:[YYYY-MM-DD]", generate_action_or_attribute_build_map(2, 3),),
+        # An action or an attribute line
+        (
+            "###	>			@[Y]",
+            generate_action_or_attribute_build_map(1, 3, peopla_val=True),
+        ),
+    ],
+)
+def test_build_map(s, map_expected):
+    map_observed = build_map(s)
+    assert map_observed == map_expected
 
 
 @pytest.mark.parametrize(
