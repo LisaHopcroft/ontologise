@@ -7,6 +7,7 @@ import pandas as pd
 from copy import deepcopy
 import pprint
 import math
+from itertools import chain
 
 
 PROJECT_NAME = "Ontologise"
@@ -23,7 +24,8 @@ shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
 peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
 peopla_attribute_regex = r"^###\t\t[^\*]+\*?$"
-peopla_pedigree_attribute_regex = r"^###\t(>\t)+[^\*]+\*?$"
+peopla_pedigree_attribute_regex = r"^###\t(>\t)+[^\*\[]+\*?$"
+peopla_embedded_attribute_regex = r"^###\t([>\t]+)[^\*\[](.*)$"
 peopla_relation_line_regex = r"^###\t(>\t)+\*(.*)\*$"
 peopla_relation_depth_regex = r">\t"
 peopla_relation_string_regex = r"\*(.*)\*"
@@ -183,6 +185,9 @@ class ActionGroup:
         ### Aggributes of the Relationship itself
         self.attributes = attributes
 
+        ### Keeping track of attribute instances
+        self.attribute_instances = {}
+
         ### Evidence reference (line number from original file)
         self.evidence_reference = []
 
@@ -210,6 +215,10 @@ class ActionGroup:
     ### What needs to match for two ActionGroups objects to be considered the same?
     def __eq__(self, other):
         return_result = False
+
+        for self_p in self.target_peoplas:
+            if self_p not in other.target_peoplas:
+                return False
 
         if (
             self.type == other.type
@@ -244,24 +253,125 @@ class ActionGroup:
 
         return {"info": s_info, "debug": s_debug}
 
-    def update_attribute(self, attribute_text, d):
+    def add_new_attribute_instance(self, action_text, inheritance):
 
         logger.info(
-            f"Adding attribute to ACTION GROUP object {self.type}: ({attribute_text})"
+            f"NEW Adding attribute to ActionGroup object {self.type}: ({action_text})"
         )
+
+        if action_text in self.attribute_instances:
+            print("This is an attribute that we've already seen for this ActionGroup")
+            self.attribute_instances[action_text] += 1
+        else:
+            print("This is a new attribute this ActionGroup")
+            self.attributes[action_text] = {}
+            self.attribute_instances[action_text] = 1
+
+        this_instance = self.attribute_instances[action_text]
+
+        print(
+            f"Is this action already in the attribute dictionary?\n"
+            + f"---> in self.attributes? {action_text in self.attributes}\n"
+            + f"---> in self.attribute_instances? {action_text in self.attribute_instances}\n"
+            f"---> value in attribute_instances? {this_instance}\n"
+        )
+
+        self.attributes[action_text][this_instance] = inheritance
+
+        print(f"Adding the following dictionary to attributes:\n")
+        print(f">> This instance: {this_instance}\n")
+        print(f">> This Action Groups's attributes:\n")
+        print(
+            log_pretty(
+                self.attributes[action_text][self.attribute_instances[action_text]]
+            )
+        )
+
+        # input()
+
+    def update_attribute(self, attribute_text, d):
+
+        print("ASDFASDFASDFASDF\n")
+        # print ( f"The action of interest: {attribute_text}\n")
+        # print( "--------------------\n")
+        # print ( "The data to add:\n")
+        # print ( d )
+        # print( "--------------------\n")
+        # print ( "ALL attributes being tracked:\n")
+        # print (self.attributes )
+        # print( "--------------------\n")
+        # print ( "Attributes being tracked for this action:\n")
+        # print(self.attributes[attribute_text])
+        # print( "ASDFASDFASDFASDF\n")
+
+        ### We will not have an attribute instance recorded if we
+        ### are looking at an inferred attribute (e.g., GENDER from
+        ### a gendered Peorel). If that is the case, we need to add
+        ### it. If it is already there, that will be because we've
+        ### found evidence elsewhere, so we should increment the
+        ### instance value.
+        # if attribute_text in self.attribute_instances:
+        #     # print( f">> Incrementing the instance count for {attribute_text}" )
+        #     # self.attribute_instances[attribute_text] += 1
+        # else:
+        if attribute_text not in self.attribute_instances:
+            print(
+                f">> Starting a new count for {attribute_text} for ActionGroup ({self.type})"
+            )
+            self.attribute_instances[attribute_text] = 1
+        # if attribute_text not in self.attributes:
+        #     self.attributes[attribute_text] = {}
+
+        this_instance = self.attribute_instances[attribute_text]
+
+        print(f"This instance: {this_instance}")
+
+        # print( f">> This Peopla's attributes (when updating):\n" )
+        # print( log_pretty(self.attributes) )
 
         existing_attributes = {}
         if attribute_text in self.attributes:
-            existing_attributes = self.attributes[attribute_text]
+            existing_attributes = self.attributes[attribute_text][this_instance]
+
+        # print(f"Instance attributes: {self.attributes[attribute_text][this_instance]}")
+
+        print(f"Existing attributes: {existing_attributes}")
+
+        ### If we haven't recorded this attribute before, we
+        ### need to add it to the attributes dictionary first
+        if attribute_text not in self.attributes:
+            self.attributes[attribute_text] = {}
+
         updated_attributes = {**existing_attributes, **d}
 
-        logger.debug(
-            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-            f"This is what needs to be added: {log_pretty(d)}"
-            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        )
+        print(f"Updated attributes: {updated_attributes}")
 
-        self.attributes[attribute_text] = updated_attributes
+        # logger.debug(
+        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+        #     f"This is what needs to be added: {log_pretty(d)}"
+        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        # )
+
+        self.attributes[attribute_text][this_instance] = updated_attributes
+
+        # logger.info(
+        #     f"Adding attribute to ACTION GROUP object {self.type}: ({attribute_text})"
+        # )
+
+        # existing_attributes = {}
+        # if attribute_text in self.attributes:
+        #     existing_attributes = self.attributes[attribute_text]
+        # updated_attributes = {**existing_attributes, **d}
+
+        # logger.debug(
+        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+        #     f"This is what needs to be added: {log_pretty(d)}"
+        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        # )
+
+        # self.attributes[attribute_text] = updated_attributes
+
+        # input()
 
 
 class Peorel:
@@ -333,6 +443,9 @@ class Peopla:
         self.global_id = global_id
         self.local_id = local_id
 
+        ### Keeping track of attribute instances
+        self.attribute_instances = {}
+
         ### Evidence reference (line number from original file)
         self.evidence_reference = []
 
@@ -345,9 +458,41 @@ class Peopla:
         logger.info(
             f"NEW Adding attribute to PEOPLA object {self.name}: ({action_text})"
         )
-        logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
 
-        self.attributes[action_text] = inheritance
+        if action_text in self.attribute_instances:
+            print("This is an attribute that we've already seen for this Peopla")
+            self.attribute_instances[action_text] += 1
+        else:
+            print("This is a new attribute this Peopla")
+            self.attributes[action_text] = {}
+            self.attribute_instances[action_text] = 1
+
+        print(
+            f"Is this action already in the attribute dictionary?\n"
+            + f"---> in self.attributes? {action_text in self.attributes}\n"
+            + f"---> in self.attribute_instances? {action_text in self.attribute_instances}\n"
+            f"---> value in attribute_instances? {self.attribute_instances[action_text]}\n"
+        )
+
+        # if action_text in self.attributes:
+        #     logger.debug(f"This action already exists in the attributes")
+        #     self.attributes[action_text] = merge_attributes(
+        #         deepcopy(self.attributes[action_text]),
+        #         inheritance
+        #     )
+        # else:
+        #     logger.debug(f"This is what is to be inherited:{log_pretty(inheritance)}")
+        #     self.attributes[action_text] = inheritance
+
+        self.attributes[action_text][
+            self.attribute_instances[action_text]
+        ] = inheritance
+
+        print(f"Adding the following dictionary to attributes:\n")
+        print(f">> This instance: {self.attribute_instances[action_text]}\n")
+        print(f">> This Peopla's attributes:\n")
+        print(log_pretty(self.attributes))
+        # input()
 
     def update_attribute(self, attribute_text, d):
 
@@ -355,18 +500,45 @@ class Peopla:
             f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
         )
 
+        ### We will not have an attribute instance recorded if we
+        ### are looking at an inferred attribute (e.g., GENDER from
+        ### a gendered Peorel). If that is the case, we need to add
+        ### it. If it is already there, that will be because we've
+        ### found evidence elsewhere, so we should increment the
+        ### instance value.
+        # if attribute_text in self.attribute_instances:
+        #     # print( f">> Incrementing the instance count for {attribute_text}" )
+        #     # self.attribute_instances[attribute_text] += 1
+        # else:
+        if attribute_text not in self.attribute_instances:
+            print(">> Starting a new count for {attribute_text}")
+            self.attribute_instances[attribute_text] = 1
+
+        this_instance = self.attribute_instances[attribute_text]
+
+        # print( f">> This Peopla's attributes (when updating):\n" )
+        # print( log_pretty(self.attributes) )
+
         existing_attributes = {}
         if attribute_text in self.attributes:
-            existing_attributes = self.attributes[attribute_text]
+            existing_attributes = self.attributes[attribute_text][this_instance]
+
+        ### If we haven't recorded this attribute before, we
+        ### need to add it to the attributes dictionary first
+        if attribute_text not in self.attributes:
+            self.attributes[attribute_text] = {}
+
         updated_attributes = {**existing_attributes, **d}
 
-        logger.debug(
-            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-            f"This is what needs to be added: {log_pretty(d)}"
-            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        )
+        # logger.debug(
+        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+        #     f"This is what needs to be added: {log_pretty(d)}"
+        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        # )
 
-        self.attributes[attribute_text] = updated_attributes
+        self.attributes[attribute_text][this_instance] = updated_attributes
+
+        # input()
 
     def __str__(self):  # pragma: no cover
         s_out = f"{self.type} PEOPLA called {self.name}\n"
@@ -395,8 +567,9 @@ class Peopla:
                     + f"...further information for gender evidence (if we have it):\n"
                 )
 
-                for this_peorel_evidence in self.attributes["GENDER"]["evidence"]:
-                    s_out = s_out + format(this_peorel_evidence) + "\n"
+                for k, v in self.attributes["GENDER"].items():
+                    for i, this_peorel_evidence in enumerate(v["evidence"]):
+                        s_out = s_out + f"({i})" + format(this_peorel_evidence) + "\n"
 
         return s_out
 
@@ -452,6 +625,7 @@ class Document:
         #############################################################
         ### Setting up tracking flags and objects                 ###
         #############################################################
+        self.current_live_object = []
         self.peopla_live = False
         self.all_peoplas = []
         self.all_action_groups = []
@@ -470,6 +644,7 @@ class Document:
         self.relation_depth = 0
 
         self.current_leaf_peopla = None
+        self.current_leaf_action_group = None
         self.current_action_scope = None
 
         self.peopla_action_group_live = False
@@ -527,8 +702,8 @@ class Document:
 
                     if previous_breadcrumb_depth > self.current_breadcrumb_depth:
                         logger.debug(
-                            f"Reversing up the hierarchy (from level {previous_breadcrumb_depth} to {self.current_breadcrumb_depth})" +
-                            f"Target peoplas will be restored from level {self.current_breadcrumb_depth} if they exist"
+                            f"Reversing up the hierarchy (from level {previous_breadcrumb_depth} to {self.current_breadcrumb_depth})"
+                            + f"Target peoplas will be restored from level {self.current_breadcrumb_depth} if they exist"
                         )
                         if (
                             len(self.pedigree_breadcrumbs_target)
@@ -713,6 +888,11 @@ class Document:
 
         status_update = status_update + "------------------------------------\n"
 
+        status_update = status_update + "Current leaf Action Group\n"
+        status_update = status_update + format(self.current_leaf_action_group) + "\n"
+
+        status_update = status_update + "------------------------------------\n"
+
         ### Peorels -------------------------------------------------
 
         status_update = (
@@ -808,6 +988,7 @@ class Document:
             self.relation_live = False
 
             self.current_leaf_peopla = None
+            self.current_leaf_action_group = None
             self.current_relation_text = None
             self.current_relation_depth = 0
             self.current_breadcrumb_depth = 0
@@ -1009,6 +1190,7 @@ class Document:
 
         if re.match(peopla_relation_line_regex, line):
             logger.debug("Found a peopla relationship")
+            ### No need to update self.current_live_object
 
             relation_details = extract_relation_details(line)
 
@@ -1021,6 +1203,8 @@ class Document:
 
             self.current_relation_text = relation_details["relation_text"]
             self.current_relation_depth = relation_details["relation_depth"]
+            # self.current_pedigree_indent = count_indent(line)
+
             self.relation_live = True
 
         elif re.match(peopla_relation_target_regex, line) and self.relation_live:
@@ -1041,6 +1225,7 @@ class Document:
             record_evidence(relation_peopla_is, self.current_line)
 
             self.current_leaf_peopla = relation_peopla_is
+            self.current_live_object = self.current_leaf_peopla
 
             logger.debug(
                 f"Found the target of a relation action: '{relation_peopla_is.name}'"
@@ -1254,25 +1439,42 @@ class Document:
             ### What we have found here is an action of an action group
             if self.peopla_action_group_live:
                 # if action_scope == "both":
+
                 if action_scope == "full":
 
                     ### This is a description of an action between an action group
                     ### We need to make a action_group
 
-                    ag = ActionGroup(
+                    ag_tmp = ActionGroup(
                         action_details["action_text"],
                         directed=self.peopla_action_group_directed,
                         source_peopla=self.current_source_peopla,
                         target_peoplas=self.current_target_peoplas,
-                        attributes=inheritance_hash,
+                        # attributes=inheritance_hash,
                     )
+
+                    # self.all_action_groups = self.all_action_groups + [ag]
+                    ag = self.record_action_group(ag_tmp)
                     record_evidence(ag, self.current_line)
+
+                    print("THIS IS THE OUTER INHERITANCE HASH:\n")
+                    print(deepcopy(dict(inheritance_hash)))
+
+                    ag.add_new_attribute_instance(
+                        action_details["action_text"], deepcopy(dict(inheritance_hash))
+                    )
+
+                    print("=========================\n")
+                    print(ag.attributes)
+                    print("=========================\n")
+
+                    # input()
+
+                    self.current_leaf_action_group = ag
 
                     o = ag.print_description()
                     logger.info(o["info"])
                     logger.debug(o["debug"])
-
-                    self.all_action_groups = self.all_action_groups + [ag]
 
                 # elif action_scope == "target":
                 elif action_scope == "leaf":
@@ -1286,7 +1488,9 @@ class Document:
                             f"Adding [{action_details['action_text']}] attribute to {tp.name}"
                         )
 
-                        tp.update_attribute(self.current_action, inheritance_hash)
+                        tp.update_attribute(
+                            self.current_action, deepcopy(inheritance_hash)
+                        )
 
             ### What we have found here is an action of a Peopla
             ### (the current Source peopla)
@@ -1415,9 +1619,15 @@ class Document:
                     f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                 )
                 self.current_leaf_peopla.update_attribute(
-                    self.current_action, inheritance_hash
+                    self.current_action, deepcopy(inheritance_hash)
                 )
-
+            elif self.current_target_peoplas == []:
+                logger.debug(
+                    f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
+                )
+                self.current_leaf_peopla.update_attribute(
+                    self.current_action, deepcopy(inheritance_hash)
+                )
             elif self.peopla_action_group_live:
 
                 action_scope = self.current_action_scope
@@ -1429,20 +1639,28 @@ class Document:
                         (self.current_breadcrumb_depth)
                     ]
 
-                    ag = ActionGroup(
+                    ag_tmp = ActionGroup(
                         action_details["action_text"],
                         directed=self.peopla_action_group_directed,
                         source_peopla=relevant_source_peopla,  # self.current_source_peopla,
                         target_peoplas=self.current_target_peoplas,
-                        attributes=inheritance_hash,
+                        # attributes=deepcopy(inheritance_hash),
                     )
+                    # self.all_action_groups = self.all_action_groups + [ag]
+
+                    ag = self.record_action_group(ag_tmp)
                     record_evidence(ag, self.current_line)
+
+                    ag.add_new_attribute_instance(
+                        action_details["action_text"], deepcopy(dict(inheritance_hash))
+                    )
+
+                    self.current_leaf_action_group = ag
+                    self.current_live_object = self.current_leaf_action_group
 
                     o = ag.print_description()
                     logger.info(o["info"])
                     logger.debug(o["debug"])
-
-                    self.all_action_groups = self.all_action_groups + [ag]
 
                     ### This is an attribute for an action that occurs between
                     ### members of an action group. We need to update the action
@@ -1465,7 +1683,7 @@ class Document:
                     if len(self.current_target_peoplas) > 0:
 
                         self.current_target_peoplas[-1].update_attribute(
-                            self.current_action, inheritance_hash
+                            self.current_action, deepcopy(inheritance_hash)
                         )
 
                         logger.debug(
@@ -1477,7 +1695,7 @@ class Document:
                             f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                         )
                         self.current_leaf_peopla.update_attribute(
-                            self.current_action, inheritance_hash
+                            self.current_action, deepcopy(inheritance_hash)
                         )
 
             ### Then as we encounter attribute of attribute lines that are inside a
@@ -1489,6 +1707,43 @@ class Document:
             ### appropriate point - probably when we encounter a source Peopla???
 
             # input()
+
+        elif re.match(peopla_embedded_attribute_regex, line):
+            logger.debug("Found an embedded attribute INSIDE A PEDIGREE")
+
+            action_scope = self.current_action_scope
+            action_details = extract_pedigree_action_details(line)
+
+            # self.current_action = action_details["action_text"]
+            # self.current_pedigree_indent = count_indent(line)
+
+            info = extract_attribute_information(action_details["action_text"])
+            logger.debug(f"Identified '{self.current_action}' / '{info}' ")
+
+            print(self.current_live_object)
+            logger.debug(
+                f"Adding [{action_details['action_text']}] embedded attribute to the current live object\n"
+            )
+
+            self.current_live_object.update_attribute(self.current_action, info)
+
+            # input()
+
+            # if self.peopla_action_group_live:
+            #     logger.debug(
+            #         f"Adding [{action_details['action_text']}] embedded attribute to the current leaf action group {self.current_leaf_action_group.type}"
+            #     )
+            #     self.current_leaf_action_group.update_attribute(
+            #         self.current_action, info
+            #     )
+
+            # else:
+            #     logger.debug(
+            #         f"Adding [{action_details['action_text']}] embedded attribute to the current leaf peopla {self.current_leaf_peopla.name}"
+            #     )
+            #     self.current_leaf_peopla.update_attribute(
+            #         self.current_action, info
+            #     )
 
     def record_peopla(self, p):
 
@@ -1510,6 +1765,27 @@ class Document:
             logger.debug(f"We have already seen this peopla ({p.name})")
 
         return peopla_ref
+
+    def record_action_group(self, ag):
+
+        action_group_ref = ag
+        already_recorded = False
+
+        for this_ag in self.all_action_groups:
+            if this_ag == ag:
+                already_recorded = True
+                action_group_ref = this_ag
+                break
+
+        if not already_recorded:
+            logger.debug(
+                f"This is a new Action Group that should be recorded ({ag.type})"
+            )
+            self.all_action_groups = self.all_action_groups + [action_group_ref]
+        else:
+            logger.debug(f"We have already seen this Action Group ({ag.type})")
+
+        return action_group_ref
 
     def print_source_breadcrumbs(self):
         n = len(self.pedigree_breadcrumbs_target)
@@ -2065,3 +2341,41 @@ def obtain_and_remove_scope(l0):
         l1 = unscoped_leading_markup_text + trailing_content_text
 
     return [l1, scope]
+
+
+def merge_attributes(existing_dict, new_dict):
+
+    all_keys = sorted(set(list(existing_dict.keys()) + list(new_dict.keys())))
+
+    merged_dict = {}
+
+    for k in all_keys:
+        merged_v = []
+        if k in existing_dict:
+            merged_v.append(existing_dict[k])
+        if k in new_dict:
+            merged_v.append(new_dict[k])
+
+        if any(isinstance(v, list) for v in merged_v):
+            # print( f"This is a nested list\n")
+            # merged_v = list(chain(*merged_v))
+            # merged_v = [x for sublist in merged_v for x in sublist]
+            merged_v = flatten(merged_v)
+
+        merged_dict[k] = sorted(set(merged_v))
+
+    # https://stackoverflow.com/questions/26910708/merging-dictionary-value-lists-in-python
+    # merged_dict = {k: v + new_dict[k] for k, v in existing_dict.items()}
+
+    return merged_dict
+
+
+# Recursive function to flatten list
+def flatten(a):
+    res = []
+    for x in a:
+        if isinstance(x, list):
+            res.extend(flatten(x))  # Recursively flatten nested lists
+        else:
+            res.append(x)  # Append individual elements
+    return res

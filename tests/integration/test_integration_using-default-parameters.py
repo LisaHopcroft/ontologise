@@ -305,7 +305,7 @@ def test_default_peopla_parse(document_with_two_peopla):
             except KeyError:
                 pass
 
-        assert dict(p.attributes[attr]) == hash_for_comparison
+        assert p.attributes[attr] == {1: hash_for_comparison}
 
 
 def test_two_attribute_peopla_parse(document_with_two_peopla_attributes):
@@ -330,7 +330,7 @@ def test_two_attribute_peopla_parse(document_with_two_peopla_attributes):
             except KeyError:
                 pass
 
-        assert dict(p.attributes[attr]) == hash_for_comparison
+        assert p.attributes[attr] == {1: hash_for_comparison}
 
 
 def generate_shortcut_header(

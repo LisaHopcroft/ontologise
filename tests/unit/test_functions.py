@@ -11,6 +11,9 @@ from pandas import testing
 sys.path.append("src/ontologise")
 
 from utils import (
+    Peopla,
+    ActionGroup,
+    Peorel,
     extract_peopla_details,
     translate_attribute,
     extract_attribute_information,
@@ -28,6 +31,8 @@ from utils import (
     get_pedigree_depth,
     count_indent,
     obtain_and_remove_scope,
+    merge_attributes,
+    flatten,
 )
 
 
@@ -487,3 +492,158 @@ def test_obtain_and_remove_scope(s_in, expected_s_out, expected_scope):
     s_out = obtain_and_remove_scope(s_in)
     assert s_out[0] == expected_s_out
     assert s_out[1] == expected_scope
+
+
+@pytest.mark.parametrize(
+    "existing_dict, new_dict, expected_output",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    # (3) the scope (leaf/full) as assessed by the presence/absence of (
+    [
+        # TEST: Basic, with numbers
+        ({"A": 1}, {"A": 1}, {"A": [1]}),
+        ({"A": 1}, {"A": 2}, {"A": [1, 2]}),
+        ({"A": [1]}, {"A": [2]}, {"A": [1, 2]}),
+        ({"A": 1}, {"A": 2, "B": 3}, {"A": [1, 2], "B": [3]}),
+        ({"A": 1}, {"B": 3}, {"A": [1], "B": [3]}),
+        ({}, {"A": 1}, {"A": [1]}),
+        ({"A": 1}, {}, {"A": [1]}),
+        ({"A": [1, 2]}, {"A": 3}, {"A": [1, 2, 3]}),
+        ({"A": [1, 2]}, {"A": [3]}, {"A": [1, 2, 3]}),
+        ({"A": [1, 2]}, {"B": 3}, {"A": [1, 2], "B": [3]}),
+        ({"A": [1, 2]}, {"B": [3]}, {"A": [1, 2], "B": [3]}),
+    ],
+)
+def test_merge_attributes(existing_dict, new_dict, expected_output):
+    s_out = merge_attributes(existing_dict, new_dict)
+    assert s_out == expected_output
+
+
+@pytest.mark.parametrize(
+    "list_in, expected_output",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    # (3) the scope (leaf/full) as assessed by the presence/absence of (
+    [
+        # TEST: Basic, with numbers
+        ([1], [1]),
+        ([[1]], [1]),
+        ([[1, 2]], [1, 2]),
+        ([[1, 2], 3], [1, 2, 3]),
+    ],
+)
+def test_flatten(list_in, expected_output):
+    s_out = flatten(list_in)
+    assert s_out == expected_output
+
+
+@pytest.mark.parametrize(
+    "peopla1, peopla2, expected_result",
+    # parameters are:
+    # (1) the line as read in the Document
+    # (2) the line as expected following markup removal
+    # (3) the scope (leaf/full) as assessed by the presence/absence of (
+    [
+        # TEST:
+        (Peopla("A"), Peopla("A"), True),
+        (Peopla("A"), Peopla("B"), False),
+        (Peopla("A", local_id="i"), Peopla("A", local_id="i"), True),
+        (Peopla("A", global_id="i"), Peopla("A", local_id="i"), False),
+    ],
+)
+def test_peopla_equality(peopla1, peopla2, expected_result):
+    # parameters are:
+    # (1) the first peopla
+    # (2) the second peopla
+    # (3) whether we expect them to match (True/False)
+    observed_result = peopla1.peopla_match(peopla2)
+    assert observed_result == expected_result
+
+
+@pytest.mark.parametrize(
+    "object1, object2, expected_result",
+    # parameters are:
+    # (1) the first object
+    # (2) the second object
+    # (3) whether we expect them to match (True/False)
+    [
+        # TEST:
+        (
+            Peorel(Peopla("B"), Peopla("A"), "SON", 1),
+            Peorel(Peopla("B"), Peopla("A"), "SON", 1),
+            True,
+        ),
+        # TEST:
+        (
+            Peorel(Peopla("B"), Peopla("A"), "SON", 1),
+            Peorel(Peopla("B"), Peopla("A"), "DAUG", 1),
+            False,
+        ),
+        # TEST: ActionGroup with different direction
+        (
+            ActionGroup(
+                type="X",
+                directed=False,
+                source_peopla=Peopla("C"),
+                target_peoplas=[Peopla("D")],
+            ),
+            ActionGroup(
+                type="X",
+                directed=True,
+                source_peopla=Peopla("C"),
+                target_peoplas=[Peopla("D")],
+            ),
+            False,
+        ),
+        # TEST: ActionGroup with different length of target Peoplas (1/2)
+        (
+            ActionGroup(
+                type="X",
+                directed=False,
+                source_peopla=Peopla("C"),
+                target_peoplas=[Peopla("D")],
+            ),
+            ActionGroup(
+                type="X",
+                directed=False,
+                source_peopla=Peopla("C"),
+                target_peoplas=[Peopla("D"), Peopla("E")],
+            ),
+            False,
+        ),
+        # TEST: ActionGroup with different length of target Peoplas (0/1)
+        (
+            ActionGroup(
+                type="X",
+                directed=False,
+                source_peopla=Peopla("C"),
+                target_peoplas=[Peopla("D")],
+            ),
+            ActionGroup(
+                type="X", directed=False, source_peopla=Peopla("C"), target_peoplas=[],
+            ),
+            False,
+        ),
+        # TEST: ActionGroup with different target Peoplas (by local_id)
+        (
+            ActionGroup(
+                type="X",
+                directed=False,
+                source_peopla=Peopla("C"),
+                target_peoplas=[Peopla("D")],
+            ),
+            ActionGroup(
+                type="X",
+                directed=False,
+                source_peopla=Peopla("C"),
+                target_peoplas=[Peopla("D", local_id="x")],
+            ),
+            False,
+        ),
+    ],
+)
+def test_object_equality(object1, object2, expected_result):
+    observed_result = object1 == object2
+    assert observed_result == expected_result
