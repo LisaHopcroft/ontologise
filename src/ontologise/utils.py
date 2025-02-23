@@ -185,6 +185,9 @@ class ActionGroup:
         ### Aggributes of the Relationship itself
         self.attributes = attributes
 
+        ### Keeping track of attribute instances
+        self.attribute_instances = {}
+
         ### Evidence reference (line number from original file)
         self.evidence_reference = []
 
@@ -252,22 +255,60 @@ class ActionGroup:
 
     def update_attribute(self, attribute_text, d):
 
-        logger.info(
-            f"Adding attribute to ACTION GROUP object {self.type}: ({attribute_text})"
-        )
+        ### We will not have an attribute instance recorded if we
+        ### are looking at an inferred attribute (e.g., GENDER from
+        ### a gendered Peorel). If that is the case, we need to add
+        ### it. If it is already there, that will be because we've
+        ### found evidence elsewhere, so we should increment the
+        ### instance value.
+        # if attribute_text in self.attribute_instances:
+        #     # print( f">> Incrementing the instance count for {attribute_text}" )
+        #     # self.attribute_instances[attribute_text] += 1
+        # else:
+        if attribute_text not in self.attribute_instances:
+            print(">> Starting a new count for {attribute_text}")
+            self.attribute_instances[attribute_text] = 1
+
+        this_instance = self.attribute_instances[attribute_text]
+
+        # print( f">> This Peopla's attributes (when updating):\n" )
+        # print( log_pretty(self.attributes) )
 
         existing_attributes = {}
         if attribute_text in self.attributes:
-            existing_attributes = self.attributes[attribute_text]
+            existing_attributes = self.attributes[attribute_text][this_instance]
+
+        ### If we haven't recorded this attribute before, we
+        ### need to add it to the attributes dictionary first
+        if attribute_text not in self.attributes:
+            self.attributes[attribute_text] = {}
+
         updated_attributes = {**existing_attributes, **d}
 
-        logger.debug(
-            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-            f"This is what needs to be added: {log_pretty(d)}"
-            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        )
+        # logger.debug(
+        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+        #     f"This is what needs to be added: {log_pretty(d)}"
+        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        # )
 
-        self.attributes[attribute_text] = updated_attributes
+        self.attributes[attribute_text][this_instance] = updated_attributes
+
+        # logger.info(
+        #     f"Adding attribute to ACTION GROUP object {self.type}: ({attribute_text})"
+        # )
+
+        # existing_attributes = {}
+        # if attribute_text in self.attributes:
+        #     existing_attributes = self.attributes[attribute_text]
+        # updated_attributes = {**existing_attributes, **d}
+
+        # logger.debug(
+        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+        #     f"This is what needs to be added: {log_pretty(d)}"
+        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        # )
+
+        # self.attributes[attribute_text] = updated_attributes
 
 
 class Peorel:
@@ -521,6 +562,7 @@ class Document:
         #############################################################
         ### Setting up tracking flags and objects                 ###
         #############################################################
+        self.current_live_object = []
         self.peopla_live = False
         self.all_peoplas = []
         self.all_action_groups = []
@@ -539,6 +581,7 @@ class Document:
         self.relation_depth = 0
 
         self.current_leaf_peopla = None
+        self.current_leaf_action_group = None
         self.current_action_scope = None
 
         self.peopla_action_group_live = False
@@ -782,6 +825,11 @@ class Document:
 
         status_update = status_update + "------------------------------------\n"
 
+        status_update = status_update + "Current leaf Action Group\n"
+        status_update = status_update + format(self.current_leaf_action_group) + "\n"
+
+        status_update = status_update + "------------------------------------\n"
+
         ### Peorels -------------------------------------------------
 
         status_update = (
@@ -877,6 +925,7 @@ class Document:
             self.relation_live = False
 
             self.current_leaf_peopla = None
+            self.current_leaf_action_group = None
             self.current_relation_text = None
             self.current_relation_depth = 0
             self.current_breadcrumb_depth = 0
@@ -1078,6 +1127,7 @@ class Document:
 
         if re.match(peopla_relation_line_regex, line):
             logger.debug("Found a peopla relationship")
+            ### No need to update self.current_live_object
 
             relation_details = extract_relation_details(line)
 
@@ -1112,6 +1162,7 @@ class Document:
             record_evidence(relation_peopla_is, self.current_line)
 
             self.current_leaf_peopla = relation_peopla_is
+            self.current_live_object = self.current_leaf_peopla
 
             logger.debug(
                 f"Found the target of a relation action: '{relation_peopla_is.name}'"
@@ -1342,6 +1393,8 @@ class Document:
                     ag = self.record_action_group(ag_tmp)
                     record_evidence(ag, self.current_line)
 
+                    self.current_leaf_action_group = ag
+
                     o = ag.print_description()
                     logger.info(o["info"])
                     logger.debug(o["debug"])
@@ -1489,7 +1542,7 @@ class Document:
                 self.current_leaf_peopla.update_attribute(
                     self.current_action, inheritance_hash
                 )
-            elif self.current_target_peoplas==[]:
+            elif self.current_target_peoplas == []:
                 logger.debug(
                     f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                 )
@@ -1518,6 +1571,9 @@ class Document:
 
                     ag = self.record_action_group(ag_tmp)
                     record_evidence(ag, self.current_line)
+
+                    self.current_leaf_action_group = ag
+                    self.current_live_object = self.current_leaf_action_group
 
                     o = ag.print_description()
                     logger.info(o["info"])
@@ -1569,9 +1625,7 @@ class Document:
 
             # input()
 
-        elif (
-            re.match(peopla_embedded_attribute_regex, line)
-        ):
+        elif re.match(peopla_embedded_attribute_regex, line):
             logger.debug("Found an embedded attribute INSIDE A PEDIGREE")
 
             action_scope = self.current_action_scope
@@ -1580,15 +1634,33 @@ class Document:
             # self.current_action = action_details["action_text"]
             # self.current_pedigree_indent = count_indent(line)
 
-            info = extract_attribute_information(action_details['action_text'])
+            info = extract_attribute_information(action_details["action_text"])
             logger.debug(f"Identified '{self.current_action}' / '{info}' ")
 
+            print(self.current_live_object)
             logger.debug(
-                f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
+                f"Adding [{action_details['action_text']}] embedded attribute to the current live object\n"
             )
-            self.current_leaf_peopla.update_attribute(
-                self.current_action, info
-            )
+
+            self.current_live_object.update_attribute(self.current_action, info)
+
+            # input()
+
+            # if self.peopla_action_group_live:
+            #     logger.debug(
+            #         f"Adding [{action_details['action_text']}] embedded attribute to the current leaf action group {self.current_leaf_action_group.type}"
+            #     )
+            #     self.current_leaf_action_group.update_attribute(
+            #         self.current_action, info
+            #     )
+
+            # else:
+            #     logger.debug(
+            #         f"Adding [{action_details['action_text']}] embedded attribute to the current leaf peopla {self.current_leaf_peopla.name}"
+            #     )
+            #     self.current_leaf_peopla.update_attribute(
+            #         self.current_action, info
+            #     )
 
     def record_peopla(self, p):
 

@@ -1197,7 +1197,7 @@ def test_action_group_content_with_inheritance(
                     "source": "A, B",
                     "target": "C, D",
                     "action": "Y",
-                    "attributes": {"AT": "R, S"},
+                    "attributes": {1: {"AT": "R, S"}},
                 },
             ],
         ),
