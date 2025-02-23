@@ -253,7 +253,56 @@ class ActionGroup:
 
         return {"info": s_info, "debug": s_debug}
 
+    def add_new_attribute_instance(self, action_text, inheritance):
+
+        logger.info(
+            f"NEW Adding attribute to ActionGroup object {self.type}: ({action_text})"
+        )
+
+        if action_text in self.attribute_instances:
+            print("This is an attribute that we've already seen for this ActionGroup")
+            self.attribute_instances[action_text] += 1
+        else:
+            print("This is a new attribute this ActionGroup")
+            self.attributes[action_text] = {}
+            self.attribute_instances[action_text] = 1
+
+        this_instance = self.attribute_instances[action_text]
+
+        print(
+            f"Is this action already in the attribute dictionary?\n"
+            + f"---> in self.attributes? {action_text in self.attributes}\n"
+            + f"---> in self.attribute_instances? {action_text in self.attribute_instances}\n"
+            f"---> value in attribute_instances? {this_instance}\n"
+        )
+
+        self.attributes[action_text][this_instance] = inheritance
+
+        print(f"Adding the following dictionary to attributes:\n")
+        print(f">> This instance: {this_instance}\n")
+        print(f">> This Action Groups's attributes:\n")
+        print(
+            log_pretty(
+                self.attributes[action_text][self.attribute_instances[action_text]]
+            )
+        )
+
+        # input()
+
     def update_attribute(self, attribute_text, d):
+
+        print("ASDFASDFASDFASDF\n")
+        # print ( f"The action of interest: {attribute_text}\n")
+        # print( "--------------------\n")
+        # print ( "The data to add:\n")
+        # print ( d )
+        # print( "--------------------\n")
+        # print ( "ALL attributes being tracked:\n")
+        # print (self.attributes )
+        # print( "--------------------\n")
+        # print ( "Attributes being tracked for this action:\n")
+        # print(self.attributes[attribute_text])
+        # print( "ASDFASDFASDFASDF\n")
 
         ### We will not have an attribute instance recorded if we
         ### are looking at an inferred attribute (e.g., GENDER from
@@ -266,10 +315,16 @@ class ActionGroup:
         #     # self.attribute_instances[attribute_text] += 1
         # else:
         if attribute_text not in self.attribute_instances:
-            print(">> Starting a new count for {attribute_text}")
+            print(
+                f">> Starting a new count for {attribute_text} for ActionGroup ({self.type})"
+            )
             self.attribute_instances[attribute_text] = 1
+        # if attribute_text not in self.attributes:
+        #     self.attributes[attribute_text] = {}
 
         this_instance = self.attribute_instances[attribute_text]
+
+        print(f"This instance: {this_instance}")
 
         # print( f">> This Peopla's attributes (when updating):\n" )
         # print( log_pretty(self.attributes) )
@@ -278,12 +333,18 @@ class ActionGroup:
         if attribute_text in self.attributes:
             existing_attributes = self.attributes[attribute_text][this_instance]
 
+        # print(f"Instance attributes: {self.attributes[attribute_text][this_instance]}")
+
+        print(f"Existing attributes: {existing_attributes}")
+
         ### If we haven't recorded this attribute before, we
         ### need to add it to the attributes dictionary first
         if attribute_text not in self.attributes:
             self.attributes[attribute_text] = {}
 
         updated_attributes = {**existing_attributes, **d}
+
+        print(f"Updated attributes: {updated_attributes}")
 
         # logger.debug(
         #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
@@ -309,6 +370,8 @@ class ActionGroup:
         # )
 
         # self.attributes[attribute_text] = updated_attributes
+
+        # input()
 
 
 class Peorel:
@@ -1376,6 +1439,7 @@ class Document:
             ### What we have found here is an action of an action group
             if self.peopla_action_group_live:
                 # if action_scope == "both":
+
                 if action_scope == "full":
 
                     ### This is a description of an action between an action group
@@ -1386,12 +1450,25 @@ class Document:
                         directed=self.peopla_action_group_directed,
                         source_peopla=self.current_source_peopla,
                         target_peoplas=self.current_target_peoplas,
-                        attributes=inheritance_hash,
+                        # attributes=inheritance_hash,
                     )
 
                     # self.all_action_groups = self.all_action_groups + [ag]
                     ag = self.record_action_group(ag_tmp)
                     record_evidence(ag, self.current_line)
+
+                    print("THIS IS THE OUTER INHERITANCE HASH:\n")
+                    print(deepcopy(dict(inheritance_hash)))
+
+                    ag.add_new_attribute_instance(
+                        action_details["action_text"], deepcopy(dict(inheritance_hash))
+                    )
+
+                    print("=========================\n")
+                    print(ag.attributes)
+                    print("=========================\n")
+
+                    # input()
 
                     self.current_leaf_action_group = ag
 
@@ -1411,7 +1488,9 @@ class Document:
                             f"Adding [{action_details['action_text']}] attribute to {tp.name}"
                         )
 
-                        tp.update_attribute(self.current_action, inheritance_hash)
+                        tp.update_attribute(
+                            self.current_action, deepcopy(inheritance_hash)
+                        )
 
             ### What we have found here is an action of a Peopla
             ### (the current Source peopla)
@@ -1540,14 +1619,14 @@ class Document:
                     f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                 )
                 self.current_leaf_peopla.update_attribute(
-                    self.current_action, inheritance_hash
+                    self.current_action, deepcopy(inheritance_hash)
                 )
             elif self.current_target_peoplas == []:
                 logger.debug(
                     f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                 )
                 self.current_leaf_peopla.update_attribute(
-                    self.current_action, inheritance_hash
+                    self.current_action, deepcopy(inheritance_hash)
                 )
             elif self.peopla_action_group_live:
 
@@ -1565,7 +1644,7 @@ class Document:
                         directed=self.peopla_action_group_directed,
                         source_peopla=relevant_source_peopla,  # self.current_source_peopla,
                         target_peoplas=self.current_target_peoplas,
-                        attributes=inheritance_hash,
+                        # attributes=deepcopy(inheritance_hash),
                     )
                     # self.all_action_groups = self.all_action_groups + [ag]
 
@@ -1600,7 +1679,7 @@ class Document:
                     if len(self.current_target_peoplas) > 0:
 
                         self.current_target_peoplas[-1].update_attribute(
-                            self.current_action, inheritance_hash
+                            self.current_action, deepcopy(inheritance_hash)
                         )
 
                         logger.debug(
@@ -1612,7 +1691,7 @@ class Document:
                             f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                         )
                         self.current_leaf_peopla.update_attribute(
-                            self.current_action, inheritance_hash
+                            self.current_action, deepcopy(inheritance_hash)
                         )
 
             ### Then as we encounter attribute of attribute lines that are inside a

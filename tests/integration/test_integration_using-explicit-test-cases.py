@@ -1140,7 +1140,13 @@ def test_action_group_content_simple(
             "A, B",
             ["N"],
             "P",
-            {"AT": ["PLACE"], "ATX": ["1800_TEXT_TEXT:00"], "DATE": ["1800-01-01"]},
+            {
+                1: {
+                    "AT": ["PLACE"],
+                    "ATX": ["1800_TEXT_TEXT:00"],
+                    "DATE": ["1800-01-01"],
+                }
+            },
         ),
     ],
 )
@@ -1173,7 +1179,10 @@ def test_action_group_content_with_inheritance(
 
     assert observed_peopla_actions.sort() == expected_peopla_actions.sort()
     assert observed_action_group_actions == expected_action_group_actions
-    assert observed_inherited_attributes == expected_inherited_attributes
+    assert (
+        observed_inherited_attributes[expected_action_group_actions]
+        == expected_inherited_attributes
+    )
 
 
 @pytest.mark.parametrize(
