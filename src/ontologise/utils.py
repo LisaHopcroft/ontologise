@@ -24,7 +24,8 @@ shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
 peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
 peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
 peopla_attribute_regex = r"^###\t\t[^\*]+\*?$"
-peopla_pedigree_attribute_regex = r"^###\t(>\t)+[^\*]+\*?$"
+peopla_pedigree_attribute_regex = r"^###\t(>\t)+[^\*\[]+\*?$"
+peopla_embedded_attribute_regex = r"^###\t([>\t]+)[^\*\[](.*)$"
 peopla_relation_line_regex = r"^###\t(>\t)+\*(.*)\*$"
 peopla_relation_depth_regex = r">\t"
 peopla_relation_string_regex = r"\*(.*)\*"
@@ -1089,6 +1090,8 @@ class Document:
 
             self.current_relation_text = relation_details["relation_text"]
             self.current_relation_depth = relation_details["relation_depth"]
+            # self.current_pedigree_indent = count_indent(line)
+
             self.relation_live = True
 
         elif re.match(peopla_relation_target_regex, line) and self.relation_live:
@@ -1486,7 +1489,13 @@ class Document:
                 self.current_leaf_peopla.update_attribute(
                     self.current_action, inheritance_hash
                 )
-
+            elif self.current_target_peoplas==[]:
+                logger.debug(
+                    f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
+                )
+                self.current_leaf_peopla.update_attribute(
+                    self.current_action, inheritance_hash
+                )
             elif self.peopla_action_group_live:
 
                 action_scope = self.current_action_scope
@@ -1559,6 +1568,27 @@ class Document:
             ### appropriate point - probably when we encounter a source Peopla???
 
             # input()
+
+        elif (
+            re.match(peopla_embedded_attribute_regex, line)
+        ):
+            logger.debug("Found an embedded attribute INSIDE A PEDIGREE")
+
+            action_scope = self.current_action_scope
+            action_details = extract_pedigree_action_details(line)
+
+            # self.current_action = action_details["action_text"]
+            # self.current_pedigree_indent = count_indent(line)
+
+            info = extract_attribute_information(action_details['action_text'])
+            logger.debug(f"Identified '{self.current_action}' / '{info}' ")
+
+            logger.debug(
+                f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
+            )
+            self.current_leaf_peopla.update_attribute(
+                self.current_action, info
+            )
 
     def record_peopla(self, p):
 

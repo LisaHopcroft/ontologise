@@ -113,52 +113,85 @@ def test_peopla_accumulating_attributes(
             "A",
             "B",
             "X",
-            "12",
-            {"DATE": "1800-01-01", "AT": "S1"},
+            [12, 15, 18],
+            {
+                1: {"DATE": "1800-01-01", "AT": "S1"},
+                2: {"DATE": "1800-02-02", "AT": "S2"},
+                3: {"AT": "S3"},
+            },
         ),
-        # TEST: Are the peoplas extracted correctly
-        # Context: 1 peopla with attributes of attributes
-        (
-            "accumulating_attributes_B1",
-            "settings_basic.yaml",
-            "A",
-            "B",
-            "X",
-            "15",
-            {"DATE": "1800-02-02", "AT": "S2"},
-        ),
-        # TEST: Are the peoplas extracted correctly
-        # Context: 1 peopla with attributes of attributes
-        (
-            "accumulating_attributes_B1",
-            "settings_basic.yaml",
-            "A",
-            "B",
-            "X",
-            "18",
-            {"AT": "S3"},
-        ),
-        # TEST: Are the peoplas extracted correctly
-        # Context: 1 peopla with attributes of attributes
         (
             "accumulating_attributes_B2",
             "settings_basic.yaml",
             "A",
             "B",
             "X",
-            "12",
-            {"AT": "S1"},
+            [12, 14, 17],
+            {
+                1: {"AT": "S1"},
+                2: {"DATE": "1800-02-02", "AT": "S2"},
+                3: {"DATE": "1800-03-03", "AT": "S3"},
+            },
         ),
         # TEST: Are the peoplas extracted correctly
         # Context: 1 peopla with attributes of attributes
         (
-            "accumulating_attributes_B2",
+            "accumulating_attributes_C1",
             "settings_basic.yaml",
-            "A",
-            "B",
+            "C",
+            "D",
             "X",
-            "18",
-            {"DATE": "1800-03-03", "AT": "S3"},
+            [15, 24, 33],
+            {
+                1: {"DATE": "1800-01-01", "AT": "S1"},
+                2: {"DATE": "1800-02-02", "AT": "S2"},
+                3: {"AT": "S3"},
+            },
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_C2",
+            "settings_basic.yaml",
+            "C",
+            "D",
+            "X",
+            [15, 23, 32],
+            {
+                1: {"AT": "S1"},
+                2: {"DATE": "1800-02-02", "AT": "S2"},
+                3: {"DATE": "1800-03-03", "AT": "S3"},
+            },
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_D1",
+            "settings_basic.yaml",
+            "C",
+            "D",
+            "X",
+            [15, 21, 27],
+            {
+                1: {"DATE": "1800-01-01", "AT": "S1"},
+                2: {"DATE": "1800-02-02", "AT": "S2"},
+                3: {"AT": "S3"},
+            },
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "accumulating_attributes_D2",
+            "settings_basic.yaml",
+            "C",
+            "D",
+            "X",
+            [15, 20, 26],
+            {
+                1: {"AT": "S1"},
+                2: {"DATE": "1800-02-02", "AT": "S2"},
+                3: {"DATE": "1800-03-03", "AT": "S3"},
+            },
         ),
     ],
 )
@@ -174,15 +207,43 @@ def test_actiongroup_accumulating_attributes(
 
     test_doc = generate_test_doc(test_name, settings_file)
 
+    count_checks = 0
+
     for ag in test_doc.all_action_groups:
         print(ag)
-        if (
+
+        print(
+            f"Source peopla match? {ag.source_peopla.name} == {peopla_source_name} ? {ag.source_peopla.name == peopla_source_name}"
+        )
+        print(
+            f"Target peopla match? {ag.target_peoplas[0].name} == {peopla_target_name} ? {ag.target_peoplas[0].name == peopla_target_name}"
+        )
+        print(f"Type match? {ag.type} == {attribute} ? {ag.type == attribute}")
+        print(
+            f"Evidence match? {ag.evidence_reference} == {evidence} ? {ag.evidence_reference == evidence}"
+        )
+
+        all_match = (
             ag.source_peopla.name == peopla_source_name
             and ag.target_peoplas[0].name == peopla_target_name
             and ag.type == attribute
-            and ag.evidence_reference == [evidence]
-        ):
+            and ag.evidence_reference == evidence
+        )
+
+        print(f"All match ? {all_match}")
+
+        if all_match:
+            count_checks += 1
+
+            print("OBSERVED ATTRIBUTES:\n")
+            print(ag.attributes[attribute])
+
+            print("EXPECTED ATTRIBUTES:\n")
+            print(expected_attribute_dictionary)
+
             assert ag.attributes[attribute] == expected_attribute_dictionary
+
+    assert count_checks == 1
 
 
 # -----------------------------------------------------------------
