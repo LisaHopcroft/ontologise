@@ -653,7 +653,13 @@ class Document:
 
         #############################################################
 
-        self.current_build_map = {}
+        self.current_build_map = {
+            "empty": True,
+            "ignore": False,
+            "header": False,
+            "content": False,
+        }
+        self.missing_relation_flag = False
 
         #############################################################
 
@@ -685,23 +691,38 @@ class Document:
             logger.info(f"{log_pretty(self.shortcut_mappings)}")
 
     def describe_transition(self, previous):
-        previous_indent = previous["indent_count"]
-        current_indent = self.current_build_map["indent_count"]
 
-        if current_indent > previous_indent:
-            print(
-                f"TRANSITION: moved deeper from {previous_indent} to {current_indent}"
-            )
-        elif current_indent < previous_indent:
-            print(
-                f"TRANSITION: moved higher from {previous_indent} to {current_indent}"
-            )
-        else:
-            print(
-                f"TRANSITION: we are at the same level of hierarchy ({previous_indent}"
-            )
+        if self.current_build_map["content"]:
 
-        # input()
+            previous_indent = 0
+            if "indent_count" in previous:
+                previous_indent = previous["indent_count"]
+
+            current_indent = self.current_build_map["indent_count"]
+
+            if current_indent > previous_indent:
+                print(
+                    f"- moved deeper in hierarchy from {previous_indent} to {current_indent}"
+                )
+            elif current_indent < previous_indent:
+                print(
+                    f"- moved higher in hierarchy from {previous_indent} to {current_indent}"
+                )
+            else:
+                print(f"- we are at the same level of hierarchy ({previous_indent})")
+
+            previous_tabs = 0
+            if "tab_count" in previous:
+                previous_tabs = previous["tab_count"]
+
+            current_tabs = self.current_build_map["tab_count"]
+
+            if current_tabs > previous_tabs:
+                print(f"- gained tabs, from {previous_tabs} to {current_tabs}")
+            elif current_tabs < previous_tabs:
+                print(f"- lost tabs, from {previous_tabs} to {current_tabs}")
+            else:
+                print(f"- same number of tabs ({previous_tabs})")
 
     def read_document(self, pause_threshold=1):
         """
@@ -715,6 +736,28 @@ class Document:
 
                 previous_build_map = deepcopy(self.current_build_map)
                 self.current_build_map = build_map(line)
+
+                self.describe_transition(previous_build_map)
+
+                ### We are comparing two lines of content
+                if all(
+                    [previous_build_map["content"], self.current_build_map["content"]]
+                ):
+                    ### We have moved back up the hierarchy
+                    if (
+                        (
+                            self.current_build_map["indent_count"]
+                            < previous_build_map["indent_count"]
+                        )
+                        or (
+                            self.current_build_map["tab_count"]
+                            < previous_build_map["tab_count"]
+                        )
+                    ) and (self.current_build_map["peopla"]):
+                        self.missing_relation_flag = True
+                        print("I have identified a missing relation\n")
+                        self.relation_live = False
+                        self.peopla_action_group_live = False
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
@@ -1733,6 +1776,10 @@ class Document:
 
             ### Note that self.current_pedigree_peoplas will need to be set to [] at the
             ### appropriate point - probably when we encounter a source Peopla???
+
+            # input()
+        elif self.missing_relation_flag:
+            logger.debug("Need to deal with a missing relation")
 
             # input()
 
