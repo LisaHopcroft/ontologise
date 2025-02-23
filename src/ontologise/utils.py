@@ -1651,6 +1651,10 @@ class Document:
                     ag = self.record_action_group(ag_tmp)
                     record_evidence(ag, self.current_line)
 
+                    ag.add_new_attribute_instance(
+                        action_details["action_text"], deepcopy(dict(inheritance_hash))
+                    )
+
                     self.current_leaf_action_group = ag
                     self.current_live_object = self.current_leaf_action_group
 

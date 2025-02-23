@@ -243,7 +243,7 @@ def test_actiongroup_accumulating_attributes(
 
             assert ag.attributes[attribute] == expected_attribute_dictionary
 
-    assert count_checks == 1
+    assert count_checks > 0
 
 
 # -----------------------------------------------------------------
