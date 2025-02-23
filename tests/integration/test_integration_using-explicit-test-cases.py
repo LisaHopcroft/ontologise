@@ -308,19 +308,14 @@ def test_peopla_attributes_of_attributes(
     # (1) content file
     # (2) settings file
     [
-        # TEST: 
-        # Context: 
-        (
-            "missing_relations_example_A",
-            "settings_basic.yaml"
-        ),
+        # TEST:
+        # Context:
+        ("missing_relations_example_A", "settings_basic.yaml"),
     ],
 )
-def test_missing_relations(
-    test_name, settings_file
-):
+def test_missing_relations(test_name, settings_file):
 
-    #test_doc = generate_test_doc(test_name, settings_file)
+    # test_doc = generate_test_doc(test_name, settings_file)
 
     assert False
 

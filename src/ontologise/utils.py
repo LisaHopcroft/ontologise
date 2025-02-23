@@ -19,6 +19,7 @@ data_point_separator = "\\t"
 empty_line_regex = r"^\s+$"
 ignore_line_regex = r"^!.*$"
 header_line_regex = r"^##\w+:"
+content_line_regex = r"^###\t"
 shortcut_line_regex = r"^###\t\^\d+:$"
 shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
 peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
@@ -649,6 +650,11 @@ class Document:
 
         self.peopla_action_group_live = False
         self.peopla_action_group_directed = False
+
+        #############################################################
+
+        self.current_build_map = {}
+
         #############################################################
 
         # Saving the data tables
@@ -678,6 +684,25 @@ class Document:
             logger.info(f"Shortcut mappings provided:")
             logger.info(f"{log_pretty(self.shortcut_mappings)}")
 
+    def describe_transition(self, previous):
+        previous_indent = previous["indent_count"]
+        current_indent = self.current_build_map["indent_count"]
+
+        if current_indent > previous_indent:
+            print(
+                f"TRANSITION: moved deeper from {previous_indent} to {current_indent}"
+            )
+        elif current_indent < previous_indent:
+            print(
+                f"TRANSITION: moved higher from {previous_indent} to {current_indent}"
+            )
+        else:
+            print(
+                f"TRANSITION: we are at the same level of hierarchy ({previous_indent}"
+            )
+
+        # input()
+
     def read_document(self, pause_threshold=1):
         """
         Reading a document
@@ -687,6 +712,9 @@ class Document:
             for line in d:
 
                 self.current_line += 1
+
+                previous_build_map = deepcopy(self.current_build_map)
+                self.current_build_map = build_map(line)
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
@@ -2379,3 +2407,106 @@ def flatten(a):
         else:
             res.append(x)  # Append individual elements
     return res
+
+
+def build_map(l_in):
+    ### Note that shortcut definitions can look like action/attributes
+    ### so context is very important
+    ### Note that attributes of actions can look like Peopla (e.g., @[S])
+    ### in the following:
+    ### ...
+    ###	>	[C](1)
+    ###	>	vs[D]
+    ###	>		X
+    ###	>			:[1800-02-02]
+    ###	>			@[S2]
+    ### ...
+    ### so context is very important
+
+    l = l_in.strip()
+
+    parse_map = {}
+
+    empty_rg = r"^\s*$"
+    ignore_rg = r"^!.*$"
+    header_rg = r"^##\w+:.*$"
+    content_rg = r"^###\t"
+
+    print(f"l: '{l}'\n")
+
+    parse_map["empty"] = True if re.search(empty_rg, l) else False
+    parse_map["ignore"] = True if re.search(ignore_rg, l) else False
+    parse_map["header"] = True if re.search(header_rg, l) else False
+    parse_map["content"] = True if re.search(content_rg, l) else False
+
+    all_leading_markup_rg = r"^###[\t\S>]*(\t)+"
+
+    shortcut_rg = r"^\^\d+:$"
+    shortcut_def_rg = r"^[^\*\[\]\{\}\^]+\*?$"
+    peopla_rg = r"^@?\[.*\](\(.*\))?(\{.*\})?$"
+    relation_rg = r"^\*(.*)\*$"
+    action_group_rg = r"^(vs|w/).*$"
+
+    relation_depth_rg = r">\t"
+    tab_rg = r"\t"
+
+    if parse_map["content"]:
+
+        l_partial_markup_removal = re.sub(content_rg, "", l)
+        l_full_markup_removal = re.sub(all_leading_markup_rg, "", l)
+        print(f"l partial markup removal: '{l_partial_markup_removal}'\n")
+        print(f"l full markup removal: '{l_full_markup_removal}'\n")
+
+        parse_map["shortcut"] = (
+            True if re.search(shortcut_rg, l_full_markup_removal) else False
+        )
+        parse_map["shortcut_def"] = (
+            True if re.search(shortcut_def_rg, l_full_markup_removal) else False
+        )
+        parse_map["peopla"] = (
+            True if re.search(peopla_rg, l_full_markup_removal) else False
+        )
+        parse_map["relation"] = (
+            True if re.search(relation_rg, l_full_markup_removal) else False
+        )
+        parse_map["action_group"] = (
+            True if re.search(action_group_rg, l_full_markup_removal) else False
+        )
+
+        parse_map["indent_count"] = len(
+            re.findall(relation_depth_rg, l_partial_markup_removal)
+        )
+        parse_map["tab_count"] = len(re.findall(tab_rg, l_partial_markup_removal))
+
+    return parse_map
+    ### Regexes to identify specific lines
+    ### Two comments means that we've dealt with it
+    ### One comment means that we don't think we need it (at the moment)
+    # # empty_line_regex = r"^\s+$"
+    # # ignore_line_regex = r"^!.*$"
+    # # header_line_regex = r"^##\w+:"
+    # # shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
+    # # peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
+    # # peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
+    # peopla_attribute_regex = r"^###\t\t[^\*]+\*?$"
+    # peopla_pedigree_attribute_regex = r"^###\t(>\t)+[^\*\[]+\*?$"
+    # peopla_embedded_attribute_regex = r"^###\t([>\t]+)[^\*\[](.*)$"
+    # peopla_relation_line_regex = r"^###\t(>\t)+\*(.*)\*$"
+    # # peopla_relation_depth_regex = r">\t"
+    # # peopla_relation_string_regex = r"\*(.*)\*"
+    # peopla_relation_target_regex = r"^###\t(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
+    # peopla_relation_scope_regex = r"^###\t(>).*$"
+
+    # action_regex = r"^([^\*]+)(\*)?$"
+    # action_attribute_regex = r"^###\t\t\t[^\*]+\*?$"
+    # pedigree_action_attribute_regex = r"^###\t[\t<]+(\t)+[^\*]+\*?$"
+    # # action_group_regex = r"^###\t(>\t)*(vs|w/).*$"
+    # # action_group_vs_regex = r"^###\t(>\t)*vs\[.*$"
+    # # action_group_w_regex = r"^###\t(>\t)*w\/\[.*$"
+
+    # # action_scope_regex = r"^###\t(\S*)\t.*$"
+    # # data_table_header_regex = rf"^###{re.escape(data_point_separator)}.*$"
+    # # data_table_linebreak_regex = r"^\[/\]$"
+    # # data_table_global_id_regex = r"^###\t\{.*\}$"
+    # # data_table_local_id_regex = r"^###\t\(.*\)$"
+    # # data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
