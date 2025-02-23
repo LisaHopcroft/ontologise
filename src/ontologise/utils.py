@@ -47,6 +47,10 @@ data_table_global_id_regex = r"^###\t\{.*\}$"
 data_table_local_id_regex = r"^###\t\(.*\)$"
 data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
 
+human_annotations_to_remove_rg = [
+    r"\[<-\]"
+]
+
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
 # Bold text: https://stackoverflow.com/questions/50460222/bold-formatting-in-python-console
@@ -734,6 +738,9 @@ class Document:
 
                 self.current_line += 1
 
+                for this_rg in human_annotations_to_remove_rg:
+                    line = re.sub(this_rg,"",line)
+                
                 previous_build_map = deepcopy(self.current_build_map)
                 current_build_map = build_map(line)
 
