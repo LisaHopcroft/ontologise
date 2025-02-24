@@ -1035,6 +1035,7 @@ class Document:
             "peopla_action_group_live",
             "relation_live",
             "data_table_live",
+            "missing_relation_flag"
         ]
 
         for r in relevant_live_indicators:
