@@ -249,7 +249,7 @@ class ActionGroup:
         target_string = "(-)"
 
         if len(to_initials):
-            to_initials_list =  ",".join( to_initials )
+            to_initials_list = ",".join(to_initials)
             target_string = f" (+ {to_initials_list})"
 
         this_reporting_line = (
@@ -268,22 +268,26 @@ class ActionGroup:
                 ### action will be the action name
                 ### attribute_dictionary will be a dictionary of the form
                 ###   {1: {...}, 2: {...}}
-                print( action )
-                print( these_attributes )
+                # print( action )
+                # print( these_attributes )
                 for attribute_dictionary in these_attributes.values():
-                    this_attributes_list = list(set(this_attributes_list + list(attribute_dictionary.keys())))
-                    print(this_attributes_list)
+                    this_attributes_list = list(
+                        set(this_attributes_list + list(attribute_dictionary.keys()))
+                    )
+                    # print(this_attributes_list)
 
         if not len(this_attributes_list):
             this_attributes_list = ["-"]
 
         attributes_string = ",".join(this_attributes_list)
         this_reporting_line += " / [" + attributes_string + "]"
-        this_reporting_line += " / [" + ",".join(f"{e}" for e in this_evidence_list) + "]"
+        this_reporting_line += (
+            " / [" + ",".join(f"{e}" for e in this_evidence_list) + "]"
+        )
 
-        if ( annotation ):
+        if annotation:
             this_reporting_line += f" ! {annotation}"
-        
+
         this_reporting_line += f"\n"
 
         return this_reporting_line
@@ -424,24 +428,21 @@ class Peorel:
         s_out = s_out + "[Evidence: " + evidence_string + "]"
 
         return s_out
-    
 
-    def print_compact_summary(self, i, annotation ):
+    def print_compact_summary(self, i, annotation):
 
-        this_reporting_line = (
-            f"[PEOREL] / {i+1} / {self.peopla_is.name} is {self.relation_text} to {self.peopla_to.name}"
-        )
+        this_reporting_line = f"[PEOREL] / {i+1} / {self.peopla_is.name} is {self.relation_text} to {self.peopla_to.name}"
 
-        evidence_s = ",".join( f"{e}" for e in self.evidence_reference )
+        evidence_s = ",".join(f"{e}" for e in self.evidence_reference)
 
         this_reporting_line += f" / [{evidence_s}]"
 
-        if ( annotation ):
+        if annotation:
             this_reporting_line += f" ! {annotation}"
-        
+
         this_reporting_line += f"\n"
 
-        return( this_reporting_line )
+        return this_reporting_line
 
 
 class Peopla:
@@ -571,7 +572,7 @@ class Peopla:
         if evidence:
             self.attributes_evidence[attribute_text][this_instance].append(evidence)
 
-    def print_compact_summary(self, i, annotation ):
+    def print_compact_summary(self, i, annotation):
         this_reporting_line = (
             f"[PEOPLA] / {i+1} / {self.name} {{{self.global_id}}} ({self.local_id})"
         )
@@ -593,9 +594,7 @@ class Peopla:
 
                 p_attribute_evidence_list = flatten(p_attribute_evidence_list)
 
-                all_evidence = ",".join(
-                    f"{e}" for e in p_attribute_evidence_list
-                )
+                all_evidence = ",".join(f"{e}" for e in p_attribute_evidence_list)
 
                 tmp_s = f"{action}: {all_evidence}"
                 p_attributes_list.append(tmp_s)
@@ -605,12 +604,12 @@ class Peopla:
 
         this_reporting_line += " / [" + ",".join(p_attributes_list) + "]"
 
-        if ( annotation ):
+        if annotation:
             this_reporting_line += f" ! {annotation}"
-        
+
         this_reporting_line += f"\n"
 
-        return ( this_reporting_line )
+        return this_reporting_line
 
     def __str__(self):  # pragma: no cover
         s_out = f"{self.type} PEOPLA called {self.name}\n"
@@ -648,13 +647,13 @@ class Peopla:
     def peopla_match(self, other):
         return_result = False
 
-        logger.debug(f"'{self.name}' == '{other.name}' ??\n")
-        logger.debug(f"'{self.type}' == '{other.type}' ??\n")
-        logger.debug(f"'{self.global_id}' == '{other.global_id}' ??\n")
-        logger.debug(f"'{self.local_id}' == '{other.local_id}' ??\n")
-        logger.debug(
-            f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n"
-        )
+        # logger.debug(f"'{self.name}' == '{other.name}' ??\n")
+        # logger.debug(f"'{self.type}' == '{other.type}' ??\n")
+        # logger.debug(f"'{self.global_id}' == '{other.global_id}' ??\n")
+        # logger.debug(f"'{self.local_id}' == '{other.local_id}' ??\n")
+        # logger.debug(
+        #     f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n"
+        # )
 
         if (
             self.name == other.name
@@ -909,9 +908,7 @@ class Document:
                 if not self.peopla_live:
                     self.reset(line)
 
-                self.print_compact_current_status(
-                    self.current_line,
-                    line                )
+                self.print_compact_current_status(self.current_line, line)
 
                 ### If "PYTEST_CURRENT_TEST" exists in os.environ, then
                 ### we are currently running test. We don't want to use
@@ -1119,27 +1116,26 @@ class Document:
         # input()
 
     def print_compact_current_status(
-            self, n, l,
-            print_header_info = False,
-            specify_objects = True
-        ):
+        self, n, l, print_header_info=False, specify_objects=True
+    ):
 
-        status_update = ""
-        s = [f"LINE: {l}"]
         pre = f"[{n:04}] "
         big_break_s = "".rjust(70 - len(pre), "=") + "\n"
         small_break_s = "".rjust(70 - len(pre), "-") + "\n"
+
+        s = [f"LINE: {l}"]
+        s.append(big_break_s)
 
         ### Headers -------------------------------------------------
 
         if print_header_info:
             if len(self.header) > 0:
-                s.append( f"{len(self.header)} header items" )
+                s.append(f"{len(self.header)} header items")
 
                 for i, p in enumerate(self.header):
-                    s.append( f"Header ({i}) {p}" )
+                    s.append(f"Header ({i}) {p}")
 
-            s.append( break_s )
+            s.append(big_break_s)
 
         ### Flags -------------------------------------------------
 
@@ -1149,219 +1145,113 @@ class Document:
             "peopla_action_group_live",
             "relation_live",
             "data_table_live",
-            "missing_relation_flag"
+            "missing_relation_flag",
         ]
 
         for r in relevant_live_indicators:
-            r_val = "X" if getattr(self,r) else "_"
-            s.append( f"[{r_val}] / {r} \n" )
+            r_val = "X" if getattr(self, r) else "_"
+            s.append(f"[{r_val}] / {r} \n")
 
-        ### Peopla -------------------------------------------------
+        s.append(small_break_s)
 
-        s.append( big_break_s )
+        ### Current action scope -------------------------------------------------
 
         s.append(
-            f"{len(self.all_peoplas)} Peoplas | " +
-            f"{len(self.all_peorels)} Peorels | " +
-            f"{len(self.all_action_groups)} Action Groups\n"
+            f"Current action [{self.current_action}] and scope [{self.current_action_scope}]\n"
+        )
+        s.append(big_break_s)
+
+        ### Objects -------------------------------------------------
+
+        s.append(
+            f"{len(self.all_peoplas)} Peoplas | "
+            + f"{len(self.all_peorels)} Peorels | "
+            + f"{len(self.all_action_groups)} Action Groups\n"
         )
 
-        s.append( small_break_s )
+        s.append(small_break_s)
 
         if specify_objects:
             ### Print peoplas
             for i, o in enumerate(self.all_peoplas):
                 annotation_list = []
                 if o == self.current_source_peopla:
-                    annotation_list.append( "SRC" )
+                    annotation_list.append("SRC")
                 if o in self.current_target_peoplas:
-                    annotation_list.append( "TRG" )
+                    annotation_list.append("TRG")
                 if o == self.current_leaf_peopla:
-                    annotation_list.append( "LEAF" )
+                    annotation_list.append("LEAF")
                 if type(o).__name__ == type(self.current_live_object).__name__:
                     if o == self.current_live_object:
-                        annotation_list.append( "LIVE" )
+                        annotation_list.append("LIVE")
 
                 annotation = "|".join(annotation_list)
 
-                s.append( o.print_compact_summary( i , annotation ) )
-            s.append( small_break_s )
+                s.append(o.print_compact_summary(i, annotation))
+            s.append(small_break_s)
             ### Print peorels
             for i, o in enumerate(self.all_peorels):
                 annotation_list = []
                 if type(o).__name__ == type(self.current_live_object).__name__:
                     if o == self.current_live_object:
-                        annotation_list.append( "LIVE" )
-                
+                        annotation_list.append("LIVE")
+
                 annotation = "|".join(annotation_list)
 
-                s.append( o.print_compact_summary( i , annotation ) )
-            s.append( small_break_s )
+                s.append(o.print_compact_summary(i, annotation))
+            s.append(small_break_s)
             ### Print Action Groups
             for i, o in enumerate(self.all_action_groups):
                 annotation_list = []
                 if o == self.current_leaf_action_group:
-                    annotation_list.append( "LEAF" )
+                    annotation_list.append("LEAF")
                 if type(o).__name__ == type(self.current_live_object).__name__:
                     if o == self.current_live_object:
-                        annotation_list.append( "LIVE" )
-                
+                        annotation_list.append("LIVE")
+
                 annotation = "|".join(annotation_list)
 
-                s.append( o.print_compact_summary( i, annotation ) )
+                s.append(o.print_compact_summary(i, annotation))
 
         s.append(big_break_s)
 
-        # status_update = status_update + "------------------------------------\n"
+        ### Breadcrumbs -------------------------------------------------
 
-        # if self.current_source_peopla != None:
-        #     status_update = (
-        #         status_update
-        #         + f"The current source Peopla is {self.current_source_peopla.name}\n"
-        #     )
-
-        #     for k, v in self.current_source_peopla.attributes.items():
-        #         status_update = (
-        #             status_update + f"--> Current source peopla attribute ({k}) {v}\n"
-        #         )
-
-        # else:
-        #     status_update = status_update + f"There is no current source Peopla\n"
-
-        # status_update = status_update + "------------------------------------\n"
-
-        # if len(self.current_target_peoplas) > 0:
-        #     status_update = (
-        #         status_update
-        #         + f"There are currently {len(self.current_target_peoplas)} target Peoplas\n"
-        #     )
-
-        #     for i, p in enumerate(self.current_target_peoplas):
-        #         status_update = status_update + f"({i}) {p.name}\n"
-
-        #         for j, q in enumerate(p.attributes):
-        #             status_update = (
-        #                 status_update
-        #                 + f"--> Current target peopla attribute ({i}) {q}\n"
-        #             )
-
-        #             for k, v in (p.attributes)[q].items():
-        #                 status_update = status_update + f"------> ({k}) {v}\n"
-
-        # else:
-        #     status_update = status_update + f"There is no current target Peopla\n"
-
-        # status_update = status_update + "------------------------------------\n"
-
-        ### Breadcrumbs ---------------------------------------------
-
-        status_update = status_update + f"The current source peopla breadcrumbs:\n"
-
-        num_source_breadcrumbs = len(self.pedigree_breadcrumbs_source)
-
-        status_update = (
-            status_update
-            + f"---> There are {num_source_breadcrumbs} SOURCE peopla breadcrumbs populated:\n"
-        )
+        source_breadcrumb_title = ""
+        source_breadcrumb_content = ""
 
         for i, b in enumerate(self.pedigree_breadcrumbs_source):
-            status_update = status_update + f"SOURCE [{i}] {format(b)}\n"
 
-        status_update = status_update + "------------------------------------\n"
+            source_breadcrumb_title += f"{i}".ljust(10)
+            source_breadcrumb_content += b.name.ljust(10)
 
-        status_update = status_update + f"The current target peopla breadcrumbs:\n"
+        if len(source_breadcrumb_title) > 0:
+            s.append("[SOURCE BREADCRUMB] " + source_breadcrumb_title + "\n")
+            s.append("[SOURCE BREADCRUMB] " + source_breadcrumb_content + "\n")
 
-        num_target_breadcrumbs = len(self.pedigree_breadcrumbs_target)
+        s.append(small_break_s)
 
-        status_update = (
-            status_update
-            + f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n"
-        )
+        target_breadcrumb_title = ""
+        target_breadcrumb_content = ""
 
         for i, b in enumerate(self.pedigree_breadcrumbs_target):
+            this_list = []
+
             if b:
-                for j, bj in enumerate(b):
-                    status_update = status_update + f"TARGET [{i}.{j}] {format(bj)}\n"
-            else:
-                status_update = status_update + f"TARGET [{i}] is absent\n"
+                for bj in b:
+                    this_list.append("".join([word[0] for word in (bj.name).split()]))
 
-        ### Leaf peopla -------------------------------------------------
+            this_list_string = ",".join(this_list)
 
-        status_update = status_update + "------------------------------------\n"
+            target_breadcrumb_title += f"{i}".ljust(10)
+            target_breadcrumb_content += this_list_string.ljust(10)
 
-        status_update = status_update + "Current leaf Peoplas\n"
-        status_update = status_update + format(self.current_leaf_peopla) + "\n"
-
-        status_update = status_update + "------------------------------------\n"
-
-        status_update = status_update + "Current action scope\n"
-        if self.current_action_scope:
-            status_update = status_update + self.current_action_scope + "\n"
-        else:
-            status_update = status_update + "No action scope identified"
-
-        status_update = status_update + "------------------------------------\n"
-
-        status_update = status_update + "Current leaf Action Group\n"
-        status_update = status_update + format(self.current_leaf_action_group) + "\n"
-
-        status_update = status_update + "------------------------------------\n"
-
-        ### Peorels -------------------------------------------------
-
-        status_update = (
-            status_update
-            + f"There are {len(self.all_peorels)} Peorels recorded overall\n"
-        )
-
-        for ii, pp in enumerate(self.all_peorels):
-            evidence_string = ",".join(str(x) for x in pp.evidence_reference)
-            status_update = (
-                status_update
-                + f"---> Peorel #({ii}) {pp.peopla_is.name} is a {pp.relation_text} to {pp.peopla_to.name} [refs: {evidence_string}]\n"
-            )
-
-        status_update = status_update + "------------------------------------\n"
-
-        ### Action groups -------------------------------------------
-
-        if len(self.all_action_groups) > 0:
-            status_update = (
-                status_update
-                + f"There are currently {len(self.all_action_groups)} Action Groups\n"
-            )
-
-            for i, p in enumerate(self.all_action_groups):
-                status_update = status_update + f"({i}) {p.type}\n"
-                status_update = status_update + f"    directed? {p.directed}\n"
-                status_update = (
-                    status_update + f"    source peopla? {p.source_peopla.name}\n"
-                )
-                status_update = (
-                    status_update + f"    target peoplas? {len(p.target_peoplas)}\n"
-                )
-
-                for j, q in enumerate(p.target_peoplas):
-                    status_update = (
-                        status_update
-                        + f"------> target peopla in action group ({i}) {q.name}\n"
-                    )
-
-                status_update = (
-                    status_update + f"    attributes? length = {len(p.attributes)}\n"
-                )
-
-                for k, v in (p.attributes).items():
-                    status_update = status_update + f"------> ({k}) {v}\n"
-
-        ### Indicators ----------------------------------------------
-
-        # logger.debug(status_update)
+        if len(target_breadcrumb_title) > 0:
+            s.append("[TARGET BREADCRUMB] " + target_breadcrumb_title + "\n")
+            s.append("[TARGET BREADCRUMB] " + target_breadcrumb_content + "\n")
 
         s = [pre + x for x in s]
         logger.debug("".join(s))
-
-        # input()
 
     def reset(self, line):  # pragma: no cover
         logger.debug(f"Considering reset with: '{line}'")
@@ -2805,8 +2695,8 @@ def build_map(l_in):
 
         l_partial_markup_removal = re.sub(content_rg, "", l)
         l_full_markup_removal = re.sub(all_leading_markup_rg, "", l)
-        print(f"l partial markup removal: '{l_partial_markup_removal}'\n")
-        print(f"l full markup removal: '{l_full_markup_removal}'\n")
+        # print(f"l partial markup removal: '{l_partial_markup_removal}'\n")
+        # print(f"l full markup removal: '{l_full_markup_removal}'\n")
 
         parse_map["shortcut"] = (
             True if re.search(shortcut_rg, l_full_markup_removal) else False
@@ -2830,34 +2720,3 @@ def build_map(l_in):
         parse_map["tab_count"] = len(re.findall(tab_rg, l_partial_markup_removal))
 
     return parse_map
-    ### Regexes to identify specific lines
-    ### Two comments means that we've dealt with it
-    ### One comment means that we don't think we need it (at the moment)
-    # # empty_line_regex = r"^\s+$"
-    # # ignore_line_regex = r"^!.*$"
-    # # header_line_regex = r"^##\w+:"
-    # # shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
-    # # peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
-    # # peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
-    # peopla_attribute_regex = r"^###\t\t[^\*]+\*?$"
-    # peopla_pedigree_attribute_regex = r"^###\t(>\t)+[^\*\[]+\*?$"
-    # peopla_embedded_attribute_regex = r"^###\t([>\t]+)[^\*\[](.*)$"
-    # peopla_relation_line_regex = r"^###\t(>\t)+\*(.*)\*$"
-    # # peopla_relation_depth_regex = r">\t"
-    # # peopla_relation_string_regex = r"\*(.*)\*"
-    # peopla_relation_target_regex = r"^###\t(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
-    # peopla_relation_scope_regex = r"^###\t(>).*$"
-
-    # action_regex = r"^([^\*]+)(\*)?$"
-    # action_attribute_regex = r"^###\t\t\t[^\*]+\*?$"
-    # pedigree_action_attribute_regex = r"^###\t[\t<]+(\t)+[^\*]+\*?$"
-    # # action_group_regex = r"^###\t(>\t)*(vs|w/).*$"
-    # # action_group_vs_regex = r"^###\t(>\t)*vs\[.*$"
-    # # action_group_w_regex = r"^###\t(>\t)*w\/\[.*$"
-
-    # # action_scope_regex = r"^###\t(\S*)\t.*$"
-    # # data_table_header_regex = rf"^###{re.escape(data_point_separator)}.*$"
-    # # data_table_linebreak_regex = r"^\[/\]$"
-    # # data_table_global_id_regex = r"^###\t\{.*\}$"
-    # # data_table_local_id_regex = r"^###\t\(.*\)$"
-    # # data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
