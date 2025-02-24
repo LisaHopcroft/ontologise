@@ -136,6 +136,12 @@ class DataTable:
         logger.debug(f" - Column names: {','.join(self.column_names)}")
         logger.debug(f" - Attributes are: {self.attributes}")
 
+    def __str__(self):
+        out_s = f"{self.column_num} columns"
+        if self.attributes:
+            shortcut_list = ", ".join(self.attributes.keys())
+            out_s += f" (+{shortcut_list} by shortcut)"
+        return( out_s )
 
 class DataPoint:
     def __init__(self, list, table):
@@ -215,6 +221,31 @@ class ActionGroup:
 
         return out_s
 
+    def generate_summary(self, i):
+
+        agroup_label = f"[AGROUP] [{i:04}] "
+        pre = " ".ljust(len(agroup_label))
+
+        s = [
+            f"{agroup_label}{'directed' if self.directed else 'undirected'} {self.type} ActionGroup\n"
+        ]
+
+        s.append( pre + f"SOURCE   {self.source_peopla.name}\n") 
+
+        target_list = []
+        for n, peopla in enumerate(self.target_peoplas):
+            target_list.append(peopla.name)
+
+        target_string = ", ".join(target_list)
+
+        s.append( pre + f"TARGET   {len(target_list)}: " + target_string + "\n" )
+
+        evidence_string = ",".join(str(x) for x in self.evidence_reference)
+
+        s.append( pre + f"EVIDENCE {len(self.evidence_reference)}: " + evidence_string + "\n" )
+
+        return ( "".join(s) )
+
     ### What needs to match for two ActionGroups objects to be considered the same?
     def __eq__(self, other):
         return_result = False
@@ -241,7 +272,58 @@ class ActionGroup:
 
         return return_result
 
-    def print_description(self):
+    def print_compact_summary(self, i, annotation=""):  # pragma: no cover
+        to_initials = []
+        for t in self.target_peoplas:
+            to_initials.append("".join([word[0] for word in (t.name).split()]))
+
+        target_string = "(-)"
+
+        if len(to_initials):
+            to_initials_list = ",".join(to_initials)
+            target_string = f" (+ {to_initials_list})"
+
+        this_reporting_line = (
+            f"[AGROUP] / {i+1} / {self.type} / {self.source_peopla.name}{target_string}"
+        )
+
+        this_attributes_list = []
+        this_evidence_list = self.evidence_reference
+
+        if not len(this_evidence_list):
+            this_evidence_list = ["-"]
+
+        if len(self.attributes) > 0:
+
+            for action, these_attributes in self.attributes.items():
+                ### action will be the action name
+                ### attribute_dictionary will be a dictionary of the form
+                ###   {1: {...}, 2: {...}}
+                # print( action )
+                # print( these_attributes )
+                for attribute_dictionary in these_attributes.values():
+                    this_attributes_list = list(
+                        set(this_attributes_list + list(attribute_dictionary.keys()))
+                    )
+                    # print(this_attributes_list)
+
+        if not len(this_attributes_list):
+            this_attributes_list = ["-"]
+
+        attributes_string = ",".join(this_attributes_list)
+        this_reporting_line += " / [" + attributes_string + "]"
+        this_reporting_line += (
+            " / [" + ",".join(f"{e}" for e in this_evidence_list) + "]"
+        )
+
+        if annotation:
+            this_reporting_line += f" ! {annotation}"
+
+        this_reporting_line += f"\n"
+
+        return this_reporting_line
+
+    def print_description(self): 
         s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         s_info = s_info + f" involving the following source Peoplas\n"
 
@@ -294,51 +376,23 @@ class ActionGroup:
 
     def update_attribute(self, attribute_text, d, evidence=None):
 
-        print("ASDFASDFASDFASDF\n")
-        # print ( f"The action of interest: {attribute_text}\n")
-        # print( "--------------------\n")
-        # print ( "The data to add:\n")
-        # print ( d )
-        # print( "--------------------\n")
-        # print ( "ALL attributes being tracked:\n")
-        # print (self.attributes )
-        # print( "--------------------\n")
-        # print ( "Attributes being tracked for this action:\n")
-        # print(self.attributes[attribute_text])
-        # print( "ASDFASDFASDFASDF\n")
-
         ### We will not have an attribute instance recorded if we
         ### are looking at an inferred attribute (e.g., GENDER from
         ### a gendered Peorel). If that is the case, we need to add
         ### it. If it is already there, that will be because we've
         ### found evidence elsewhere, so we should increment the
         ### instance value.
-        # if attribute_text in self.attribute_instances:
-        #     # print( f">> Incrementing the instance count for {attribute_text}" )
-        #     # self.attribute_instances[attribute_text] += 1
-        # else:
         if attribute_text not in self.attribute_instances:
-            print(
-                f">> Starting a new count for {attribute_text} for ActionGroup ({self.type})"
+            logger.debug(
+                f"Starting a new count for {attribute_text} for ActionGroup ({self.type})"
             )
             self.attribute_instances[attribute_text] = 1
-        # if attribute_text not in self.attributes:
-        #     self.attributes[attribute_text] = {}
 
         this_instance = self.attribute_instances[attribute_text]
-
-        print(f"This instance: {this_instance}")
-
-        # print( f">> This Peopla's attributes (when updating):\n" )
-        # print( log_pretty(self.attributes) )
 
         existing_attributes = {}
         if attribute_text in self.attributes:
             existing_attributes = self.attributes[attribute_text][this_instance]
-
-        # print(f"Instance attributes: {self.attributes[attribute_text][this_instance]}")
-
-        print(f"Existing attributes: {existing_attributes}")
 
         ### If we haven't recorded this attribute before, we
         ### need to add it to the attributes dictionary first
@@ -347,34 +401,13 @@ class ActionGroup:
 
         updated_attributes = {**existing_attributes, **d}
 
-        print(f"Updated attributes: {updated_attributes}")
-
-        # logger.debug(
-        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-        #     f"This is what needs to be added: {log_pretty(d)}"
-        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        # )
+        logger.debug(
+            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+            f"This is what needs to be added: {log_pretty(d)}"
+            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        )
 
         self.attributes[attribute_text][this_instance] = updated_attributes
-
-        # logger.info(
-        #     f"Adding attribute to ACTION GROUP object {self.type}: ({attribute_text})"
-        # )
-
-        # existing_attributes = {}
-        # if attribute_text in self.attributes:
-        #     existing_attributes = self.attributes[attribute_text]
-        # updated_attributes = {**existing_attributes, **d}
-
-        # logger.debug(
-        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-        #     f"This is what needs to be added: {log_pretty(d)}"
-        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        # )
-
-        # self.attributes[attribute_text] = updated_attributes
-
-        # input()
 
 
 class Peorel:
@@ -427,6 +460,32 @@ class Peorel:
 
         return s_out
 
+    def generate_summary(self, i):
+        evidence_string = ",".join(str(x) for x in self.evidence_reference)
+
+        peorel_label = f"[PEOREL] [{i:04}] "
+
+        s = [
+            f"{peorel_label}{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} / {evidence_string}\n"
+        ]
+
+        return "".join(s)
+
+    def print_compact_summary(self, i, annotation):  # pragma: no cover
+
+        this_reporting_line = f"[PEOREL] / {i+1} / {self.peopla_is.name} is {self.relation_text} to {self.peopla_to.name}"
+
+        evidence_s = ",".join(f"{e}" for e in self.evidence_reference)
+
+        this_reporting_line += f" / [{evidence_s}]"
+
+        if annotation:
+            this_reporting_line += f" ! {annotation}"
+
+        this_reporting_line += f"\n"
+
+        return this_reporting_line
+
 
 class Peopla:
     """
@@ -456,6 +515,52 @@ class Peopla:
         logger.info(
             f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.local_id}) ({self.global_id})"
         )
+
+    def generate_summary(self, i):
+        evidence_string = ",".join(str(x) for x in self.evidence_reference)
+
+        peopla_label = f"[PEOPLA] [{i:04}] "
+        pre = " ".ljust(len(peopla_label))
+
+        title_s = [ f"{peopla_label}{self.type} {self.name} {{{self.global_id}}} {self.local_id} / {evidence_string}\n" ]
+        s = []
+
+        if self.attributes:
+            title_width = len(max(self.attributes.keys(),key=len))
+
+            ### For formatting, find longest label first:
+            label_width = 8 # this is the length of 'evidence'
+
+            for action, values in self.attributes.items():
+                for num, attributes in values.items():
+                    if attributes:
+                        # label_width = len(max(attributes.keys(),key=len))
+
+                        for label, value in attributes.items():
+
+                            this_info = [f"{action.ljust(title_width)}"]
+                            this_info.append( f"{num:02}" )
+                            this_info.append( f"{label.ljust(label_width)}" )
+
+                            this_evidence = []
+                            if type( value ).__name__ == "list":
+                                for this_v in value:
+                                    if type( this_v ).__name__ == "Peorel":
+                                        e = re.sub("Evidence: ","", format(this_v) )
+                                        this_evidence.append(f"{format(e)}")
+                                    else:
+                                        this_evidence.append( f"{this_v}" )
+                                evidence_string = " / ".join(this_evidence)
+                                this_info.append( f"{evidence_string}")
+                            else:
+                                this_info.append( f"{value}" )
+                            this_string = " ".join(this_info)
+
+                            s.append(this_string + "\n")
+
+        s = [pre + x for x in s]
+
+        return ( "".join(title_s + s) )
 
     def new_add_action(self, action_text, inheritance, evidence):
 
@@ -523,10 +628,6 @@ class Peopla:
         ### it. If it is already there, that will be because we've
         ### found evidence elsewhere, so we should increment the
         ### instance value.
-        # if attribute_text in self.attribute_instances:
-        #     # print( f">> Incrementing the instance count for {attribute_text}" )
-        #     # self.attribute_instances[attribute_text] += 1
-        # else:
         if attribute_text not in self.attribute_instances:
             print(">> Starting a new count for {attribute_text}")
             self.attribute_instances[attribute_text] = 1
@@ -536,9 +637,6 @@ class Peopla:
             self.attributes_evidence[attribute_text][this_instance] = []
 
         this_instance = self.attribute_instances[attribute_text]
-
-        # print( f">> This Peopla's attributes (when updating):\n" )
-        # print( log_pretty(self.attributes) )
 
         existing_attributes = {}
         if attribute_text in self.attributes:
@@ -551,18 +649,55 @@ class Peopla:
 
         updated_attributes = {**existing_attributes, **d}
 
-        # logger.debug(
-        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-        #     f"This is what needs to be added: {log_pretty(d)}"
-        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        # )
+        logger.debug(
+            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+            f"This is what needs to be added: {log_pretty(d)}"
+            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        )
 
         self.attributes[attribute_text][this_instance] = updated_attributes
 
         if evidence:
             self.attributes_evidence[attribute_text][this_instance].append(evidence)
 
-        # input()
+    def print_compact_summary(self, i, annotation):  # pragma: no cover
+        this_reporting_line = (
+            f"[PEOPLA] / {i+1} / {self.name} {{{self.global_id}}} ({self.local_id})"
+        )
+
+        p_attributes_list = []
+
+        if len(self.attributes) > 0:
+
+            for action, attribute_dictionary in self.attributes.items():
+                ### action will be the action name
+                ### attribute_dictionary will be a dictionary of the form
+                ###   {1: {...}, 2: {...}}
+
+                p_attribute_evidence_list = []
+
+                for evidence_i in attribute_dictionary.keys():
+                    this_evidence = self.attributes_evidence[action][evidence_i]
+                    p_attribute_evidence_list.append(this_evidence)
+
+                p_attribute_evidence_list = flatten(p_attribute_evidence_list)
+
+                all_evidence = ",".join(f"{e}" for e in p_attribute_evidence_list)
+
+                tmp_s = f"{action}: {all_evidence}"
+                p_attributes_list.append(tmp_s)
+
+        if not len(p_attributes_list):
+            p_attributes_list = ["-"]
+
+        this_reporting_line += " / [" + ",".join(p_attributes_list) + "]"
+
+        if annotation:
+            this_reporting_line += f" ! {annotation}"
+
+        this_reporting_line += f"\n"
+
+        return this_reporting_line
 
     def __str__(self):  # pragma: no cover
         s_out = f"{self.type} PEOPLA called {self.name}\n"
@@ -600,13 +735,13 @@ class Peopla:
     def peopla_match(self, other):
         return_result = False
 
-        logger.debug(f"'{self.name}' == '{other.name}' ??\n")
-        logger.debug(f"'{self.type}' == '{other.type}' ??\n")
-        logger.debug(f"'{self.global_id}' == '{other.global_id}' ??\n")
-        logger.debug(f"'{self.local_id}' == '{other.local_id}' ??\n")
-        logger.debug(
-            f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n"
-        )
+        # logger.debug(f"'{self.name}' == '{other.name}' ??\n")
+        # logger.debug(f"'{self.type}' == '{other.type}' ??\n")
+        # logger.debug(f"'{self.global_id}' == '{other.global_id}' ??\n")
+        # logger.debug(f"'{self.local_id}' == '{other.local_id}' ??\n")
+        # logger.debug(
+        #     f"'{self.evidence_reference}' == '{other.evidence_reference}' ??\n"
+        # )
 
         if (
             self.name == other.name
@@ -712,6 +847,57 @@ class Document:
 
             logger.info(f"Shortcut mappings provided:")
             logger.info(f"{log_pretty(self.shortcut_mappings)}")
+
+    def summarise_transition(self, previous): 
+        list_of_keys = [
+            "empty","ignore","header",
+            "content",
+            "shortcut","shortcut_def",
+            "peopla","relation","action_group",
+            "indent_count","tab_count"
+        ]
+
+        boolean_mapping = { True: "[X]", False: "[_]"}
+        s = []
+        title_width = 12
+        content_width = 8
+
+        hr = f"+-{'-'.ljust(title_width,'-')}-+-{'-'.ljust(content_width,'-')}-+-{'-'.ljust(content_width,'-')}-+\n"
+
+        s.append( hr )
+        s.append( f"| {''.ljust(title_width)} | {'previous'.ljust(content_width)} | {'current'.ljust(content_width)} |\n" )
+        s.append( hr )
+
+        for k in list_of_keys:
+            this_k = k.ljust(title_width)
+
+            this_current_formatted = ".".ljust(content_width)
+            if ( k in self.current_build_map ):
+                this_current = self.current_build_map[k] #.ljust(column_width)
+                this_current_type = type(this_current).__name__
+                if this_current_type != "str":
+                    if this_current_type == "bool":
+                        this_current = boolean_mapping[this_current]
+                    else:
+                        this_current = str(this_current)
+                this_current_formatted = this_current.ljust(content_width)
+
+            this_previous_formatted = ".".ljust(content_width)
+            if ( k in previous ):
+                this_previous = previous[k]
+                this_previous_type = type(this_previous).__name__
+                if type(this_previous).__name__ != "str":
+                    if this_previous_type == "bool":
+                        this_previous = boolean_mapping[this_previous]
+                    else:                    
+                        this_previous = str(this_previous)
+                this_previous_formatted = this_previous.ljust(content_width)
+
+            s.append( f"| {this_k} | {this_previous_formatted} | {this_current_formatted} |\n" )
+
+        s.append( hr )
+
+        return( s )
 
     def describe_transition(self, previous):
 
@@ -861,7 +1047,7 @@ class Document:
                 if not self.peopla_live:
                     self.reset(line)
 
-                self.print_current_status(self.current_line, line)
+                self.print_compact_current_status(self.current_line, line, previous_build_map )
 
                 ### If "PYTEST_CURRENT_TEST" exists in os.environ, then
                 ### we are currently running test. We don't want to use
@@ -1067,6 +1253,157 @@ class Document:
         logger.debug(status_update)
 
         # input()
+
+    def print_compact_current_status(
+        self, n, l, previous_build_map, print_header_info=False, specify_objects=True
+    ):  # pragma: no cover
+
+        pre = f"[{n:04}] "
+        big_break_s = "".rjust(70 - len(pre), "=") + "\n"
+        small_break_s = "".rjust(70 - len(pre), "-") + "\n"
+
+        s = [f"LINE: {l}"]
+        s.append(big_break_s)
+
+        ### Headers -------------------------------------------------
+
+        if print_header_info:
+            if len(self.header) > 0:
+                s.append(f"{len(self.header)} header items")
+
+                for i, p in enumerate(self.header):
+                    s.append(f"Header ({i}) {p}")
+
+            s.append(big_break_s)
+
+        ### Flags -------------------------------------------------
+
+        relevant_live_indicators = [
+            "shortcut_live",
+            "peopla_live",
+            "peopla_action_group_live",
+            "relation_live",
+            "data_table_live",
+            "missing_relation_flag",
+        ]
+
+        for r in relevant_live_indicators:
+            r_val = "X" if getattr(self, r) else "_"
+            s.append(f"[{r_val}] / {r} \n")
+
+        s.append(small_break_s)
+
+        ### Current action scope -------------------------------------------------
+
+        s.append(
+            f"Current action [{self.current_action}] and scope [{self.current_action_scope}]\n"
+        )
+        s.append(big_break_s)
+
+        ### Objects -------------------------------------------------
+
+        s.append(
+            f"{len(self.all_peoplas)} Peoplas | "
+            + f"{len(self.all_peorels)} Peorels | "
+            + f"{len(self.all_action_groups)} Action Groups\n"
+        )
+
+        s.append(small_break_s)
+
+        if specify_objects:
+            ### Print peoplas
+            for i, o in enumerate(self.all_peoplas):
+                annotation_list = []
+                if o == self.current_source_peopla:
+                    annotation_list.append("SRC")
+                if o in self.current_target_peoplas:
+                    annotation_list.append("TRG")
+                if o == self.current_leaf_peopla:
+                    annotation_list.append("LEAF")
+                if type(o).__name__ == type(self.current_live_object).__name__:
+                    if o == self.current_live_object:
+                        annotation_list.append("LIVE")
+
+                annotation = "|".join(annotation_list)
+
+                s.append(o.print_compact_summary(i, annotation))
+            s.append(small_break_s)
+            ### Print peorels
+            for i, o in enumerate(self.all_peorels):
+                annotation_list = []
+                if type(o).__name__ == type(self.current_live_object).__name__:
+                    if o == self.current_live_object:
+                        annotation_list.append("LIVE")
+
+                annotation = "|".join(annotation_list)
+
+                s.append(o.print_compact_summary(i, annotation))
+            s.append(small_break_s)
+            ### Print Action Groups
+            for i, o in enumerate(self.all_action_groups):
+                annotation_list = []
+                if o == self.current_leaf_action_group:
+                    annotation_list.append("LEAF")
+                if type(o).__name__ == type(self.current_live_object).__name__:
+                    if o == self.current_live_object:
+                        annotation_list.append("LIVE")
+
+                annotation = "|".join(annotation_list)
+
+                s.append(o.print_compact_summary(i, annotation))
+
+        s.append(big_break_s)
+
+        ### Breadcrumbs -------------------------------------------------
+
+        source_breadcrumb_title = ""
+        source_breadcrumb_content = ""
+
+        for i, b in enumerate(self.pedigree_breadcrumbs_source):
+
+            source_breadcrumb_title += f"{i}".ljust(10)
+            source_breadcrumb_content += b.name.ljust(10)
+
+        if len(source_breadcrumb_title) > 0:
+            s.append("[SOURCE BREADCRUMB] " + source_breadcrumb_title + "\n")
+            s.append("[SOURCE BREADCRUMB] " + source_breadcrumb_content + "\n")
+
+        s.append(small_break_s)
+
+        target_breadcrumb_title = ""
+        target_breadcrumb_content = ""
+
+        for i, b in enumerate(self.pedigree_breadcrumbs_target):
+            this_list = []
+
+            if b:
+                for bj in b:
+                    this_list.append("".join([word[0] for word in (bj.name).split()]))
+
+            this_list_string = ",".join(this_list)
+
+            target_breadcrumb_title += f"{i}".ljust(10)
+            target_breadcrumb_content += this_list_string.ljust(10)
+
+        if len(target_breadcrumb_title) > 0:
+            s.append("[TARGET BREADCRUMB] " + target_breadcrumb_title + "\n")
+            s.append("[TARGET BREADCRUMB] " + target_breadcrumb_content + "\n")
+
+        s.append(big_break_s)
+
+        ### Breadcrumbs -------------------------------------------------
+        for t in self.data_tables:
+            s.append( f"[DATA] {format(t)}\n" )
+
+        if self.data_points:
+            s.append( f"[DATA] {len(self.data_points)} data points\n" )      
+
+        s.append(big_break_s)
+
+        s =  s + self.summarise_transition(previous_build_map)
+
+        s = [pre + x for x in s]
+        logger.debug("".join(s))
 
     def reset(self, line):  # pragma: no cover
         logger.debug(f"Considering reset with: '{line}'")
@@ -1638,24 +1975,6 @@ class Document:
             ### reset the current_target_peoplas so that it only contains
             ### the one current target peopla that has just been found.
 
-            # local_depth = len(re.findall(peopla_relation_depth_regex, line))
-            # current_hierarchy_level = ()
-            # previous_hierarchy_level = len( self.pedigree_breadcrumbs_source )
-            # print( f"local depth: {local_depth}")
-            # print( f"self breadcrumb depth: {self.current_breadcrumb_depth}")
-            # print( f"current calculated   : {current_hierarchy_level}")
-            # print( f"previous calculated  : {previous_hierarchy_level}")
-
-            # if ( current_hierarchy_level != previous_hierarchy_level ):
-            #     print( "RESET CURRENT_TARGET_PEOPLAS")
-            #     self.current_target_peoplas = []
-            # else:
-            #     print( "DO NOT RESET CURRENT_TARGET_PEOPLAS")
-
-            # print("++++++++++++++++++++++++++++++++++++++\n")
-
-            # input()
-
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
             new_target_peoplas = [target_peopla]
@@ -1785,10 +2104,6 @@ class Document:
                 elif action_scope == "leaf":
                     ### This is only relevant for the LAST target peoplas
                     ### We need to add an attribute to a peopla
-
-                    # print( self.current_target_peoplas )
-                    # print( len(self.current_target_peoplas) )
-                    # input()
 
                     if len(self.current_target_peoplas) > 0:
 
@@ -2008,23 +2323,6 @@ class Document:
                 ### updated, then we want to reset the current_target_peoplas
                 ### otherwise we want to keep accumulating the target peoplas
 
-                # print( "++++++++++++++++++++++++++++++++++++++\n")
-                # print( f"This depth = {this_depth}" )
-                # print( "\n")
-                # print(
-                #     f"The length of the source breadcrumbs = {len( self.pedigree_breadcrumbs_source )}"
-                # )
-                # print( "\n")
-
-                # print( self.print_source_breadcrumbs() )
-
-                # if ( this_depth + 1 ) != len( self.pedigree_breadcrumbs_source ):
-                #     print( "RESET CURRENT_TARGET_PEOPLAS")
-                #     self.current_target_peoplas = []
-                # else:
-                #     print( "DO NOT RESET CURRENT_TARGET_PEOPLAS")
-                # print("++++++++++++++++++++++++++++++++++++++\n")
-
                 self.pedigree_breadcrumbs_source = update_breadcrumbs(
                     deepcopy(self.pedigree_breadcrumbs_source),
                     this_depth,
@@ -2038,10 +2336,6 @@ class Document:
 
                 self.pedigree_breadcrumbs_target = new_target_list
                 self.current_target_peoplas = []
-
-                # print( "++++++++++++++++++++++++++++++++++++++\n")
-
-                # input()
 
     def scan_for_header_lines(self, line):
         """
@@ -2074,76 +2368,54 @@ class Document:
         """
         Compiling a toString for a document
         """
-        s_out = f"Document parsed = {self.file}\n"
-        for key, value in self.header.items():
-            for i, j in enumerate(value):
-                s_out = s_out + f"[{key:{self.header_length}} {i+1:02}]: {j}\n"
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + "Shortcuts:\n"
-        for i, v in enumerate(self.shortcuts):
-            s_out = s_out + f"[{i}: {v}]\n"
+        s = f"[DOCUMENT] {self.file}\n"
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + "All Peoplas:\n"
-        for i, p in enumerate(self.all_peoplas):
-            s_out = s_out + f"[{i}] " + str(p) + "\n"
+        for i, o in enumerate(self.all_peoplas):
+            s += o.generate_summary(i+1) 
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + "All Peorels:\n"
-        for i, p in enumerate(self.all_peorels):
-            s_out = s_out + f"[{i}] " + str(p) + "\n"
+        for i, o in enumerate(self.all_peorels):
+            s += o.generate_summary(i+1)
+        
+        for i, o in enumerate(self.all_action_groups):
+            s += o.generate_summary(i+1)
+        
+        s += f"[DATAPOINTS] {len(self.data_points)} data points\n"
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + "All ActionGroups:\n"
-        for i, p in enumerate(self.all_action_groups):
-            s_out = s_out + f"[{i}] " + str(p) + "\n"
+        s += "\n"
+        s += str(self.data_points_df)
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + f"Found {len(self.data_points)} data points\n"
-
-        s_out = s_out + str(self.data_points_df)
-
-        return s_out
+        return s
 
     def print_summary(self):  # pragma: no cover
         """
         Printing a summary of a document
         """
-        print(f"Document parsed = {self.file}")
-        self.print_header_information()
 
-        print("---------------------\n")
-        print("Shortcuts:")
-        print(self.shortcuts)
+        logger.info(f"[DOCUMENT] {self.file}\n")
 
-        print("---------------------\n")
-        print(f"All Peoplas:")
+        # print(f"All Peoplas:")
+
         for i, p in enumerate(self.all_peoplas):
-            logger.info(f"[{i}] " + str(p))
+            logger.info( p.summarise(i) )
 
-        print("---------------------\n")
-        print(f"Current leaf Peoplas:")
-        logger.info(str(self.current_leaf_peopla))
+        # print("---------------------\n")
+        # print(f"Current leaf Peoplas:")
+        # logger.info(str(self.current_leaf_peopla))
 
-        print("---------------------\n")
-        print(f"All Peorels:")
-        for i, p in enumerate(self.all_peorels):
-            logger.info(f"[{i}] " + str(p))
+        # print("---------------------\n")
+        # print(f"All Peorels:")
+        # for i, p in enumerate(self.all_peorels):
+        #     logger.info(f"[{i}] " + str(p))
 
-        print("---------------------\n")
-        print(f"All ActionGroups:")
-        for i, p in enumerate(self.all_action_groups):
-            logger.info(f"[{i}] " + str(p))
+        # print("---------------------\n")
+        # print(f"All ActionGroups:")
+        # for i, p in enumerate(self.all_action_groups):
+        #     logger.info(f"[{i}] " + str(p))
 
-        print("---------------------\n")
-        print(f"Found {len(self.data_points)} data points")
-        print(self.data_points_df)
+        # print("---------------------\n")
+        # print(f"Found {len(self.data_points)} data points")
+        # print(self.data_points_df)
 
     def get_header_information(self, flag):
         """
@@ -2487,9 +2759,6 @@ def merge_attributes(existing_dict, new_dict):
             merged_v.append(new_dict[k])
 
         if any(isinstance(v, list) for v in merged_v):
-            # print( f"This is a nested list\n")
-            # merged_v = list(chain(*merged_v))
-            # merged_v = [x for sublist in merged_v for x in sublist]
             merged_v = flatten(merged_v)
 
         merged_dict[k] = sorted(set(merged_v))
@@ -2556,8 +2825,8 @@ def build_map(l_in):
 
         l_partial_markup_removal = re.sub(content_rg, "", l)
         l_full_markup_removal = re.sub(all_leading_markup_rg, "", l)
-        print(f"l partial markup removal: '{l_partial_markup_removal}'\n")
-        print(f"l full markup removal: '{l_full_markup_removal}'\n")
+        # print(f"l partial markup removal: '{l_partial_markup_removal}'\n")
+        # print(f"l full markup removal: '{l_full_markup_removal}'\n")
 
         parse_map["shortcut"] = (
             True if re.search(shortcut_rg, l_full_markup_removal) else False
@@ -2581,34 +2850,3 @@ def build_map(l_in):
         parse_map["tab_count"] = len(re.findall(tab_rg, l_partial_markup_removal))
 
     return parse_map
-    ### Regexes to identify specific lines
-    ### Two comments means that we've dealt with it
-    ### One comment means that we don't think we need it (at the moment)
-    # # empty_line_regex = r"^\s+$"
-    # # ignore_line_regex = r"^!.*$"
-    # # header_line_regex = r"^##\w+:"
-    # # shortcut_definition_regex = r"^###\t[^\*\[\]\{\}]+\*?$"
-    # # peopla_line_regex = r"^###\t(>\t)*@?\[.*\](\(.*\))?(\{.*\})?$"
-    # # peopla_regex = r"^(\@)?(w\/)?\[(.*?)\](\(.*\))?(\{.*\})?(\*)?$"
-    # peopla_attribute_regex = r"^###\t\t[^\*]+\*?$"
-    # peopla_pedigree_attribute_regex = r"^###\t(>\t)+[^\*\[]+\*?$"
-    # peopla_embedded_attribute_regex = r"^###\t([>\t]+)[^\*\[](.*)$"
-    # peopla_relation_line_regex = r"^###\t(>\t)+\*(.*)\*$"
-    # # peopla_relation_depth_regex = r">\t"
-    # # peopla_relation_string_regex = r"\*(.*)\*"
-    # peopla_relation_target_regex = r"^###\t(>\t)+@?\[.*\](\(.*\))?(\{.*\})?$"
-    # peopla_relation_scope_regex = r"^###\t(>).*$"
-
-    # action_regex = r"^([^\*]+)(\*)?$"
-    # action_attribute_regex = r"^###\t\t\t[^\*]+\*?$"
-    # pedigree_action_attribute_regex = r"^###\t[\t<]+(\t)+[^\*]+\*?$"
-    # # action_group_regex = r"^###\t(>\t)*(vs|w/).*$"
-    # # action_group_vs_regex = r"^###\t(>\t)*vs\[.*$"
-    # # action_group_w_regex = r"^###\t(>\t)*w\/\[.*$"
-
-    # # action_scope_regex = r"^###\t(\S*)\t.*$"
-    # # data_table_header_regex = rf"^###{re.escape(data_point_separator)}.*$"
-    # # data_table_linebreak_regex = r"^\[/\]$"
-    # # data_table_global_id_regex = r"^###\t\{.*\}$"
-    # # data_table_local_id_regex = r"^###\t\(.*\)$"
-    # # data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
