@@ -48,7 +48,7 @@ data_table_local_id_regex = r"^###\t\(.*\)$"
 data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
 
 human_annotations_to_remove_rg = [
-    r"\[<-\]"
+    r"\s*\[<-\]"
 ]
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
