@@ -26,6 +26,17 @@ python -m pytest --cov=./ --cov-report=html --html=test-reports/full_test_run.ht
 # To run a specific tests and show the results of that in the html report
 pytest tests/integration/test_integration_using-explicit-test-cases.py::test_complex_examples --html=test-reports/specific_test.html
 
+# Helper bash script
+### Run all tests:
+bash ./run_tests.sh
+
+### Run all int (integration) tests (same for def/unit):
+bash ./run_tests.sh int
+
+### Run specific int tests (same for def/unit)
+bash ./run_tests.sh int test_actiongroup_accumulating_attributes test_peopla_attributes_of_attributes
+
+
 # Generate requirements files
 pipreqs --savepath=requirements.in src/
 pip-compile -r --strip-extras requirements.in -o requirements.txt
