@@ -136,6 +136,12 @@ class DataTable:
         logger.debug(f" - Column names: {','.join(self.column_names)}")
         logger.debug(f" - Attributes are: {self.attributes}")
 
+    def __str__(self):
+        out_s = f"{self.column_num} columns"
+        if self.attributes:
+            shortcut_list = ", ".join(self.attributes.keys())
+            out_s += f" (+{shortcut_list} by shortcut)"
+        return( out_s )
 
 class DataPoint:
     def __init__(self, list, table):
@@ -214,6 +220,31 @@ class ActionGroup:
             out_s = out_s + f"   {n+1}. {line_number}"
 
         return out_s
+
+    def generate_summary(self, i):
+
+        agroup_label = f"[AGROUP] [{i:04}] "
+        pre = " ".ljust(len(agroup_label))
+
+        s = [
+            f"{agroup_label}{'directed' if self.directed else 'undirected'} {self.type} ActionGroup\n"
+        ]
+
+        s.append( pre + f"SOURCE   {self.source_peopla.name}\n") 
+
+        target_list = []
+        for n, peopla in enumerate(self.target_peoplas):
+            target_list.append(peopla.name)
+
+        target_string = ", ".join(target_list)
+
+        s.append( pre + f"TARGET   {len(target_list)}: " + target_string + "\n" )
+
+        evidence_string = ",".join(str(x) for x in self.evidence_reference)
+
+        s.append( pre + f"EVIDENCE {len(self.evidence_reference)}: " + evidence_string + "\n" )
+
+        return ( "".join(s) )
 
     ### What needs to match for two ActionGroups objects to be considered the same?
     def __eq__(self, other):
@@ -429,6 +460,17 @@ class Peorel:
 
         return s_out
 
+    def generate_summary(self, i):
+        evidence_string = ",".join(str(x) for x in self.evidence_reference)
+
+        peorel_label = f"[PEOREL] [{i:04}] "
+
+        s = [
+            f"{peorel_label}{self.peopla_is.name} is a {self.relation_text} to {self.peopla_to.name} / {evidence_string}\n"
+        ]
+
+        return "".join(s)
+
     def print_compact_summary(self, i, annotation):  # pragma: no cover
 
         this_reporting_line = f"[PEOREL] / {i+1} / {self.peopla_is.name} is {self.relation_text} to {self.peopla_to.name}"
@@ -473,6 +515,52 @@ class Peopla:
         logger.info(
             f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.local_id}) ({self.global_id})"
         )
+
+    def generate_summary(self, i):
+        evidence_string = ",".join(str(x) for x in self.evidence_reference)
+
+        peopla_label = f"[PEOPLA] [{i:04}] "
+        pre = " ".ljust(len(peopla_label))
+
+        title_s = [ f"{peopla_label}{self.type} {self.name} {{{self.global_id}}} {self.local_id} / {evidence_string}\n" ]
+        s = []
+
+        if self.attributes:
+            title_width = len(max(self.attributes.keys(),key=len))
+
+            ### For formatting, find longest label first:
+            label_width = 8 # this is the length of 'evidence'
+
+            for action, values in self.attributes.items():
+                for num, attributes in values.items():
+                    if attributes:
+                        # label_width = len(max(attributes.keys(),key=len))
+
+                        for label, value in attributes.items():
+
+                            this_info = [f"{action.ljust(title_width)}"]
+                            this_info.append( f"{num:02}" )
+                            this_info.append( f"{label.ljust(label_width)}" )
+
+                            this_evidence = []
+                            if type( value ).__name__ == "list":
+                                for this_v in value:
+                                    if type( this_v ).__name__ == "Peorel":
+                                        e = re.sub("Evidence: ","", format(this_v) )
+                                        this_evidence.append(f"{format(e)}")
+                                    else:
+                                        this_evidence.append( f"{this_v}" )
+                                evidence_string = " / ".join(this_evidence)
+                                this_info.append( f"{evidence_string}")
+                            else:
+                                this_info.append( f"{value}" )
+                            this_string = " ".join(this_info)
+
+                            s.append(this_string + "\n")
+
+        s = [pre + x for x in s]
+
+        return ( "".join(title_s + s) )
 
     def new_add_action(self, action_text, inheritance, evidence):
 
@@ -1300,6 +1388,15 @@ class Document:
         if len(target_breadcrumb_title) > 0:
             s.append("[TARGET BREADCRUMB] " + target_breadcrumb_title + "\n")
             s.append("[TARGET BREADCRUMB] " + target_breadcrumb_content + "\n")
+
+        s.append(big_break_s)
+
+        ### Breadcrumbs -------------------------------------------------
+        for t in self.data_tables:
+            s.append( f"[DATA] {format(t)}\n" )
+
+        if self.data_points:
+            s.append( f"[DATA] {len(self.data_points)} data points\n" )      
 
         s.append(big_break_s)
 
@@ -2271,76 +2368,54 @@ class Document:
         """
         Compiling a toString for a document
         """
-        s_out = f"Document parsed = {self.file}\n"
-        for key, value in self.header.items():
-            for i, j in enumerate(value):
-                s_out = s_out + f"[{key:{self.header_length}} {i+1:02}]: {j}\n"
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + "Shortcuts:\n"
-        for i, v in enumerate(self.shortcuts):
-            s_out = s_out + f"[{i}: {v}]\n"
+        s = f"[DOCUMENT] {self.file}\n"
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + "All Peoplas:\n"
-        for i, p in enumerate(self.all_peoplas):
-            s_out = s_out + f"[{i}] " + str(p) + "\n"
+        for i, o in enumerate(self.all_peoplas):
+            s += o.generate_summary(i+1) 
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + "All Peorels:\n"
-        for i, p in enumerate(self.all_peorels):
-            s_out = s_out + f"[{i}] " + str(p) + "\n"
+        for i, o in enumerate(self.all_peorels):
+            s += o.generate_summary(i+1)
+        
+        for i, o in enumerate(self.all_action_groups):
+            s += o.generate_summary(i+1)
+        
+        s += f"[DATAPOINTS] {len(self.data_points)} data points\n"
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + "All ActionGroups:\n"
-        for i, p in enumerate(self.all_action_groups):
-            s_out = s_out + f"[{i}] " + str(p) + "\n"
+        s += "\n"
+        s += str(self.data_points_df)
 
-        s_out = s_out + "\n"
-        s_out = s_out + "---------------------\n"
-        s_out = s_out + f"Found {len(self.data_points)} data points\n"
-
-        s_out = s_out + str(self.data_points_df)
-
-        return s_out
+        return s
 
     def print_summary(self):  # pragma: no cover
         """
         Printing a summary of a document
         """
-        print(f"Document parsed = {self.file}")
-        self.print_header_information()
 
-        print("---------------------\n")
-        print("Shortcuts:")
-        print(self.shortcuts)
+        logger.info(f"[DOCUMENT] {self.file}\n")
 
-        print("---------------------\n")
-        print(f"All Peoplas:")
+        # print(f"All Peoplas:")
+
         for i, p in enumerate(self.all_peoplas):
-            logger.info(f"[{i}] " + str(p))
+            logger.info( p.summarise(i) )
 
-        print("---------------------\n")
-        print(f"Current leaf Peoplas:")
-        logger.info(str(self.current_leaf_peopla))
+        # print("---------------------\n")
+        # print(f"Current leaf Peoplas:")
+        # logger.info(str(self.current_leaf_peopla))
 
-        print("---------------------\n")
-        print(f"All Peorels:")
-        for i, p in enumerate(self.all_peorels):
-            logger.info(f"[{i}] " + str(p))
+        # print("---------------------\n")
+        # print(f"All Peorels:")
+        # for i, p in enumerate(self.all_peorels):
+        #     logger.info(f"[{i}] " + str(p))
 
-        print("---------------------\n")
-        print(f"All ActionGroups:")
-        for i, p in enumerate(self.all_action_groups):
-            logger.info(f"[{i}] " + str(p))
+        # print("---------------------\n")
+        # print(f"All ActionGroups:")
+        # for i, p in enumerate(self.all_action_groups):
+        #     logger.info(f"[{i}] " + str(p))
 
-        print("---------------------\n")
-        print(f"Found {len(self.data_points)} data points")
-        print(self.data_points_df)
+        # print("---------------------\n")
+        # print(f"Found {len(self.data_points)} data points")
+        # print(self.data_points_df)
 
     def get_header_information(self, flag):
         """
