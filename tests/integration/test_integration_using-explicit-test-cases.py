@@ -284,6 +284,58 @@ def test_peopla_attributes_of_attributes(
             assert p.attributes[attribute] == attribute_dictionary
 
 
+@pytest.mark.parametrize(
+    "test_name,settings_file,peopla_name,attribute,attribute_dictionary, evidence_dictionary",
+    # parameters are:
+    # (1) content file
+    # (2) settings file
+    # (3) name of the peopla of interest
+    # (4) name the attribute of interest
+    # (5) attribute dictionary of the attribute of interest
+    [
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        ("peopla_content_A", "settings_basic.yaml", "A, B", "C", {1: {}}, {1: [8]}),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "peopla_content_D",
+            "settings_basic.yaml",
+            "A, B",
+            "C",
+            {1: {"DATE": "YYYY-MM", "AT": "P, Q", "X": "Z"}},
+            {1: [8, 9, 10, 11]},
+        ),
+        # TEST: Are the peoplas extracted correctly
+        # Context: 1 peopla with attributes of attributes
+        (
+            "peopla_content_G",
+            "settings_basic.yaml",
+            "A, B",
+            "C",
+            {1: {}, 2: {"DATE": "1800-01-01"}},
+            {1: [8], 2: [11, 12]},
+        ),
+    ],
+)
+def test_peopla_attributes_evidence(
+    test_name,
+    settings_file,
+    peopla_name,
+    attribute,
+    attribute_dictionary,
+    evidence_dictionary,
+):
+
+    test_doc = generate_test_doc(test_name, settings_file)
+
+    for p in test_doc.all_peoplas:
+        print(p)
+        if p.name == peopla_name:
+            assert p.attributes[attribute] == attribute_dictionary
+            assert p.attributes_evidence[attribute] == evidence_dictionary
+
+
 # -----------------------------------------------------------------
 # Integration test cases: peopla content, attributes of attributes
 # -----------------------------------------------------------------
