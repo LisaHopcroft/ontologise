@@ -241,6 +241,53 @@ class ActionGroup:
 
         return return_result
 
+    def print_compact_summary(self, i, annotation=""):
+        to_initials = []
+        for t in self.target_peoplas:
+            to_initials.append("".join([word[0] for word in (t.name).split()]))
+
+        target_string = "(-)"
+
+        if len(to_initials):
+            to_initials_list =  ",".join( to_initials )
+            target_string = f" (+ {to_initials_list})"
+
+        this_reporting_line = (
+            f"[AGROUP] / {i+1} / {self.type} / {self.source_peopla.name}{target_string}"
+        )
+
+        this_attributes_list = []
+        this_evidence_list = self.evidence_reference
+
+        if not len(this_evidence_list):
+            this_evidence_list = ["-"]
+
+        if len(self.attributes) > 0:
+
+            for action, these_attributes in self.attributes.items():
+                ### action will be the action name
+                ### attribute_dictionary will be a dictionary of the form
+                ###   {1: {...}, 2: {...}}
+                print( action )
+                print( these_attributes )
+                for attribute_dictionary in these_attributes.values():
+                    this_attributes_list = list(set(this_attributes_list + list(attribute_dictionary.keys())))
+                    print(this_attributes_list)
+
+        if not len(this_attributes_list):
+            this_attributes_list = ["-"]
+
+        attributes_string = ",".join(this_attributes_list)
+        this_reporting_line += " / [" + attributes_string + "]"
+        this_reporting_line += " / [" + ",".join(f"{e}" for e in this_evidence_list) + "]"
+
+        if ( annotation ):
+            this_reporting_line += f" ! {annotation}"
+        
+        this_reporting_line += f"\n"
+
+        return this_reporting_line
+
     def print_description(self):
         s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         s_info = s_info + f" involving the following source Peoplas\n"
@@ -377,6 +424,24 @@ class Peorel:
         s_out = s_out + "[Evidence: " + evidence_string + "]"
 
         return s_out
+    
+
+    def print_compact_summary(self, i, annotation ):
+
+        this_reporting_line = (
+            f"[PEOREL] / {i+1} / {self.peopla_is.name} is {self.relation_text} to {self.peopla_to.name}"
+        )
+
+        evidence_s = ",".join( f"{e}" for e in self.evidence_reference )
+
+        this_reporting_line += f" / [{evidence_s}]"
+
+        if ( annotation ):
+            this_reporting_line += f" ! {annotation}"
+        
+        this_reporting_line += f"\n"
+
+        return( this_reporting_line )
 
 
 class Peopla:
@@ -505,6 +570,47 @@ class Peopla:
 
         if evidence:
             self.attributes_evidence[attribute_text][this_instance].append(evidence)
+
+    def print_compact_summary(self, i, annotation ):
+        this_reporting_line = (
+            f"[PEOPLA] / {i+1} / {self.name} {{{self.global_id}}} ({self.local_id})"
+        )
+
+        p_attributes_list = []
+
+        if len(self.attributes) > 0:
+
+            for action, attribute_dictionary in self.attributes.items():
+                ### action will be the action name
+                ### attribute_dictionary will be a dictionary of the form
+                ###   {1: {...}, 2: {...}}
+
+                p_attribute_evidence_list = []
+
+                for evidence_i in attribute_dictionary.keys():
+                    this_evidence = self.attributes_evidence[action][evidence_i]
+                    p_attribute_evidence_list.append(this_evidence)
+
+                p_attribute_evidence_list = flatten(p_attribute_evidence_list)
+
+                all_evidence = ",".join(
+                    f"{e}" for e in p_attribute_evidence_list
+                )
+
+                tmp_s = f"{action}: {all_evidence}"
+                p_attributes_list.append(tmp_s)
+
+        if not len(p_attributes_list):
+            p_attributes_list = ["-"]
+
+        this_reporting_line += " / [" + ",".join(p_attributes_list) + "]"
+
+        if ( annotation ):
+            this_reporting_line += f" ! {annotation}"
+        
+        this_reporting_line += f"\n"
+
+        return ( this_reporting_line )
 
     def __str__(self):  # pragma: no cover
         s_out = f"{self.type} PEOPLA called {self.name}\n"
@@ -1021,7 +1127,8 @@ class Document:
         status_update = ""
         s = [f"LINE: {l}"]
         pre = f"[{n:04}] "
-        break_s = "------------------------------------"
+        big_break_s = "".rjust(70 - len(pre), "=") + "\n"
+        small_break_s = "".rjust(70 - len(pre), "-") + "\n"
 
         ### Headers -------------------------------------------------
 
@@ -1051,84 +1158,100 @@ class Document:
 
         ### Peopla -------------------------------------------------
 
-        s.append( f"{len(self.all_peoplas)} Peoplas | " +
-                  f"{len(self.all_peorels)} Peorels | " +
-                  f"{len(self.all_action_groups)} Action Groups\n"
+        s.append( big_break_s )
+
+        s.append(
+            f"{len(self.all_peoplas)} Peoplas | " +
+            f"{len(self.all_peorels)} Peorels | " +
+            f"{len(self.all_action_groups)} Action Groups\n"
         )
 
+        s.append( small_break_s )
+
         if specify_objects:
-            for i, p in enumerate(self.all_peoplas):
-                this_peopla_line = f"[PEOPLA] / {i+1} / {p.name} {{{p.global_id}}} ({p.local_id})"
+            ### Print peoplas
+            for i, o in enumerate(self.all_peoplas):
+                annotation_list = []
+                if o == self.current_source_peopla:
+                    annotation_list.append( "SRC" )
+                if o in self.current_target_peoplas:
+                    annotation_list.append( "TRG" )
+                if o == self.current_leaf_peopla:
+                    annotation_list.append( "LEAF" )
+                if type(o).__name__ == type(self.current_live_object).__name__:
+                    if o == self.current_live_object:
+                        annotation_list.append( "LIVE" )
 
-                p_attributes_list = []
+                annotation = "|".join(annotation_list)
 
-                if len(p.attributes) > 0:
+                s.append( o.print_compact_summary( i , annotation ) )
+            s.append( small_break_s )
+            ### Print peorels
+            for i, o in enumerate(self.all_peorels):
+                annotation_list = []
+                if type(o).__name__ == type(self.current_live_object).__name__:
+                    if o == self.current_live_object:
+                        annotation_list.append( "LIVE" )
+                
+                annotation = "|".join(annotation_list)
 
-                    for action, attribute_dictionary in p.attributes.items():
-                        ### action will be the action name
-                        ### attribute_dictionary will be a dictionary of the form
-                        ###   {1: {...}, 2: {...}}
+                s.append( o.print_compact_summary( i , annotation ) )
+            s.append( small_break_s )
+            ### Print Action Groups
+            for i, o in enumerate(self.all_action_groups):
+                annotation_list = []
+                if o == self.current_leaf_action_group:
+                    annotation_list.append( "LEAF" )
+                if type(o).__name__ == type(self.current_live_object).__name__:
+                    if o == self.current_live_object:
+                        annotation_list.append( "LIVE" )
+                
+                annotation = "|".join(annotation_list)
 
-                        p_attribute_evidence_list = []
+                s.append( o.print_compact_summary( i, annotation ) )
 
-                        for evidence_i in attribute_dictionary.keys():
-                            this_evidence = p.attributes_evidence[action][evidence_i]
-                            p_attribute_evidence_list.append( this_evidence )
+        s.append(big_break_s)
 
-                        p_attribute_evidence_list = flatten( p_attribute_evidence_list )
+        # status_update = status_update + "------------------------------------\n"
 
-                        all_evidence = ",".join(f"{e}" for e in p_attribute_evidence_list)
+        # if self.current_source_peopla != None:
+        #     status_update = (
+        #         status_update
+        #         + f"The current source Peopla is {self.current_source_peopla.name}\n"
+        #     )
 
-                        tmp_s = f"{action}: {all_evidence}"
-                        p_attributes_list.append( tmp_s )
+        #     for k, v in self.current_source_peopla.attributes.items():
+        #         status_update = (
+        #             status_update + f"--> Current source peopla attribute ({k}) {v}\n"
+        #         )
 
-                if not len(p_attributes_list):
-                    p_attributes_list = ["-"]
+        # else:
+        #     status_update = status_update + f"There is no current source Peopla\n"
 
-                this_peopla_line += " / [" + ','.join(p_attributes_list) + "]\n"
+        # status_update = status_update + "------------------------------------\n"
 
-                s.append( this_peopla_line )
+        # if len(self.current_target_peoplas) > 0:
+        #     status_update = (
+        #         status_update
+        #         + f"There are currently {len(self.current_target_peoplas)} target Peoplas\n"
+        #     )
 
-        status_update = status_update + "------------------------------------\n"
+        #     for i, p in enumerate(self.current_target_peoplas):
+        #         status_update = status_update + f"({i}) {p.name}\n"
 
-        if self.current_source_peopla != None:
-            status_update = (
-                status_update
-                + f"The current source Peopla is {self.current_source_peopla.name}\n"
-            )
+        #         for j, q in enumerate(p.attributes):
+        #             status_update = (
+        #                 status_update
+        #                 + f"--> Current target peopla attribute ({i}) {q}\n"
+        #             )
 
-            for k, v in self.current_source_peopla.attributes.items():
-                status_update = (
-                    status_update + f"--> Current source peopla attribute ({k}) {v}\n"
-                )
+        #             for k, v in (p.attributes)[q].items():
+        #                 status_update = status_update + f"------> ({k}) {v}\n"
 
-        else:
-            status_update = status_update + f"There is no current source Peopla\n"
+        # else:
+        #     status_update = status_update + f"There is no current target Peopla\n"
 
-        status_update = status_update + "------------------------------------\n"
-
-        if len(self.current_target_peoplas) > 0:
-            status_update = (
-                status_update
-                + f"There are currently {len(self.current_target_peoplas)} target Peoplas\n"
-            )
-
-            for i, p in enumerate(self.current_target_peoplas):
-                status_update = status_update + f"({i}) {p.name}\n"
-
-                for j, q in enumerate(p.attributes):
-                    status_update = (
-                        status_update
-                        + f"--> Current target peopla attribute ({i}) {q}\n"
-                    )
-
-                    for k, v in (p.attributes)[q].items():
-                        status_update = status_update + f"------> ({k}) {v}\n"
-
-        else:
-            status_update = status_update + f"There is no current target Peopla\n"
-
-        status_update = status_update + "------------------------------------\n"
+        # status_update = status_update + "------------------------------------\n"
 
         ### Breadcrumbs ---------------------------------------------
 
