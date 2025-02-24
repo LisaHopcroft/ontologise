@@ -47,9 +47,7 @@ data_table_global_id_regex = r"^###\t\{.*\}$"
 data_table_local_id_regex = r"^###\t\(.*\)$"
 data_table_end_regex = rf"^###{re.escape(data_point_separator)}END$"
 
-human_annotations_to_remove_rg = [
-    r"\[<-\]"
-]
+human_annotations_to_remove_rg = [r"\s*\[<-\]"]
 
 # Obtained from: https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
 # Colour codes from: https://gist.github.com/abritinthebay/d80eb99b2726c83feb0d97eab95206c4
@@ -294,7 +292,7 @@ class ActionGroup:
 
         # input()
 
-    def update_attribute(self, attribute_text, d):
+    def update_attribute(self, attribute_text, d, evidence=None):
 
         print("ASDFASDFASDFASDF\n")
         # print ( f"The action of interest: {attribute_text}\n")
@@ -441,6 +439,7 @@ class Peopla:
 
         ### Aggributes of the Peopla itself
         self.attributes = {}
+        self.attributes_evidence = {}
         ### Any ActionGroups that are relevant to this Peopla
         self.action_groups = []
 
@@ -458,7 +457,7 @@ class Peopla:
             f"Creating a PEOPLA object: {self.name} ({self.type}) ({self.local_id}) ({self.global_id})"
         )
 
-    def new_add_action(self, action_text, inheritance):
+    def new_add_action(self, action_text, inheritance, evidence):
 
         logger.info(
             f"NEW Adding attribute to PEOPLA object {self.name}: ({action_text})"
@@ -467,16 +466,23 @@ class Peopla:
         if action_text in self.attribute_instances:
             print("This is an attribute that we've already seen for this Peopla")
             self.attribute_instances[action_text] += 1
+            new_instance = self.attribute_instances[action_text]
+            self.attributes_evidence[action_text][new_instance] = []
+
         else:
             print("This is a new attribute this Peopla")
             self.attributes[action_text] = {}
             self.attribute_instances[action_text] = 1
+            self.attributes_evidence[action_text] = {}
+
+            new_instance = self.attribute_instances[action_text]
+            self.attributes_evidence[action_text][new_instance] = []
 
         print(
             f"Is this action already in the attribute dictionary?\n"
             + f"---> in self.attributes? {action_text in self.attributes}\n"
             + f"---> in self.attribute_instances? {action_text in self.attribute_instances}\n"
-            f"---> value in attribute_instances? {self.attribute_instances[action_text]}\n"
+            + f"---> value in attribute_instances? {self.attribute_instances[action_text]}\n"
         )
 
         # if action_text in self.attributes:
@@ -493,13 +499,19 @@ class Peopla:
             self.attribute_instances[action_text]
         ] = inheritance
 
+        self.attributes_evidence[action_text][
+            self.attribute_instances[action_text]
+        ].append(evidence)
+
         print(f"Adding the following dictionary to attributes:\n")
         print(f">> This instance: {self.attribute_instances[action_text]}\n")
         print(f">> This Peopla's attributes:\n")
         print(log_pretty(self.attributes))
+        print(f">> This Peopla's attributes evidence:\n")
+        print(log_pretty(self.attributes_evidence))
         # input()
 
-    def update_attribute(self, attribute_text, d):
+    def update_attribute(self, attribute_text, d, evidence=None):
 
         logger.info(
             f"Adding attribute to PEOPLA object {self.name}: ({attribute_text})"
@@ -518,6 +530,10 @@ class Peopla:
         if attribute_text not in self.attribute_instances:
             print(">> Starting a new count for {attribute_text}")
             self.attribute_instances[attribute_text] = 1
+
+            this_instance = self.attribute_instances[attribute_text]
+            self.attributes_evidence[attribute_text] = {}
+            self.attributes_evidence[attribute_text][this_instance] = []
 
         this_instance = self.attribute_instances[attribute_text]
 
@@ -542,6 +558,9 @@ class Peopla:
         # )
 
         self.attributes[attribute_text][this_instance] = updated_attributes
+
+        if evidence:
+            self.attributes_evidence[attribute_text][this_instance].append(evidence)
 
         # input()
 
@@ -739,8 +758,8 @@ class Document:
                 self.current_line += 1
 
                 for this_rg in human_annotations_to_remove_rg:
-                    line = re.sub(this_rg,"",line)
-                
+                    line = re.sub(this_rg, "", line)
+
                 previous_build_map = deepcopy(self.current_build_map)
                 current_build_map = build_map(line)
 
@@ -761,17 +780,17 @@ class Document:
                                 self.current_build_map["indent_count"]
                                 < previous_build_map["indent_count"]
                             )
-                            or
-                            (
+                            or (
                                 self.current_build_map["tab_count"]
                                 < previous_build_map["tab_count"]
                             )
                             and (self.current_build_map["peopla"])
-                            and (self.current_build_map["indent_count"] > 0)):
-                                self.missing_relation_flag = True
-                                print("I have identified a missing relation\n")
-                                self.relation_live = False
-                                self.peopla_action_group_live = False
+                            and (self.current_build_map["indent_count"] > 0)
+                        ):
+                            self.missing_relation_flag = True
+                            print("I have identified a missing relation\n")
+                            self.relation_live = False
+                            self.peopla_action_group_live = False
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
@@ -1487,7 +1506,7 @@ class Document:
                     ### We need to add an attribute to a peopla
 
                     self.current_target_peoplas[-1].update_attribute(
-                        self.current_action, info
+                        self.current_action, info, self.current_line
                     )
 
                     logger.debug(
@@ -1500,7 +1519,9 @@ class Document:
                 ### 1. Find the Peopla
                 ### 2. Add the attributes
 
-                self.current_source_peopla.update_attribute(self.current_action, info)
+                self.current_source_peopla.update_attribute(
+                    self.current_action, info, self.current_line
+                )
 
         elif re.match(peopla_attribute_regex, line):
             logger.debug("Found a peopla attribute")
@@ -1574,7 +1595,9 @@ class Document:
                         )
 
                         tp.update_attribute(
-                            self.current_action, deepcopy(inheritance_hash)
+                            self.current_action,
+                            deepcopy(inheritance_hash),
+                            self.current_line,
                         )
 
             ### What we have found here is an action of a Peopla
@@ -1582,7 +1605,7 @@ class Document:
             else:
                 self.current_action = action_details["action_text"]
                 self.current_source_peopla.new_add_action(
-                    action_details["action_text"], inheritance_hash
+                    action_details["action_text"], inheritance_hash, self.current_line
                 )
 
             # Maybe this shouldn't be removed????
@@ -1665,7 +1688,9 @@ class Document:
             info = extract_attribute_information(line_content)
             logger.debug(f"Identified '{self.current_action}' / '{info}' ")
 
-            self.current_leaf_peopla.update_attribute(self.current_action, info)
+            self.current_leaf_peopla.update_attribute(
+                self.current_action, info, self.current_line
+            )
 
             logger.debug(
                 f"Adding [{self.current_action}] attribute to {self.current_leaf_peopla.name}"
@@ -1704,14 +1729,14 @@ class Document:
                     f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                 )
                 self.current_leaf_peopla.update_attribute(
-                    self.current_action, deepcopy(inheritance_hash)
+                    self.current_action, deepcopy(inheritance_hash), self.current_line
                 )
             elif self.current_target_peoplas == []:
                 logger.debug(
                     f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                 )
                 self.current_leaf_peopla.update_attribute(
-                    self.current_action, deepcopy(inheritance_hash)
+                    self.current_action, deepcopy(inheritance_hash), self.current_line
                 )
             elif self.peopla_action_group_live:
 
@@ -1768,7 +1793,9 @@ class Document:
                     if len(self.current_target_peoplas) > 0:
 
                         self.current_target_peoplas[-1].update_attribute(
-                            self.current_action, deepcopy(inheritance_hash)
+                            self.current_action,
+                            deepcopy(inheritance_hash),
+                            self.current_line,
                         )
 
                         logger.debug(
@@ -1780,7 +1807,9 @@ class Document:
                             f"Adding [{action_details['action_text']}] attribute to pedigree object {self.current_leaf_peopla.name}"
                         )
                         self.current_leaf_peopla.update_attribute(
-                            self.current_action, deepcopy(inheritance_hash)
+                            self.current_action,
+                            deepcopy(inheritance_hash),
+                            self.current_line,
                         )
 
             ### Then as we encounter attribute of attribute lines that are inside a
@@ -2139,12 +2168,13 @@ def extract_attribute_information(l0):
     l1 = expand_attribute(l0)
 
     m = re.search(r"^(.*)\[(.*)\](~)?$", l1)
-    
+
     key = translate_attribute(m.group(1))
     approx_flag = False if m.group(3) is None else True
     value = f"approx. {m.group(2)}" if approx_flag else m.group(2)
 
     return {key: value}
+
 
 def expand_attribute(l):
     if l == "BIRTH":
@@ -2153,6 +2183,7 @@ def expand_attribute(l):
         return "AGED[INFANCY]"
     else:
         return l
+
 
 ### This is what we could do with Python 3.10
 # def translate(x):
