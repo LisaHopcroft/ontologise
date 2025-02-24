@@ -241,7 +241,7 @@ class ActionGroup:
 
         return return_result
 
-    def print_compact_summary(self, i, annotation=""):
+    def print_compact_summary(self, i, annotation=""):  # pragma: no cover
         to_initials = []
         for t in self.target_peoplas:
             to_initials.append("".join([word[0] for word in (t.name).split()]))
@@ -292,7 +292,7 @@ class ActionGroup:
 
         return this_reporting_line
 
-    def print_description(self):
+    def print_description(self): 
         s_info = f"{'directed' if self.directed else 'undirected'} {self.type} ActionGroup,\n"
         s_info = s_info + f" involving the following source Peoplas\n"
 
@@ -429,7 +429,7 @@ class Peorel:
 
         return s_out
 
-    def print_compact_summary(self, i, annotation):
+    def print_compact_summary(self, i, annotation):  # pragma: no cover
 
         this_reporting_line = f"[PEOREL] / {i+1} / {self.peopla_is.name} is {self.relation_text} to {self.peopla_to.name}"
 
@@ -572,7 +572,7 @@ class Peopla:
         if evidence:
             self.attributes_evidence[attribute_text][this_instance].append(evidence)
 
-    def print_compact_summary(self, i, annotation):
+    def print_compact_summary(self, i, annotation):  # pragma: no cover
         this_reporting_line = (
             f"[PEOPLA] / {i+1} / {self.name} {{{self.global_id}}} ({self.local_id})"
         )
@@ -760,6 +760,57 @@ class Document:
             logger.info(f"Shortcut mappings provided:")
             logger.info(f"{log_pretty(self.shortcut_mappings)}")
 
+    def summarise_transition(self, previous): 
+        list_of_keys = [
+            "empty","ignore","header",
+            "content",
+            "shortcut","shortcut_def",
+            "peopla","relation","action_group",
+            "indent_count","tab_count"
+        ]
+
+        boolean_mapping = { True: "[X]", False: "[_]"}
+        s = []
+        title_width = 12
+        content_width = 8
+
+        hr = f"+-{'-'.ljust(title_width,'-')}-+-{'-'.ljust(content_width,'-')}-+-{'-'.ljust(content_width,'-')}-+\n"
+
+        s.append( hr )
+        s.append( f"| {''.ljust(title_width)} | {'previous'.ljust(content_width)} | {'current'.ljust(content_width)} |\n" )
+        s.append( hr )
+
+        for k in list_of_keys:
+            this_k = k.ljust(title_width)
+
+            this_current_formatted = ".".ljust(content_width)
+            if ( k in self.current_build_map ):
+                this_current = self.current_build_map[k] #.ljust(column_width)
+                this_current_type = type(this_current).__name__
+                if this_current_type != "str":
+                    if this_current_type == "bool":
+                        this_current = boolean_mapping[this_current]
+                    else:
+                        this_current = str(this_current)
+                this_current_formatted = this_current.ljust(content_width)
+
+            this_previous_formatted = ".".ljust(content_width)
+            if ( k in previous ):
+                this_previous = previous[k]
+                this_previous_type = type(this_previous).__name__
+                if type(this_previous).__name__ != "str":
+                    if this_previous_type == "bool":
+                        this_previous = boolean_mapping[this_previous]
+                    else:                    
+                        this_previous = str(this_previous)
+                this_previous_formatted = this_previous.ljust(content_width)
+
+            s.append( f"| {this_k} | {this_previous_formatted} | {this_current_formatted} |\n" )
+
+        s.append( hr )
+
+        return( s )
+
     def describe_transition(self, previous):
 
         if self.current_build_map["content"]:
@@ -908,7 +959,7 @@ class Document:
                 if not self.peopla_live:
                     self.reset(line)
 
-                self.print_compact_current_status(self.current_line, line)
+                self.print_compact_current_status(self.current_line, line, previous_build_map )
 
                 ### If "PYTEST_CURRENT_TEST" exists in os.environ, then
                 ### we are currently running test. We don't want to use
@@ -1116,8 +1167,8 @@ class Document:
         # input()
 
     def print_compact_current_status(
-        self, n, l, print_header_info=False, specify_objects=True
-    ):
+        self, n, l, previous_build_map, print_header_info=False, specify_objects=True
+    ):  # pragma: no cover
 
         pre = f"[{n:04}] "
         big_break_s = "".rjust(70 - len(pre), "=") + "\n"
@@ -1249,6 +1300,10 @@ class Document:
         if len(target_breadcrumb_title) > 0:
             s.append("[TARGET BREADCRUMB] " + target_breadcrumb_title + "\n")
             s.append("[TARGET BREADCRUMB] " + target_breadcrumb_content + "\n")
+
+        s.append(big_break_s)
+
+        s =  s + self.summarise_transition(previous_build_map)
 
         s = [pre + x for x in s]
         logger.debug("".join(s))
