@@ -294,51 +294,23 @@ class ActionGroup:
 
     def update_attribute(self, attribute_text, d, evidence=None):
 
-        print("ASDFASDFASDFASDF\n")
-        # print ( f"The action of interest: {attribute_text}\n")
-        # print( "--------------------\n")
-        # print ( "The data to add:\n")
-        # print ( d )
-        # print( "--------------------\n")
-        # print ( "ALL attributes being tracked:\n")
-        # print (self.attributes )
-        # print( "--------------------\n")
-        # print ( "Attributes being tracked for this action:\n")
-        # print(self.attributes[attribute_text])
-        # print( "ASDFASDFASDFASDF\n")
-
         ### We will not have an attribute instance recorded if we
         ### are looking at an inferred attribute (e.g., GENDER from
         ### a gendered Peorel). If that is the case, we need to add
         ### it. If it is already there, that will be because we've
         ### found evidence elsewhere, so we should increment the
         ### instance value.
-        # if attribute_text in self.attribute_instances:
-        #     # print( f">> Incrementing the instance count for {attribute_text}" )
-        #     # self.attribute_instances[attribute_text] += 1
-        # else:
         if attribute_text not in self.attribute_instances:
-            print(
-                f">> Starting a new count for {attribute_text} for ActionGroup ({self.type})"
+            logger.debug(
+                f"Starting a new count for {attribute_text} for ActionGroup ({self.type})"
             )
             self.attribute_instances[attribute_text] = 1
-        # if attribute_text not in self.attributes:
-        #     self.attributes[attribute_text] = {}
 
         this_instance = self.attribute_instances[attribute_text]
-
-        print(f"This instance: {this_instance}")
-
-        # print( f">> This Peopla's attributes (when updating):\n" )
-        # print( log_pretty(self.attributes) )
 
         existing_attributes = {}
         if attribute_text in self.attributes:
             existing_attributes = self.attributes[attribute_text][this_instance]
-
-        # print(f"Instance attributes: {self.attributes[attribute_text][this_instance]}")
-
-        print(f"Existing attributes: {existing_attributes}")
 
         ### If we haven't recorded this attribute before, we
         ### need to add it to the attributes dictionary first
@@ -347,34 +319,13 @@ class ActionGroup:
 
         updated_attributes = {**existing_attributes, **d}
 
-        print(f"Updated attributes: {updated_attributes}")
-
-        # logger.debug(
-        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-        #     f"This is what needs to be added: {log_pretty(d)}"
-        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        # )
+        logger.debug(
+            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+            f"This is what needs to be added: {log_pretty(d)}"
+            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        )
 
         self.attributes[attribute_text][this_instance] = updated_attributes
-
-        # logger.info(
-        #     f"Adding attribute to ACTION GROUP object {self.type}: ({attribute_text})"
-        # )
-
-        # existing_attributes = {}
-        # if attribute_text in self.attributes:
-        #     existing_attributes = self.attributes[attribute_text]
-        # updated_attributes = {**existing_attributes, **d}
-
-        # logger.debug(
-        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-        #     f"This is what needs to be added: {log_pretty(d)}"
-        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        # )
-
-        # self.attributes[attribute_text] = updated_attributes
-
-        # input()
 
 
 class Peorel:
@@ -523,10 +474,6 @@ class Peopla:
         ### it. If it is already there, that will be because we've
         ### found evidence elsewhere, so we should increment the
         ### instance value.
-        # if attribute_text in self.attribute_instances:
-        #     # print( f">> Incrementing the instance count for {attribute_text}" )
-        #     # self.attribute_instances[attribute_text] += 1
-        # else:
         if attribute_text not in self.attribute_instances:
             print(">> Starting a new count for {attribute_text}")
             self.attribute_instances[attribute_text] = 1
@@ -536,9 +483,6 @@ class Peopla:
             self.attributes_evidence[attribute_text][this_instance] = []
 
         this_instance = self.attribute_instances[attribute_text]
-
-        # print( f">> This Peopla's attributes (when updating):\n" )
-        # print( log_pretty(self.attributes) )
 
         existing_attributes = {}
         if attribute_text in self.attributes:
@@ -551,18 +495,16 @@ class Peopla:
 
         updated_attributes = {**existing_attributes, **d}
 
-        # logger.debug(
-        #     f"This is what exists at the moment:{log_pretty(existing_attributes)}"
-        #     f"This is what needs to be added: {log_pretty(d)}"
-        #     f"This is what it is going to look like: {log_pretty(updated_attributes)}"
-        # )
+        logger.debug(
+            f"This is what exists at the moment:{log_pretty(existing_attributes)}"
+            f"This is what needs to be added: {log_pretty(d)}"
+            f"This is what it is going to look like: {log_pretty(updated_attributes)}"
+        )
 
         self.attributes[attribute_text][this_instance] = updated_attributes
 
         if evidence:
             self.attributes_evidence[attribute_text][this_instance].append(evidence)
-
-        # input()
 
     def __str__(self):  # pragma: no cover
         s_out = f"{self.type} PEOPLA called {self.name}\n"
@@ -1638,24 +1580,6 @@ class Document:
             ### reset the current_target_peoplas so that it only contains
             ### the one current target peopla that has just been found.
 
-            # local_depth = len(re.findall(peopla_relation_depth_regex, line))
-            # current_hierarchy_level = ()
-            # previous_hierarchy_level = len( self.pedigree_breadcrumbs_source )
-            # print( f"local depth: {local_depth}")
-            # print( f"self breadcrumb depth: {self.current_breadcrumb_depth}")
-            # print( f"current calculated   : {current_hierarchy_level}")
-            # print( f"previous calculated  : {previous_hierarchy_level}")
-
-            # if ( current_hierarchy_level != previous_hierarchy_level ):
-            #     print( "RESET CURRENT_TARGET_PEOPLAS")
-            #     self.current_target_peoplas = []
-            # else:
-            #     print( "DO NOT RESET CURRENT_TARGET_PEOPLAS")
-
-            # print("++++++++++++++++++++++++++++++++++++++\n")
-
-            # input()
-
             self.current_target_peoplas = self.current_target_peoplas + [target_peopla]
 
             new_target_peoplas = [target_peopla]
@@ -1785,10 +1709,6 @@ class Document:
                 elif action_scope == "leaf":
                     ### This is only relevant for the LAST target peoplas
                     ### We need to add an attribute to a peopla
-
-                    # print( self.current_target_peoplas )
-                    # print( len(self.current_target_peoplas) )
-                    # input()
 
                     if len(self.current_target_peoplas) > 0:
 
@@ -2008,23 +1928,6 @@ class Document:
                 ### updated, then we want to reset the current_target_peoplas
                 ### otherwise we want to keep accumulating the target peoplas
 
-                # print( "++++++++++++++++++++++++++++++++++++++\n")
-                # print( f"This depth = {this_depth}" )
-                # print( "\n")
-                # print(
-                #     f"The length of the source breadcrumbs = {len( self.pedigree_breadcrumbs_source )}"
-                # )
-                # print( "\n")
-
-                # print( self.print_source_breadcrumbs() )
-
-                # if ( this_depth + 1 ) != len( self.pedigree_breadcrumbs_source ):
-                #     print( "RESET CURRENT_TARGET_PEOPLAS")
-                #     self.current_target_peoplas = []
-                # else:
-                #     print( "DO NOT RESET CURRENT_TARGET_PEOPLAS")
-                # print("++++++++++++++++++++++++++++++++++++++\n")
-
                 self.pedigree_breadcrumbs_source = update_breadcrumbs(
                     deepcopy(self.pedigree_breadcrumbs_source),
                     this_depth,
@@ -2038,10 +1941,6 @@ class Document:
 
                 self.pedigree_breadcrumbs_target = new_target_list
                 self.current_target_peoplas = []
-
-                # print( "++++++++++++++++++++++++++++++++++++++\n")
-
-                # input()
 
     def scan_for_header_lines(self, line):
         """
@@ -2487,9 +2386,6 @@ def merge_attributes(existing_dict, new_dict):
             merged_v.append(new_dict[k])
 
         if any(isinstance(v, list) for v in merged_v):
-            # print( f"This is a nested list\n")
-            # merged_v = list(chain(*merged_v))
-            # merged_v = [x for sublist in merged_v for x in sublist]
             merged_v = flatten(merged_v)
 
         merged_dict[k] = sorted(set(merged_v))
