@@ -803,7 +803,9 @@ class Document:
                 if not self.peopla_live:
                     self.reset(line)
 
-                self.print_current_status(self.current_line, line)
+                self.print_compact_current_status(
+                    self.current_line,
+                    line                )
 
                 ### If "PYTEST_CURRENT_TEST" exists in os.environ, then
                 ### we are currently running test. We don't want to use
@@ -1007,6 +1009,234 @@ class Document:
         )
 
         logger.debug(status_update)
+
+        # input()
+
+    def print_compact_current_status(
+            self, n, l,
+            print_header_info = False,
+            specify_objects = True
+        ):
+
+        status_update = ""
+        s = [f"LINE: {l}"]
+        pre = f"[{n:04}] "
+        break_s = "------------------------------------"
+
+        ### Headers -------------------------------------------------
+
+        if print_header_info:
+            if len(self.header) > 0:
+                s.append( f"{len(self.header)} header items" )
+
+                for i, p in enumerate(self.header):
+                    s.append( f"Header ({i}) {p}" )
+
+            s.append( break_s )
+
+        ### Flags -------------------------------------------------
+
+        relevant_live_indicators = [
+            "shortcut_live",
+            "peopla_live",
+            "peopla_action_group_live",
+            "relation_live",
+            "data_table_live",
+            "missing_relation_flag"
+        ]
+
+        for r in relevant_live_indicators:
+            r_val = "X" if getattr(self,r) else "_"
+            s.append( f"[{r_val}] / {r} \n" )
+
+        ### Peopla -------------------------------------------------
+
+        s.append( f"{len(self.all_peoplas)} Peoplas | " +
+                  f"{len(self.all_peorels)} Peorels | " +
+                  f"{len(self.all_action_groups)} Action Groups\n"
+        )
+
+        if specify_objects:
+            for i, p in enumerate(self.all_peoplas):
+                this_peopla_line = f"[PEOPLA] / {i+1} / {p.name} {{{p.global_id}}} ({p.local_id})"
+
+                p_attributes_list = []
+
+                if len(p.attributes) > 0:
+
+                    for action, attribute_dictionary in p.attributes.items():
+                        ### action will be the action name
+                        ### attribute_dictionary will be a dictionary of the form
+                        ###   {1: {...}, 2: {...}}
+
+                        p_attribute_evidence_list = []
+
+                        for evidence_i in attribute_dictionary.keys():
+                            this_evidence = p.attributes_evidence[action][evidence_i]
+                            p_attribute_evidence_list.append( this_evidence )
+
+                        p_attribute_evidence_list = flatten( p_attribute_evidence_list )
+
+                        all_evidence = ",".join(f"{e}" for e in p_attribute_evidence_list)
+
+                        tmp_s = f"{action}: {all_evidence}"
+                        p_attributes_list.append( tmp_s )
+
+                if not len(p_attributes_list):
+                    p_attributes_list = ["-"]
+
+                this_peopla_line += " / [" + ','.join(p_attributes_list) + "]\n"
+
+                s.append( this_peopla_line )
+
+        status_update = status_update + "------------------------------------\n"
+
+        if self.current_source_peopla != None:
+            status_update = (
+                status_update
+                + f"The current source Peopla is {self.current_source_peopla.name}\n"
+            )
+
+            for k, v in self.current_source_peopla.attributes.items():
+                status_update = (
+                    status_update + f"--> Current source peopla attribute ({k}) {v}\n"
+                )
+
+        else:
+            status_update = status_update + f"There is no current source Peopla\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        if len(self.current_target_peoplas) > 0:
+            status_update = (
+                status_update
+                + f"There are currently {len(self.current_target_peoplas)} target Peoplas\n"
+            )
+
+            for i, p in enumerate(self.current_target_peoplas):
+                status_update = status_update + f"({i}) {p.name}\n"
+
+                for j, q in enumerate(p.attributes):
+                    status_update = (
+                        status_update
+                        + f"--> Current target peopla attribute ({i}) {q}\n"
+                    )
+
+                    for k, v in (p.attributes)[q].items():
+                        status_update = status_update + f"------> ({k}) {v}\n"
+
+        else:
+            status_update = status_update + f"There is no current target Peopla\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        ### Breadcrumbs ---------------------------------------------
+
+        status_update = status_update + f"The current source peopla breadcrumbs:\n"
+
+        num_source_breadcrumbs = len(self.pedigree_breadcrumbs_source)
+
+        status_update = (
+            status_update
+            + f"---> There are {num_source_breadcrumbs} SOURCE peopla breadcrumbs populated:\n"
+        )
+
+        for i, b in enumerate(self.pedigree_breadcrumbs_source):
+            status_update = status_update + f"SOURCE [{i}] {format(b)}\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + f"The current target peopla breadcrumbs:\n"
+
+        num_target_breadcrumbs = len(self.pedigree_breadcrumbs_target)
+
+        status_update = (
+            status_update
+            + f"---> There are {num_target_breadcrumbs} TARGET peopla breadcrumbs populated:\n"
+        )
+
+        for i, b in enumerate(self.pedigree_breadcrumbs_target):
+            if b:
+                for j, bj in enumerate(b):
+                    status_update = status_update + f"TARGET [{i}.{j}] {format(bj)}\n"
+            else:
+                status_update = status_update + f"TARGET [{i}] is absent\n"
+
+        ### Leaf peopla -------------------------------------------------
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + "Current leaf Peoplas\n"
+        status_update = status_update + format(self.current_leaf_peopla) + "\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + "Current action scope\n"
+        if self.current_action_scope:
+            status_update = status_update + self.current_action_scope + "\n"
+        else:
+            status_update = status_update + "No action scope identified"
+
+        status_update = status_update + "------------------------------------\n"
+
+        status_update = status_update + "Current leaf Action Group\n"
+        status_update = status_update + format(self.current_leaf_action_group) + "\n"
+
+        status_update = status_update + "------------------------------------\n"
+
+        ### Peorels -------------------------------------------------
+
+        status_update = (
+            status_update
+            + f"There are {len(self.all_peorels)} Peorels recorded overall\n"
+        )
+
+        for ii, pp in enumerate(self.all_peorels):
+            evidence_string = ",".join(str(x) for x in pp.evidence_reference)
+            status_update = (
+                status_update
+                + f"---> Peorel #({ii}) {pp.peopla_is.name} is a {pp.relation_text} to {pp.peopla_to.name} [refs: {evidence_string}]\n"
+            )
+
+        status_update = status_update + "------------------------------------\n"
+
+        ### Action groups -------------------------------------------
+
+        if len(self.all_action_groups) > 0:
+            status_update = (
+                status_update
+                + f"There are currently {len(self.all_action_groups)} Action Groups\n"
+            )
+
+            for i, p in enumerate(self.all_action_groups):
+                status_update = status_update + f"({i}) {p.type}\n"
+                status_update = status_update + f"    directed? {p.directed}\n"
+                status_update = (
+                    status_update + f"    source peopla? {p.source_peopla.name}\n"
+                )
+                status_update = (
+                    status_update + f"    target peoplas? {len(p.target_peoplas)}\n"
+                )
+
+                for j, q in enumerate(p.target_peoplas):
+                    status_update = (
+                        status_update
+                        + f"------> target peopla in action group ({i}) {q.name}\n"
+                    )
+
+                status_update = (
+                    status_update + f"    attributes? length = {len(p.attributes)}\n"
+                )
+
+                for k, v in (p.attributes).items():
+                    status_update = status_update + f"------> ({k}) {v}\n"
+
+        ### Indicators ----------------------------------------------
+
+        # logger.debug(status_update)
+
+        s = [pre + x for x in s]
+        logger.debug("".join(s))
 
         # input()
 
