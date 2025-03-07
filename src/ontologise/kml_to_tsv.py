@@ -123,33 +123,3 @@ def frame_to_tsv( run_dir, w ):
 						lon, lat, alt = line.split(",")
 						w.write( "\t".join( [ f"frame_{name}", "", "", "", lat, lon ] ) + "\n" )
 						name = ""
-
-# for dirpath in [f.path for f in os.scandir("./data") if f.is_dir()]:
-this_dir = "/Users/lisahopcroft/Dropbox/A Glance Ayont The Grave"
-for dirpath in [f.path for f in os.scandir(this_dir) if f.is_dir()]:
-	print ( f"Reading this directory {dirpath}" )
-
-	if dirpath.endswith("/kml"):
-
-		with open( dirpath + "/ALL.tsv", "w" ) as w:
-			w.write( "\t".join( [ "type", "id", "class", "label", "lat", "lon" ] ) + "\n" )
-			frame_to_tsv( dirpath + "/frame", w )
-			polygons_to_tsv( dirpath + "/polygons", w )
-			paths_to_tsv( dirpath + "/paths", w )
-			# points_to_tsv( dirpath + "/points", w )
-
-
-# append some src specific background stuff
-
-# with open( "kml/LWH/ALL.tsv", "a" ) as a:
-# 	with open( "kml/LWH/src_points.tsv", "r" ) as tsv:
-# 		reader = csv.DictReader( tsv, delimiter='\t' )
-# 		for row in reader:
-# 			a.write( "\t".join( row.values() ) + "\n" )
-
-
-# with open( "kml/WIN/ALL.tsv", "a" ) as a:
-# 	with open( "kml/WIN/src_points.tsv", "r" ) as tsv:
-# 		reader = csv.DictReader( tsv, delimiter='\t' )
-# 		for row in reader:
-# 			a.write( "\t".join( row.values() ) + "\n" )
