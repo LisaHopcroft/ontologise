@@ -4,15 +4,13 @@ import csv
 
 def polygons_to_tsv( run_dir, w ):
 
-	print( "Reading polygons\n" )
-
 	i = 0
 
 	for fname in os.listdir( run_dir ):
 
 		if not fname.endswith(".kml"): continue
 
-		print( f"Reading polygon file {fname}\n" )
+		print( f"Reading polygon file {fname}" )
 
 		class_name = "Undefined"
 
@@ -41,15 +39,13 @@ def polygons_to_tsv( run_dir, w ):
 
 def paths_to_tsv( run_dir, w ):
 
-	print( "Reading paths\n" )
-
 	i = 0
 
 	for fname in os.listdir( run_dir ):
 
 		if not fname.endswith(".kml"): continue
 
-		print( f"Reading paths file {fname}\n" )
+		print( f"Reading paths file {fname}" )
 
 		class_name = "Undefined"
 
@@ -100,15 +96,13 @@ def points_to_tsv( run_dir, w ):
 
 def frame_to_tsv( run_dir, w ):
 
-	print( "Reading frames\n" )
-
 	i = 0
 
 	for fname in os.listdir( run_dir ):
 
 		if not fname.endswith(".kml"): continue
 
-		print(f"Reading frames file {fname}\n")
+		print(f"Reading frames file {fname}")
 
 		name = None
 
@@ -130,16 +124,19 @@ def frame_to_tsv( run_dir, w ):
 						w.write( "\t".join( [ f"frame_{name}", "", "", "", lat, lon ] ) + "\n" )
 						name = ""
 
-
-for dirpath in [f.path for f in os.scandir("./data") if f.is_dir()]:
+# for dirpath in [f.path for f in os.scandir("./data") if f.is_dir()]:
+this_dir = "/Users/lisahopcroft/Dropbox/A Glance Ayont The Grave"
+for dirpath in [f.path for f in os.scandir(this_dir) if f.is_dir()]:
 	print ( f"Reading this directory {dirpath}" )
 
-	with open( dirpath + "/ALL.tsv", "w" ) as w:
-		w.write( "\t".join( [ "type", "id", "class", "label", "lat", "lon" ] ) + "\n" )
-		frame_to_tsv( dirpath + "/frame", w )
-		polygons_to_tsv( dirpath + "/polygons", w )
-		paths_to_tsv( dirpath + "/paths", w )
-		# points_to_tsv( dirpath + "/points", w )
+	if dirpath.endswith("/kml"):
+
+		with open( dirpath + "/ALL.tsv", "w" ) as w:
+			w.write( "\t".join( [ "type", "id", "class", "label", "lat", "lon" ] ) + "\n" )
+			frame_to_tsv( dirpath + "/frame", w )
+			polygons_to_tsv( dirpath + "/polygons", w )
+			paths_to_tsv( dirpath + "/paths", w )
+			# points_to_tsv( dirpath + "/points", w )
 
 
 # append some src specific background stuff
