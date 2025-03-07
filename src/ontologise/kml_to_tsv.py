@@ -11,7 +11,8 @@ def polygons_to_tsv( run_dir, w ):
 
 		if not fname.endswith(".kml"): continue
 
-		logger.info( f"- Reading polygon file {fname}" )
+		# logger.info( f"- Reading polygon file {fname}" )
+		print( f"- Reading polygon file {fname}" )
 
 		class_name = "Undefined"
 
@@ -46,7 +47,8 @@ def paths_to_tsv( run_dir, w ):
 
         if not fname.endswith(".kml"): continue
 
-        logger.info(f"- Reading paths file {fname}")
+        # logger.info(f"- Reading paths file {fname}")
+        print(f"- Reading paths file {fname}")
 
         class_name = "Undefined"
 
@@ -103,7 +105,8 @@ def frame_to_tsv( run_dir, w ):
 
         if not fname.endswith(".kml"): continue
 
-        logger.info(f"- Reading frames file {fname}")
+        # logger.info(f"- Reading frames file {fname}")
+        print(f"- Reading frames file {fname}")
 
         name = None
 
