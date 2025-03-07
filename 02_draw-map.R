@@ -32,7 +32,7 @@ opt        = parse_args(opt_parser)
 # opt$style = "kml/styles.tsv"
 # opt$outputdir = "../site/img/maps/win"
 # opt$outputfile = "WIN_VIN.png"
-
+# 
 # opt$file = "data/kml/ALL.tsv"
 # opt$style = "styles.tsv"
 # opt$outputdir = "fig"
@@ -81,6 +81,7 @@ if ( quit_flag ) {
 suppressMessages( library(ggplot2 , quietly=TRUE) )
 suppressMessages( library(readr   , quietly=TRUE) )
 suppressMessages( library(dplyr   , quietly=TRUE) )
+suppressMessages( library(tidyr   , quietly=TRUE) )
 suppressMessages( library(magrittr, quietly=TRUE) )
 suppressMessages( library(stringr , quietly=TRUE) )
 suppressMessages( library(ggrepel , quietly=TRUE) )
@@ -112,7 +113,8 @@ d_in = read_tsv( file=input_file, show_col_types = FALSE,
 ###     unless those objects should be styled the same. For example,
 ###     a 'point' of class 'highlight' will be styled in the same way
 ###     as a 'poly' of class 'highlight'.
-stylesheet = read_tsv(file=style_file, show_col_types = FALSE )
+stylesheet = read_tsv(file=style_file, show_col_types = FALSE ) %>%
+    mutate_if(is.numeric, replace_na, replace = 0)
 
 
 ### This is a mapping from the ggplot keywords to the CSS
@@ -126,9 +128,9 @@ css2ggplot = list(
   `text-color` = "colour",
   `font-size` = "size",
   `font-weight` = "face",
-  `text-align` = "hjust"
+  `text-align` = "hjust",
+  `border-width` = "linewidth"
 )
-
 
 ### If a datapoint belongs to a class that is not defined in the
 ### stylesheet, it should assume some default formatting. That
@@ -137,15 +139,17 @@ css2ggplot = list(
 ### to numeric values later).
 DEFAULT_styling = tribble( 
   ~type  , ~attribute        , ~value,
-  "point", "border-color"    , "#aaaaaa",
+  "point", "border-color"    , "#FF0000",
   "point", "R_shape"         , "20",
-  "point", "background-color", "#aaaaaa",
-  "poly" , "border-color"    , "#000000",
-  "poly" , "background-color", "#ffffff",
+  "point", "background-color", "#FF0000",
+  "poly" , "border-color"    , "#00FF00",
+  "poly" , "background-color", "#00FF00",
   "poly" , "border-style"    , "solid",
-  "path" , "border-color"    , "#000000",
-  "path" , "background-color", "#ffffff",
-  "path" , "border-style"    , "solid"
+  "poly" , "border-width"    , "0.5",
+  "path" , "border-color"    , "#0000FF",
+  "path" , "background-color", "#0000FF",
+  "path" , "border-style"    , "solid",
+  "path" , "border-width"    , "0.5",
 )
 
 ### Here, the styling provided in the style sheet is converted
@@ -166,23 +170,23 @@ for ( this_attribute in c( "border-color",
   this_scheme = point_styling[this_attribute] %>% unlist
   names(this_scheme) = point_styling %>% pull( class ) %>% unlist
   
-  undefined_classes = setdiff( d_in %>% filter( type=="point" ) %>% pull( class ) %>% unique(),
-                               names(this_scheme) )
-  
-  if ( length(undefined_classes) ) { 
-  for ( default_class in undefined_classes ) {
-    this_value = DEFAULT_styling %>%
-      filter( type == "point" ) %>%
-      filter( attribute == this_attribute ) %>% 
-      pull( value )
-    
-    if( str_detect(this_value, "^[:digit:]+$") ) {
-      this_value = as.numeric(this_value)
-    }
-    
-    this_scheme[ default_class ] = this_value
-  }
-  }
+  # undefined_classes = setdiff( d_in %>% filter( type=="point" ) %>% pull( class ) %>% unique(),
+  #                              names(this_scheme) )
+  # 
+  # if ( length(undefined_classes) ) { 
+  # for ( default_class in undefined_classes ) {
+  #   this_value = DEFAULT_styling %>%
+  #     filter( type == "point" ) %>%
+  #     filter( attribute == this_attribute ) %>% 
+  #     pull( value )
+  #   
+  #   if( str_detect(this_value, "^[:digit:]+$") ) {
+  #     this_value = as.numeric(this_value)
+  #   }
+  #   
+  #   this_scheme[ default_class ] = this_value
+  # }
+  # }
   
   assign( glue("point_{css2ggplot[this_attribute]}_scheme"),
           this_scheme )
@@ -192,35 +196,36 @@ for ( this_attribute in c( "border-color",
 ### (2) polygon styling 
 polygon_styling = d_in %>% 
   filter( type == "poly" ) %>% 
-  select( type, class) %>% unique() %>% 
+  select( type, class ) %>% unique() %>% 
   inner_join( stylesheet, by="class")
 
 for ( this_attribute in c( "border-color",
                            "background-color",
-                           "border-style" ) ) {
+                           "border-style",
+                           "border-width" ) ) {
   
   this_scheme = polygon_styling[this_attribute] %>% unlist
   names(this_scheme) = polygon_styling %>% pull( class ) %>% unlist
 
-  undefined_classes = setdiff( d_in %>% filter( type=="poly" ) %>% pull( class ) %>% unique(),
-                               names(this_scheme) )
-  
-  if ( length(undefined_classes) ) { 
-    
-    for ( default_class in undefined_classes ) {
-      this_value = DEFAULT_styling %>%
-        filter( type == "poly" ) %>%
-        filter( attribute == this_attribute ) %>% 
-        pull( value )
-      
-      if( str_detect(this_value, "^[:digit:]+$") ) {
-        this_value = as.numeric(this_value)
-      }
-      
-      this_scheme[ default_class ] = this_value
-    }
-  }
-  
+  # undefined_classes = setdiff( d_in %>% filter( type=="poly" ) %>% pull( class ) %>% unique(),
+  #                              names(this_scheme) )
+  # 
+  # if ( length(undefined_classes) ) { 
+  #   
+  #   for ( default_class in undefined_classes ) {
+  #     this_value = DEFAULT_styling %>%
+  #       filter( type == "poly" ) %>%
+  #       filter( attribute == this_attribute ) %>% 
+  #       pull( value )
+  #     
+  #     if( str_detect(this_value, "^[:digit:]+$") ) {
+  #       this_value = as.numeric(this_value)
+  #     }
+  #     
+  #     this_scheme[ default_class ] = this_value
+  #   }
+  # }
+  # 
   assign( glue("polygon_{css2ggplot[this_attribute]}_scheme"),
           this_scheme )
   
@@ -235,29 +240,30 @@ path_styling = d_in %>%
 
 for ( this_attribute in c( "border-color",
                            "background-color",
-                           "border-style" ) ) {
+                           "border-style",
+                           "border-width" ) ) {
   
   this_scheme = path_styling[this_attribute] %>% unlist
   names(this_scheme) = path_styling %>% pull( class ) %>% unlist
   
-  undefined_classes = setdiff( d_in %>% filter( type=="path" ) %>% pull( class ) %>% unique(),
-                               names(this_scheme) )
-  
-  if ( length(undefined_classes) ) { 
-    
-    for ( default_class in undefined_classes ) {
-      this_value = DEFAULT_styling %>%
-        filter( type == "path" ) %>%
-        filter( attribute == this_attribute ) %>% 
-        pull( value )
-      
-      if( str_detect(this_value, "^[:digit:]+$") ) {
-        this_value = as.numeric(this_value)
-      }
-      
-      this_scheme[ default_class ] = this_value
-    }
-  }
+  # undefined_classes = setdiff( d_in %>% filter( type=="path" ) %>% pull( class ) %>% unique(),
+  #                              names(this_scheme) )
+  # 
+  # if ( length(undefined_classes) ) { 
+  #   
+  #   for ( default_class in undefined_classes ) {
+  #     this_value = DEFAULT_styling %>%
+  #       filter( type == "path" ) %>%
+  #       filter( attribute == this_attribute ) %>% 
+  #       pull( value )
+  #     
+  #     if( str_detect(this_value, "^[:digit:]+$") ) {
+  #       this_value = as.numeric(this_value)
+  #     }
+  #     
+  #     this_scheme[ default_class ] = this_value
+  #   }
+  # }
   
   assign( glue("path_{css2ggplot[this_attribute]}_scheme"),
           this_scheme )
@@ -282,25 +288,25 @@ for ( this_attribute in c( "text-color",
   this_scheme = label_styling[this_attribute] %>% unlist
   names(this_scheme) = label_styling %>% pull( class ) %>% unlist
   
-  undefined_classes = setdiff( d_in %>% filter( type=="label" ) %>% pull( class ) %>% unique(),
-                               names(this_scheme) )
-  
-  if ( length(undefined_classes) ) { 
-    
-    for ( default_class in undefined_classes ) {
-      this_value = DEFAULT_styling %>%
-        filter( type == "label" ) %>%
-        filter( attribute == this_attribute ) %>% 
-        pull( value )
-      
-      if( str_detect(this_value, "^[:digit:]+$") ) {
-        this_value = as.numeric(this_value)
-      }
-      
-      this_scheme[ default_class ] = this_value
-    }
-  }
-  
+  # undefined_classes = setdiff( d_in %>% filter( type=="label" ) %>% pull( class ) %>% unique(),
+  #                              names(this_scheme) )
+  # 
+  # if ( length(undefined_classes) ) { 
+  #   
+  #   for ( default_class in undefined_classes ) {
+  #     this_value = DEFAULT_styling %>%
+  #       filter( type == "label" ) %>%
+  #       filter( attribute == this_attribute ) %>% 
+  #       pull( value )
+  #     
+  #     if( str_detect(this_value, "^[:digit:]+$") ) {
+  #       this_value = as.numeric(this_value)
+  #     }
+  #     
+  #     this_scheme[ default_class ] = this_value
+  #   }
+  # }
+  # 
   assign( glue("label_{css2ggplot[this_attribute]}_scheme"),
           this_scheme )
   
@@ -349,6 +355,8 @@ d_in_Zordered = d_in %>% inner_join( stylesheet %>% select( class, type, `z-inde
 ### This might help with text size:
 ### https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
 
+
+
 out_plot = 
     ggplot( ) +
       ### This draws all polygons, each polygon is defined by 'id'.
@@ -359,6 +367,7 @@ out_plot =
                          group=id,
                          colour=class,
                          linetype=class,
+                         linewidth=class,
                          fill=class) ) +
       ### This draws all polygons, each polygon is defined by 'id'.
       ### Currently, polygons do not have a fill colour, but this is an
@@ -367,7 +376,8 @@ out_plot =
                  aes( x=lon, y=lat,
                       group=id,
                       colour=class,
-                      linetype=class
+                      linetype=class,
+                      linewidth=class
                       # fill=class
                       ) ) +
       ### This draws all points.
@@ -395,9 +405,9 @@ out_plot =
                                   path_fill_scheme), na.value = NA ) +
       scale_size_manual( values = c( label_size_scheme ),
                          na.value = 3 ) +
-      
-      
-      
+      scale_discrete_manual( "linewidth", values=c( polygon_linewidth_scheme,
+                                                    path_linewidth_scheme )  )+
+    
       ### Use the right projection, xlim and ylim are defined here
       ### so that polygons will still be drawn correctly even if
       ### they extend beyond the limits.
