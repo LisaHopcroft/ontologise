@@ -1,5 +1,6 @@
 import os
 import csv
+from src.ontologise.utils import logger
 
 
 def polygons_to_tsv( run_dir, w ):
@@ -10,7 +11,7 @@ def polygons_to_tsv( run_dir, w ):
 
 		if not fname.endswith(".kml"): continue
 
-		print( f"Reading polygon file {fname}" )
+		logger.info( f"- Reading polygon file {fname}" )
 
 		class_name = "Undefined"
 
@@ -39,31 +40,31 @@ def polygons_to_tsv( run_dir, w ):
 
 def paths_to_tsv( run_dir, w ):
 
-	i = 0
+    i = 0
 
-	for fname in os.listdir( run_dir ):
+    for fname in os.listdir( run_dir ):
 
-		if not fname.endswith(".kml"): continue
+        if not fname.endswith(".kml"): continue
 
-		print( f"Reading paths file {fname}" )
+        logger.info(f"- Reading paths file {fname}")
 
-		class_name = "Undefined"
+        class_name = "Undefined"
 
-		if "-" in fname:
-			class_name = fname.split("-",1)[0]
-		elif "." in fname:
-			class_name = fname.split(".",1)[0]
+        if "-" in fname:
+            class_name = fname.split("-",1)[0]
+        elif "." in fname:
+            class_name = fname.split(".",1)[0]
 
-		with open( "%s/%s" % ( run_dir, fname ), "r" ) as r:
-			for line in r.readlines():
-				i += 1
-				if line.strip().startswith("-") or line.strip()[0].isdigit(): # i.e. a new start to coordintes...
-					line = line.strip()
-					for coordinate in line.split(" "):
-						#print( coordinate )
-						if "," in coordinate:
-							lon, lat, alt = coordinate.split(",")
-							w.write( "\t".join( [ "path", "path"+str(i), class_name, "", lat, lon ] ) + "\n" )
+        with open( "%s/%s" % ( run_dir, fname ), "r" ) as r:
+            for line in r.readlines():
+                i += 1
+                if line.strip().startswith("-") or line.strip()[0].isdigit(): # i.e. a new start to coordintes...
+                    line = line.strip()
+                    for coordinate in line.split(" "):
+                        # print( coordinate )
+                        if "," in coordinate:
+                            lon, lat, alt = coordinate.split(",")
+                            w.write( "\t".join( [ "path", "path"+str(i), class_name, "", lat, lon ] ) + "\n" )
 
 
 def points_to_tsv( run_dir, w ):
@@ -96,30 +97,28 @@ def points_to_tsv( run_dir, w ):
 
 def frame_to_tsv( run_dir, w ):
 
-	i = 0
+    i = 0
 
-	for fname in os.listdir( run_dir ):
+    for fname in os.listdir( run_dir ):
 
-		if not fname.endswith(".kml"): continue
+        if not fname.endswith(".kml"): continue
 
-		print(f"Reading frames file {fname}")
+        logger.info(f"- Reading frames file {fname}")
 
-		name = None
+        name = None
 
-		with open( "%s/%s" % ( run_dir, fname ), "r" ) as r:
+        with open( "%s/%s" % ( run_dir, fname ), "r" ) as r:
 
-			for line in r.readlines():
-				i += 1
+            for line in r.readlines():
+                i += 1
 
-				print( line )
+                if line.strip().startswith("<name>"):
+                    name = line.strip().replace("<name>","").replace("</name>","")
 
-				if line.strip().startswith("<name>"):
-						name = line.strip().replace("<name>","").replace("</name>","")
+                if line.strip().startswith("<coordinates>"): # i.e. a new start to coordintes...
+                    if line.strip().endswith("</coordinates>"): # i.e. a new start to coordintes...
 
-				if line.strip().startswith("<coordinates>"): # i.e. a new start to coordintes...
-					if line.strip().endswith("</coordinates>"): # i.e. a new start to coordintes...
-					
-						line = line.strip().replace("<coordinates>","").replace("</coordinates>","")
-						lon, lat, alt = line.split(",")
-						w.write( "\t".join( [ f"frame_{name}", "", "", "", lat, lon ] ) + "\n" )
-						name = ""
+                        line = line.strip().replace("<coordinates>","").replace("</coordinates>","")
+                        lon, lat, alt = line.split(",")
+                        w.write( "\t".join( [ f"frame_{name}", "", "", "", lat, lon ] ) + "\n" )
+                        name = ""

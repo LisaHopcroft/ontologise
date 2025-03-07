@@ -1,10 +1,9 @@
-from src.ontologise.utils import Document, DEFAULT_SETTINGS, logger
+from src.ontologise.utils import logger
 from src.ontologise.kml_to_tsv import polygons_to_tsv, paths_to_tsv, frame_to_tsv
 import logging
 import argparse
 import os.path
 import sys
-import math
 
 
 logging_level_mapping = {
@@ -27,7 +26,7 @@ def is_valid_directory(parser, arg):
 def kml_extraction():
 
 	### Parsing the command line argument
-	parser = argparse.ArgumentParser(description="Drawing maps from KML")
+	parser = argparse.ArgumentParser(description="Extracting information from KML")
 
 	### This argument provides the directory containing a 'kml' directory
 	### This is REQUIRED
@@ -80,13 +79,13 @@ if __name__ == "__main__":
 
 	target_dir = args.dir
 
-	# for dirpath in [f.path for f in os.scandir("./data") if f.is_dir()]:
-	# this_dir = "/Users/lisahopcroft/Dropbox/A Glance Ayont The Grave"
-
 	for dirpath in [f.path for f in os.scandir(target_dir) if f.is_dir()]:
 
 		if dirpath.endswith("/kml"):
-			print(f"Reading this directory {dirpath}")
+			print("")
+			logger.info(f"KML source directory: {dirpath}")
+			logger.info(f"TSV target file	 : {dirpath + '/ALL.tsv'}")
+			print("")
 
 			with open(dirpath + "/ALL.tsv", "w") as w:
 				w.write("\t".join(["type", "id", "class", "label", "lat", "lon"]) + "\n")
@@ -94,10 +93,3 @@ if __name__ == "__main__":
 				polygons_to_tsv(dirpath + "/polygons", w)
 				paths_to_tsv(dirpath + "/paths", w)
 				# points_to_tsv( dirpath + "/points", w )
-
-	### Do the work
-	# d = Document(file_to_read, settings_file=styles_to_use)
-	# d.read_document(pause_threshold)
-
-	### Print a summary of the results
-	# print(d)

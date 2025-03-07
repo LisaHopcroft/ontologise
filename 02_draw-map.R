@@ -28,7 +28,7 @@ opt        = parse_args(opt_parser)
 # opt$style = "kml/styles.tsv"
 # opt$outputdir = "../site/img/maps/win"
 # opt$outputfile = "WIN_VIN.png"
-# 
+
 # opt$file = "data/kml/ALL.tsv"
 # opt$style = "styles.tsv"
 # opt$outputdir = "fig"
@@ -85,6 +85,8 @@ input_file  = opt$file
 style_file  = opt$style
 output_file = glue("{opt$outputdir}/{opt$outputfile}")
 img_res = opt$res
+
+print (glue("Writing output file to: {output_file}"))
 
 #####################################################################
 ### Reading in the data and styling information #####################
@@ -339,71 +341,72 @@ d_in_Zordered = d_in %>% inner_join( stylesheet %>% select( class, type, `z-inde
 ### This might help with text size:
 ### https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
 
-ggplot( ) +
-  ### This draws all polygons, each polygon is defined by 'id'.
-  ### Currently, polygons do not have a fill colour, but this is an
-  ### easy fix (fill=class should be added inside the aes() call ).
-  geom_polygon( data=d_in_Zordered %>% filter(type=="poly"),
-                aes( x=lon, y=lat,
-                     group=id,
-                     colour=class,
-                     linetype=class,
-                     fill=class) ) +
-  ### This draws all polygons, each polygon is defined by 'id'.
-  ### Currently, polygons do not have a fill colour, but this is an
-  ### easy fix (fill=class should be added inside the aes() call ).
-  geom_path( data=d_in_Zordered %>% filter(type=="path"),
-             aes( x=lon, y=lat,
-                  group=id,
-                  colour=class,
-                  linetype=class
-                  # fill=class
-                  ) ) +
-  ### This draws all points.
-  geom_point( data=d_in_Zordered %>% filter(type=="point"),
-              aes( x=lon, y=lat,
-                   colour=class,
-                   shape=class ) ) +
-
-  ### This will draw any labels
-  geom_text_repel( data=d_in_Zordered %>% filter(type=="point"),
-              aes( x=lon, y=lat,
-                   size = class,
-                   label=label,
-                   colour=class) )  +
-
-  ### These are the colour schemes
-  scale_colour_manual( values = c(point_colour_scheme,
-                                  polygon_colour_scheme,
-                                  path_colour_scheme,
-                                  label_colour_scheme ) ) +
-  scale_linetype_manual( values = c( polygon_linetype_scheme,
-                                     path_linetype_scheme  ) ) +
-  scale_shape_manual( values=point_shape_scheme ) +
-  scale_fill_manual( values=c(polygon_fill_scheme,
-                              path_fill_scheme), na.value = NA ) +
-  scale_size_manual( values = c( label_size_scheme ),
-                     na.value = 3 ) +
-  
-  
-  
-  ### Use the right projection, xlim and ylim are defined here
-  ### so that polygons will still be drawn correctly even if
-  ### they extend beyond the limits.
-  coord_map( xlim = limits$lon %>% sort,
-             ylim = limits$lat %>% sort ) +
-  
-  ### This will (1) remove plot annotations (axes, tick marks, ...)
-  theme_void( ) +
-  ### ... and (2) remove any legend 
-  theme( legend.position = "none" ) +
-  ### ... and (3) set the background colour of the plot
-  theme(plot.background = element_rect(fill = stylesheet %>%
-                                         filter(class=="body") %>%
-                                         pull( `background-color` ),
-                                       colour=NA) ) 
-                                       
+out_plot = 
+    ggplot( ) +
+      ### This draws all polygons, each polygon is defined by 'id'.
+      ### Currently, polygons do not have a fill colour, but this is an
+      ### easy fix (fill=class should be added inside the aes() call ).
+      geom_polygon( data=d_in_Zordered %>% filter(type=="poly"),
+                    aes( x=lon, y=lat,
+                         group=id,
+                         colour=class,
+                         linetype=class,
+                         fill=class) ) +
+      ### This draws all polygons, each polygon is defined by 'id'.
+      ### Currently, polygons do not have a fill colour, but this is an
+      ### easy fix (fill=class should be added inside the aes() call ).
+      geom_path( data=d_in_Zordered %>% filter(type=="path"),
+                 aes( x=lon, y=lat,
+                      group=id,
+                      colour=class,
+                      linetype=class
+                      # fill=class
+                      ) ) +
+      ### This draws all points.
+      geom_point( data=d_in_Zordered %>% filter(type=="point"),
+                  aes( x=lon, y=lat,
+                       colour=class,
+                       shape=class ) ) +
+    
+      ### This will draw any labels
+      geom_text_repel( data=d_in_Zordered %>% filter(type=="point"),
+                  aes( x=lon, y=lat,
+                       size = class,
+                       label=label,
+                       colour=class) )  +
+    
+      ### These are the colour schemes
+      scale_colour_manual( values = c(point_colour_scheme,
+                                      polygon_colour_scheme,
+                                      path_colour_scheme,
+                                      label_colour_scheme ) ) +
+      scale_linetype_manual( values = c( polygon_linetype_scheme,
+                                         path_linetype_scheme  ) ) +
+      scale_shape_manual( values=point_shape_scheme ) +
+      scale_fill_manual( values=c(polygon_fill_scheme,
+                                  path_fill_scheme), na.value = NA ) +
+      scale_size_manual( values = c( label_size_scheme ),
+                         na.value = 3 ) +
+      
+      
+      
+      ### Use the right projection, xlim and ylim are defined here
+      ### so that polygons will still be drawn correctly even if
+      ### they extend beyond the limits.
+      coord_map( xlim = limits$lon %>% sort,
+                 ylim = limits$lat %>% sort ) +
+      
+      ### This will (1) remove plot annotations (axes, tick marks, ...)
+      theme_void( ) +
+      ### ... and (2) remove any legend 
+      theme( legend.position = "none" ) +
+      ### ... and (3) set the background colour of the plot
+      theme(plot.background = element_rect(fill = stylesheet %>%
+                                             filter(class=="body") %>%
+                                             pull( `background-color` ),
+                                           colour=NA) ) 
+                                           
 cat( sprintf("Saving map to %s", output_file) )
 
-ggsave( output_file, dpi=img_res )
+ggsave( output_file, out_plot, width=10, height=10, dpi=img_res )
 
