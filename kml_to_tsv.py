@@ -99,32 +99,36 @@ def points_to_tsv( run_dir, w ):
 
 
 def frame_to_tsv( run_dir, w ):
-	for root, dirs, files in os.walk( run_dir ):
-		i = 0
-		for fname in files:
-			if not fname.endswith(".kml"): continue
 
-			if "TL" in fname:
-				with open( "%s/%s" % ( root, fname ), "r" ) as r:
-					for line in r.readlines():
-						i += 1
+	print( "Reading frames\n" )
 
-						if line.strip().startswith("<coordinates>"): # i.e. a new start to coordintes...
-							line = line.strip().replace("<coordinates>","").replace("</coordinates>","")
-							lon, lat, alt = line.split(",")
-							w.write( "\t".join( [ "frame_TL", "", "", "", lat, lon ] ) + "\n" )
-							name = ""
+	i = 0
 
-			if "BR" in fname:
-				with open( "%s/%s" % ( root, fname ), "r" ) as r:
-					for line in r.readlines():
-						i += 1
+	for fname in os.listdir( run_dir ):
 
-						if line.strip().startswith("<coordinates>"): # i.e. a new start to coordintes...
-							line = line.strip().replace("<coordinates>","").replace("</coordinates>","")
-							lon, lat, alt = line.split(",")
-							w.write( "\t".join( [ "frame_BR", "", "", "", lat, lon ] ) + "\n" )
-							name = ""
+		if not fname.endswith(".kml"): continue
+
+		print(f"Reading frames file {fname}\n")
+
+		name = None
+
+		with open( "%s/%s" % ( run_dir, fname ), "r" ) as r:
+
+			for line in r.readlines():
+				i += 1
+
+				print( line )
+
+				if line.strip().startswith("<name>"):
+						name = line.strip().replace("<name>","").replace("</name>","")
+
+				if line.strip().startswith("<coordinates>"): # i.e. a new start to coordintes...
+					if line.strip().endswith("</coordinates>"): # i.e. a new start to coordintes...
+					
+						line = line.strip().replace("<coordinates>","").replace("</coordinates>","")
+						lon, lat, alt = line.split(",")
+						w.write( "\t".join( [ f"frame_{name}", "", "", "", lat, lon ] ) + "\n" )
+						name = ""
 
 
 for dirpath in [f.path for f in os.scandir("./data") if f.is_dir()]:
@@ -132,7 +136,7 @@ for dirpath in [f.path for f in os.scandir("./data") if f.is_dir()]:
 
 	with open( dirpath + "/ALL.tsv", "w" ) as w:
 		w.write( "\t".join( [ "type", "id", "class", "label", "lat", "lon" ] ) + "\n" )
-		# frame_to_tsv( dirpath + "/frame", w )
+		frame_to_tsv( dirpath + "/frame", w )
 		polygons_to_tsv( dirpath + "/polygons", w )
 		paths_to_tsv( dirpath + "/paths", w )
 		# points_to_tsv( dirpath + "/points", w )
