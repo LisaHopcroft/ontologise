@@ -17,7 +17,7 @@ Reading paths file 1856_rivers.kml
 Reading paths file 1856_tracks.kml
 Reading paths file 1856_burns.kml
 Reading paths file 1856_paths.kml
-(base) % base) lisahopcroft@ ontologise % Rscript --vanilla 02_draw-map.R -f "data/kml/ALL.tsv" -s styles.tsv -d "fig" -o "output_map.png" -r 600 --width 8 --height 8
+(base) % base) lisahopcroft@ ontologise % Rscript --vanilla draw_map_from_KML.R -f "data/kml/ALL.tsv" -s styles.tsv -d "fig" -o "output_map.png" -r 600 --width 8 --height 8
 Warning message:
 package ‘glue’ was built under R version 4.1.2 
 Warning message:
