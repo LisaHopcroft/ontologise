@@ -1,6 +1,6 @@
 import os
 import csv
-from src.ontologise.utils import logger
+# from src.ontologise.utils import logger
 
 
 def polygons_to_tsv( run_dir, w ):
