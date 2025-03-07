@@ -134,7 +134,7 @@ for dirpath in [f.path for f in os.scandir("./data") if f.is_dir()]:
 		w.write( "\t".join( [ "type", "id", "class", "label", "lat", "lon" ] ) + "\n" )
 		# frame_to_tsv( dirpath + "/frame", w )
 		polygons_to_tsv( dirpath + "/polygons", w )
-		# paths_to_tsv( dirpath + "/paths", w )
+		paths_to_tsv( dirpath + "/paths", w )
 		# points_to_tsv( dirpath + "/points", w )
 
 
