@@ -173,3 +173,4 @@ test-reports/specific_*
 # Stopping those annoying Mac files from being pushed
 .DS_Store
 .Rproj.user
+.Rhistory
