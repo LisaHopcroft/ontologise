@@ -4,7 +4,7 @@ Code to leverage insight from marked up historical sources
 ## Drawing graphs
 
 ```command
-(base) % python kml_to_tsv.py -d "..."
+(base) % python run.py -d "..."
 Reading this directory .../kml
 Reading frames file frame.kml
 Reading polygon file 1808_parcels.kml
