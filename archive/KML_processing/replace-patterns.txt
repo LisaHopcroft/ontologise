@@ -1,0 +1,19 @@
+
+			<Polygon>
+				<tessellate>1</tessellate>
+				<outerBoundaryIs>
+					<LinearRing>
+						<coordinates>
+
+\t\t\t<LineString>\n\t\t\t\t<tessellate>1</tessellate>\n\t\t\t\t<coordinates>
+\t\t\t<Polygon>\n\t\t\t\t<tessellate>1</tessellate>\n\t\t\t\t<outerBoundaryIs>\n\t\t\t\t\t<LinearRing>\n\t\t\t\t\t\t<coordinates>
+						
+---------------------------------------------------------------
+
+						</coordinates>
+					</LinearRing>
+				</outerBoundaryIs>
+			</Polygon>
+
+\t\t\t\t</coordinates>\n\t\t\t</LineString>
+\t\t\t\t\t\t</coordinates>\n\t\t\t\t\t</LinearRing>\n\t\t\t\t</outerBoundaryIs>\n\t\t\t</Polygon>

@@ -1,0 +1,23 @@
+class	type	R_shape	display	background-color	border-color	border-style	border-width	font-family	font-size	font-weight	font-style	text-transform	text-align	z-index	text-color
+river	path			#000000	#000000	solid	1							1	
+source	point	20		#eeeeee	#eeeeee									10	
+county_label	point			#cccccc	#cccccc				6			uppercase	center	11	#cccccc
+parish_label	point			#cccccc	#cccccc							uppercase	center	12	#cccccc
+town_label	point	15		#000000	#000000				2			uppercase		13	#000000
+place_label	point	20		#000000	#000000									14	#000000
+highlight	point	19		#ff0000	#ff0000									100	
+land	poly			#ffffff	#000000	solid								1	
+land_water	poly			#bbbbbb	#000000	solid	1							3	
+land_water_land	poly			#ffffff	#000000	solid	1							4	
+parish	poly				#eeeeee	solid	2							2	
+county	poly				#aaaaaa	solid	2							4	
+body				#bbbbbb											
+parish_highlight	poly				#444444	dotted	1							5	
+city	point	15		#000000	#000000				3			uppercase		10	
+town	point	15		#000000	#000000				3					10	
+village	point	20		#000000	#000000				3					10	
+parish_highlight_extra	poly				#ff0000	dotted	1							5	
+village_highlight	point	20		#ff0000	#ff0000				3					10	#ff0000
+parish_highlight_extra_plus	poly			#ff0000	#ff0000		1							5	
+county_highlight	poly				#ff0000	dotted	1							5	
+county_dotted	poly				#aaaaaa	dotted	2							4	
