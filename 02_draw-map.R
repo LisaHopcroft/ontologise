@@ -8,6 +8,10 @@ option_list = list(
               help="stylesheet for mapp", metavar="character"),
   make_option(c("-r", "--res"), type="integer", default=300,
               help="resolution (DPI)", metavar="integer"),
+  make_option(c("-x", "--width"), type="integer", default=7,
+              help="width (inches)", metavar="integer"),
+  make_option(c("-y", "--height"), type="integer", default=7,
+              help="height (inches)", metavar="integer"),
   make_option(c("-d", "--outputdir"), type="character", default=".",
               help="output directory for map [default=%default]", metavar="character"),
   make_option(c("-o", "--outputfile"), type="character", default="map.png",
@@ -33,6 +37,8 @@ opt        = parse_args(opt_parser)
 # opt$style = "styles.tsv"
 # opt$outputdir = "fig"
 # opt$outputfile = "out.png"
+# opt$width = 7
+# opt$height = 7
 
 
 quit_flag = 0
@@ -85,6 +91,8 @@ input_file  = opt$file
 style_file  = opt$style
 output_file = glue("{opt$outputdir}/{opt$outputfile}")
 img_res = opt$res
+fig_width = opt$width
+fig_height = opt$height
 
 print (glue("Writing output file to: {output_file}"))
 
@@ -408,5 +416,5 @@ out_plot =
                                            
 cat( sprintf("Saving map to %s", output_file) )
 
-ggsave( output_file, out_plot, width=10, height=10, dpi=img_res )
+ggsave( output_file, out_plot, width=fig_width, height=fig_height, dpi=img_res )
 
