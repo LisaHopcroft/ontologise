@@ -953,7 +953,7 @@ class Document:
                     self.current_build_map = build_map(line)
                     self.describe_transition(previous_build_map)
 
-                    ### We are comparing two lines of content
+                    ### We are comparing two consecutive lines of content
                     if all(
                         [
                             previous_build_map["content"],
@@ -974,7 +974,7 @@ class Document:
                             and (self.current_build_map["indent_count"] > 0)
                         ):
                             self.missing_relation_flag = True
-                            print("I have identified a missing relation\n")
+                            logger.debug("I have identified a missing relation\n")
                             self.relation_live = False
                             self.peopla_action_group_live = False
 
