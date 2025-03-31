@@ -816,7 +816,16 @@ class Document:
             "ignore": False,
             "header": False,
             "content": False,
+            "shortcut" : False,
+            "shortcut_def" : False,
+            "peopla" : False,
+            "relation" : False,
+            "action_group" : False,
+            "indent_count" : 0,
+            "tab_count" : 0
         }
+        self.previous_build_map = self.current_build_map
+        
         self.missing_relation_flag = False
 
         #############################################################
@@ -848,7 +857,7 @@ class Document:
             logger.info(f"Shortcut mappings provided:")
             logger.info(f"{log_pretty(self.shortcut_mappings)}")
 
-    def summarise_transition(self, previous): 
+    def summarise_transition(self): 
         list_of_keys = [
             "empty","ignore","header",
             "content",
@@ -883,8 +892,8 @@ class Document:
                 this_current_formatted = this_current.ljust(content_width)
 
             this_previous_formatted = ".".ljust(content_width)
-            if ( k in previous ):
-                this_previous = previous[k]
+            if ( k in self.previous_build_map ):
+                this_previous = self.previous_build_map[k]
                 this_previous_type = type(this_previous).__name__
                 if type(this_previous).__name__ != "str":
                     if this_previous_type == "bool":
@@ -899,13 +908,13 @@ class Document:
 
         return( s )
 
-    def describe_transition(self, previous):
+    def describe_transition(self):
 
         if self.current_build_map["content"]:
 
             previous_indent = 0
-            if "indent_count" in previous:
-                previous_indent = previous["indent_count"]
+            if "indent_count" in self.previous_build_map:
+                previous_indent = self.previous_build_map["indent_count"]
 
             current_indent = self.current_build_map["indent_count"]
 
@@ -921,8 +930,8 @@ class Document:
                 print(f"- we are at the same level of hierarchy ({previous_indent})")
 
             previous_tabs = 0
-            if "tab_count" in previous:
-                previous_tabs = previous["tab_count"]
+            if "tab_count" in self.previous_build_map:
+                previous_tabs = self.previous_build_map["tab_count"]
 
             current_tabs = self.current_build_map["tab_count"]
 
@@ -946,51 +955,42 @@ class Document:
                 for this_rg in human_annotations_to_remove_rg:
                     line = re.sub(this_rg, "", line)
 
-                previous_build_map = deepcopy(self.current_build_map)
+                self.previous_build_map = deepcopy(self.current_build_map)
                 current_build_map = build_map(line)
 
                 if current_build_map["content"]:
                     self.current_build_map = build_map(line)
-                    self.describe_transition(previous_build_map)
+                    self.describe_transition()
 
-                    ### We are comparing two consecutive lines of content
-                    if all(
-                        [
-                            previous_build_map["content"],
-                            self.current_build_map["content"],
-                        ]
-                    ):
-                        ### We have moved back up the hierarchy
-                        if (
-                            (
-                                self.current_build_map["indent_count"]
-                                < previous_build_map["indent_count"]
-                            )
-                            or (
-                                self.current_build_map["tab_count"]
-                                < previous_build_map["tab_count"]
-                            )
-                            and (self.current_build_map["peopla"])
-                            and (self.current_build_map["indent_count"] > 0)
-                        ):
-                            self.missing_relation_flag = True
-                            logger.debug("I have identified a missing relation\n")
-                            self.relation_live = False
-                            self.peopla_action_group_live = False
+				### Here, we use information from the current build map
+                ### and the previous build map to set flags that will control
+                ### the parsing logic later on.
+                
+				### Record indication of missing relation
+                ### See: PR #92, Issue #90
+                self.record_indication_of_missing_relation()
 
                 logger.debug(f"Reading line #{self.current_line}: {line.rstrip()}")
 
                 ### Can skip this logic if it's an empty line
-
-                if not re.match(empty_line_regex, line):
-                    previous_breadcrumb_depth = self.current_breadcrumb_depth
-                    self.current_breadcrumb_depth = get_pedigree_depth(line)
+                
+                ### REFACTOR if not re.match(empty_line_regex, line):
+                if not self.line_is_empty():
+					### the previous variable used here was self.current_breadcrumb_depth
+					### which is defined by the number of '>\t' s in the line
+                    ### (this was done in the function get_pedigree_depth())
+                    ### in the refactored approach, this is equivent to indent_count
+                    # previous_breadcrumb_depth = self.current_breadcrumb_depth
+                    # self.current_breadcrumb_depth = get_pedigree_depth(line)
+                    previous_breadcrumb_depth = self.previous_build_map["indent_count"]
+                    self.current_breadcrumb_depth = self.current_build_map["indent_count"]
 
                     ### If we are moving back up the hierarchy, we want to restore
                     ### our target peoplas to what they were (we may have lost them
                     ### when processing information further into the hierarchy).
 
-                    if previous_breadcrumb_depth > self.current_breadcrumb_depth:
+                    ### REFACTOR if previous_breadcrumb_depth > self.current_breadcrumb_depth:
+                    if self.reversing_up_hierarchy():
                         logger.debug(
                             f"Reversing up the hierarchy (from level {previous_breadcrumb_depth} to {self.current_breadcrumb_depth})"
                             + f"Target peoplas will be restored from level {self.current_breadcrumb_depth} if they exist"
@@ -1047,7 +1047,7 @@ class Document:
                 if not self.peopla_live:
                     self.reset(line)
 
-                self.print_compact_current_status(self.current_line, line, previous_build_map )
+                self.print_compact_current_status(self.current_line, line )
 
                 ### If "PYTEST_CURRENT_TEST" exists in os.environ, then
                 ### we are currently running test. We don't want to use
@@ -1058,6 +1058,38 @@ class Document:
 
         ### flatten the datapoints into a table here
         self.data_points_df = self.generate_table_from_datapoints()
+
+    def reversing_up_hierarchy(self):
+        return self.previous_build_map["indent_count"] > self.current_build_map["indent_count"]
+        
+    def line_is_empty(self):
+        return self.current_build_map["empty"]
+        
+    def record_indication_of_missing_relation( self ):
+        ### We are comparing two consecutive lines of content        
+        if all(
+            [
+                self.previous_build_map["content"],
+                self.current_build_map["content"],
+            ]
+        ):
+                ### We have moved back up the hierarchy
+            if (
+                (
+                    self.current_build_map["indent_count"]
+                    < self.previous_build_map["indent_count"]
+                )
+                or (
+                    self.current_build_map["tab_count"]
+                    < self.previous_build_map["tab_count"]
+                )
+                and (self.current_build_map["peopla"])
+                and (self.current_build_map["indent_count"] > 0)
+            ):
+                self.missing_relation_flag = True
+                logger.debug("I have identified a missing relation\n")
+                self.relation_live = False
+                self.peopla_action_group_live = False
 
     def print_current_status(self, n, l):
 
@@ -1255,7 +1287,7 @@ class Document:
         # input()
 
     def print_compact_current_status(
-        self, n, l, previous_build_map, print_header_info=False, specify_objects=True
+        self, n, l, print_header_info=False, specify_objects=True
     ):  # pragma: no cover
 
         pre = f"[{n:04}] "
@@ -1400,7 +1432,7 @@ class Document:
 
         s.append(big_break_s)
 
-        s =  s + self.summarise_transition(previous_build_map)
+        s =  s + self.summarise_transition()
 
         s = [pre + x for x in s]
         logger.debug("".join(s))
